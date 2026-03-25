@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Kevin Lin",
-  description: "A minimal portfolio and project archive for Kevin Lin."
+  description: "A minimal portfolio and project archive for kevin"
 };
 
 type RootLayoutProps = Readonly<{

@@ -19,11 +19,9 @@ export default async function Home() {
       <div className="page-frame">
         <section className="intro">
           <p className="eyebrow">Kevin Lin</p>
-          <h1>A minimal collection of projects and experiments built for the web.</h1>
+          <h1>Personal Website</h1>
           <p className="intro-copy">
-            This portfolio is intentionally small: each project lives in a
-            single MDX file, and the homepage stays focused on content,
-            spacing, and clarity.
+            Collection of my projects and experiences
           </p>
         </section>
 

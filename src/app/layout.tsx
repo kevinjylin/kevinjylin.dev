@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Personal Website",
-  description: "A Next.js app."
+  title: "Kevin Lin",
+  description: "A minimal portfolio and project archive for Kevin Lin."
 };
 
 type RootLayoutProps = Readonly<{

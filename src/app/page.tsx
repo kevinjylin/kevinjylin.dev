@@ -1,8 +1,90 @@
-export default function Home() {
-  return <div className = "flex flex-col items-center justify-center min-h-screen py-2">
-    <div className = "text-6xl font-bold">
-      Welcome to Kevin's Personal Website!
-    </div>
-  </div>;
+import { getProjects } from "@/lib/projects";
 
+const profileLinks = [
+  {
+    href: "https://github.com/kevinjylin",
+    label: "GitHub"
+  },
+  {
+    href: "https://github.com/kevinjylin/personal-website",
+    label: "Source"
+  }
+] as const;
+
+export default async function Home() {
+  const projects = await getProjects();
+
+  return (
+    <main className="page-shell">
+      <div className="page-frame">
+        <section className="intro">
+          <p className="eyebrow">Kevin Lin</p>
+          <h1>A minimal collection of projects and experiments built for the web.</h1>
+          <p className="intro-copy">
+            This portfolio is intentionally small: each project lives in a
+            single MDX file, and the homepage stays focused on content,
+            spacing, and clarity.
+          </p>
+        </section>
+
+        <section className="section" aria-labelledby="projects-heading">
+          <div className="section-heading">
+            <h2 id="projects-heading">Selected Projects</h2>
+            <p>{projects.length} entries</p>
+          </div>
+
+          <div className="projects-grid">
+            {projects.map((project) => (
+              <article className="project-card" key={project.slug}>
+                <div className="project-meta">
+                  <span>{project.year}</span>
+                  {project.featured ? <span>Featured</span> : <span>Archive</span>}
+                </div>
+
+                <div className="project-copy">
+                  <h3>{project.title}</h3>
+                  <p>{project.summary}</p>
+                </div>
+
+                <ul className="tag-list" aria-label={`${project.title} tags`}>
+                  {project.tags.map((tag) => (
+                    <li className="tag" key={tag}>
+                      {tag}
+                    </li>
+                  ))}
+                </ul>
+
+                {(project.repoUrl || project.liveUrl) && (
+                  <div className="project-links">
+                    {project.repoUrl ? (
+                      <a href={project.repoUrl} rel="noreferrer" target="_blank">
+                        Repository
+                      </a>
+                    ) : null}
+
+                    {project.liveUrl ? (
+                      <a href={project.liveUrl} rel="noreferrer" target="_blank">
+                        Live Site
+                      </a>
+                    ) : null}
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <footer className="footer">
+          <p>Elsewhere</p>
+          <nav aria-label="External links" className="footer-links">
+            {profileLinks.map((link) => (
+              <a href={link.href} key={link.label} rel="noreferrer" target="_blank">
+                {link.label}
+              </a>
+            ))}
+          </nav>
+        </footer>
+      </div>
+    </main>
+  );
 }

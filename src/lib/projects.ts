@@ -62,20 +62,14 @@ function parseArrayValue(rawValue: string): string[] {
   });
 }
 
-function parseFrontmatter(fileContents: string): {
-  content: string;
-  data: FrontmatterRecord;
-} {
+function parseFrontmatter(fileContents: string): FrontmatterRecord {
   const match = fileContents.match(frontmatterPattern);
 
   if (!match) {
-    return {
-      content: fileContents,
-      data: {}
-    };
+    return {};
   }
 
-  const data = match[1]
+  return match[1]
     .split(/\r?\n/)
     .filter((line) => line.trim().length > 0)
     .reduce<FrontmatterRecord>((accumulator, line) => {
@@ -95,11 +89,6 @@ function parseFrontmatter(fileContents: string): {
 
       return accumulator;
     }, {});
-
-  return {
-    content: fileContents.slice(match[0].length),
-    data
-  };
 }
 
 function getRequiredString(
@@ -179,7 +168,7 @@ function getRequiredStringArray(
 async function readProjectFile(fileName: string): Promise<ProjectMetadata> {
   const filePath = path.join(projectsDirectory, fileName);
   const fileContents = await readFile(filePath, "utf8");
-  const { data } = parseFrontmatter(fileContents);
+  const data = parseFrontmatter(fileContents);
 
   return {
     featured: getRequiredBoolean(data, "featured", filePath),
@@ -217,9 +206,12 @@ export const getProjects = cache(async (): Promise<ProjectMetadata[]> => {
       return left.title.localeCompare(right.title);
     });
   } catch (error) {
-    const code = typeof error === "object" && error !== null ? "code" in error ? error.code : undefined : undefined;
-
-    if (code === "ENOENT") {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "ENOENT"
+    ) {
       return [];
     }
 

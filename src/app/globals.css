@@ -1,11 +1,11 @@
 :root {
   color-scheme: light;
-  --background: #f3f0ea;
-  --surface: #fcfaf6;
-  --border: #d8d1c9;
-  --text: #181512;
-  --muted: #6f6660;
-  --tag-background: #ece5dd;
+  --background: #ffffff;
+  --surface: #ffffff;
+  --border: #e5e5e5;
+  --text: #1a1a1a;
+  --muted: #737373;
+  --tag-background: #f0f0f0;
 }
 
 * {
@@ -33,7 +33,7 @@ a {
 }
 
 ::selection {
-  background: #d9cec5;
+  background: #e5e5e5;
   color: var(--text);
 }
 
@@ -136,8 +136,8 @@ a {
 }
 
 .project-card:hover {
-  background: #f7f2ec;
-  border-color: #beb4ab;
+  background: #f5f5f5;
+  border-color: #d0d0d0;
   transform: translateY(-1px);
 }
 

@@ -1,3 +1,3 @@
-# personal-website
+# kevinjylin.dev
 
 https://kevinlinswebsite.vercel.app

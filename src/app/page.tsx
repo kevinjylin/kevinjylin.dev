@@ -18,8 +18,8 @@ export default async function Home() {
     <main className="page-shell">
       <div className="page-frame">
         <section className="intro">
-          <p className="eyebrow">Kevin Lin</p>
-          <h1>Personal Website</h1>
+          <p className="eyebrow">kevinjylin@gmail.com</p>
+          <h1>Kevin Lin</h1>
           <p className="intro-copy">
             Collection of my projects and experiences
           </p>
@@ -27,7 +27,7 @@ export default async function Home() {
 
         <section className="section" aria-labelledby="projects-heading">
           <div className="section-heading">
-            <h2 id="projects-heading">Selected Projects</h2>
+            <h2 id="projects-heading">Featured Projects</h2>
             <p>{projects.length} entries</p>
           </div>
 

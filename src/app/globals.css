@@ -8,6 +8,17 @@
   --tag-background: #f0f0f0;
 }
 
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -49,6 +60,7 @@ a {
 .intro {
   max-width: 42rem;
   padding-bottom: 3rem;
+  animation: fade-up 0.5s ease both;
 }
 
 .eyebrow,
@@ -86,6 +98,8 @@ a {
 .section {
   padding: 2.5rem 0;
   border-top: 1px solid var(--border);
+  animation: fade-up 0.5s ease both;
+  animation-delay: 0.15s;
 }
 
 .section-heading {
@@ -129,16 +143,26 @@ a {
   border: 1px solid var(--border);
   border-radius: 1.1rem;
   background: var(--surface);
+  animation: fade-up 0.5s ease both;
   transition:
     background-color 160ms ease,
     border-color 160ms ease,
+    box-shadow 160ms ease,
     transform 160ms ease;
 }
+
+.project-card:nth-child(1) { animation-delay: 0.25s; }
+.project-card:nth-child(2) { animation-delay: 0.32s; }
+.project-card:nth-child(3) { animation-delay: 0.39s; }
+.project-card:nth-child(4) { animation-delay: 0.46s; }
+.project-card:nth-child(5) { animation-delay: 0.53s; }
+.project-card:nth-child(6) { animation-delay: 0.60s; }
 
 .project-card:hover {
   background: #f5f5f5;
   border-color: #d0d0d0;
-  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
 }
 
 .project-meta {
@@ -217,6 +241,8 @@ a {
   gap: 1rem;
   padding: 2rem 0 0;
   border-top: 1px solid var(--border);
+  animation: fade-up 0.5s ease both;
+  animation-delay: 0.3s;
 }
 
 .footer p {

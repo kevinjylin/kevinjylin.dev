@@ -6,6 +6,10 @@ export default async function Home() {
   return (
     <main className="page-shell">
       <div className="page-frame">
+        <a href="/" className="site-icon" aria-label="Home">
+          <img src="/icon.png" alt="" width={64} height={64} />
+        </a>
+
         <section className="intro">
           <h1>Kevin Lin</h1>
           <nav className="intro-links" aria-label="Intro links">
@@ -22,20 +26,14 @@ export default async function Home() {
 
           <div className="intro-copy">
             <p>
-              I&apos;m a CS + Business student at <strong>UC Riverside</strong>, focused on
-              AI agent systems and product development.
+              I&apos;a CS + Business student at <strong>UC Riverside</strong>, focused on
+              AI agent systems and product development
             </p>
             <p>
-              I like turning rough ideas into shipped tools, especially when they involve
-              workflow automation, campus communities, or developer-facing products.
+            I like turning rough ideas into shipped tools, especially when they involve
+            workflow automation, campus communities, or developer-facing products
             </p>
           </div>
-
-          <ul className="intro-focus" aria-label="Current focus areas">
-            <li>AI agents</li>
-            <li>Product engineering</li>
-            <li>Campus tools</li>
-          </ul>
         </section>
 
         <section className="section" aria-labelledby="projects-heading">
@@ -87,26 +85,11 @@ export default async function Home() {
 
         <footer className="footer">
           <p>
-            <a
-              href="mailto:kevinjylin@gmail.com"
-              style={{ textDecoration: "underline", textUnderlineOffset: "4px" }}
-            >
-              Email
-            </a>{" "}
+            <a href="mailto:kevinjylin@gmail.com">Email</a>{" "}
             •{" "}
-            <a
-              href="https://github.com/kevinjylin"
-              style={{ textDecoration: "underline", textUnderlineOffset: "4px" }}
-            >
-              GitHub
-            </a>{" "}
+            <a href="https://github.com/kevinjylin">GitHub</a>{" "}
             •{" "}
-            <a
-              href="https://www.linkedin.com/in/kevinjylin/"
-              style={{ textDecoration: "underline", textUnderlineOffset: "4px" }}
-            >
-              LinkedIn
-            </a>
+            <a href="https://www.linkedin.com/in/kevinjylin/">LinkedIn</a>
           </p>
         </footer>
       </div>

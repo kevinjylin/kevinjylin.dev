@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { getProjects } from "@/lib/projects";
 
 export default async function Home() {
@@ -6,9 +8,25 @@ export default async function Home() {
   return (
     <main className="page-shell">
       <div className="page-frame">
-        <a href="/" className="site-icon" aria-label="Home">
-          <img src="/icon.png" alt="" width={64} height={64} />
-        </a>
+        <Link href="/" className="site-icon" aria-label="Home">
+          <svg
+            className="agent-graph"
+            viewBox="0 0 64 64"
+            width="56"
+            height="56"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path className="agent-graph__link agent-graph__link--one" d="M20 22L34 14L48 25" />
+            <path className="agent-graph__link agent-graph__link--two" d="M20 22L30 38L48 25" />
+            <path className="agent-graph__link agent-graph__link--three" d="M30 38L44 47" />
+            <circle className="agent-graph__node agent-graph__node--one" cx="20" cy="22" r="5" />
+            <circle className="agent-graph__node agent-graph__node--two" cx="34" cy="14" r="4" />
+            <circle className="agent-graph__node agent-graph__node--three" cx="48" cy="25" r="5" />
+            <circle className="agent-graph__node agent-graph__node--four" cx="30" cy="38" r="5" />
+            <circle className="agent-graph__node agent-graph__node--five" cx="44" cy="47" r="4" />
+          </svg>
+        </Link>
 
         <section className="intro">
           <h1>Kevin Lin</h1>
@@ -26,7 +44,7 @@ export default async function Home() {
 
           <div className="intro-copy">
             <p>
-              I&apos;a CS + Business student at <strong>UC Riverside</strong>, focused on
+              I&apos;m a CS + Business student at <strong>UC Riverside</strong>, focused on
               AI agent systems and product development
             </p>
             <p>

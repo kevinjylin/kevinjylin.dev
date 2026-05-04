@@ -22,6 +22,28 @@
   }
 }
 
+@keyframes graph-flow {
+  from {
+    stroke-dashoffset: 18;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes node-pulse {
+  0%,
+  72%,
+  100% {
+    opacity: 0.72;
+    transform: scale(1);
+  }
+  12% {
+    opacity: 1;
+    transform: scale(1.28);
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -82,10 +104,55 @@ a {
   transform: translateY(-1px);
 }
 
-.site-icon img {
+.agent-graph {
   display: block;
   width: 56px;
   height: 56px;
+  overflow: visible;
+}
+
+.agent-graph__link {
+  fill: none;
+  stroke: var(--accent);
+  stroke-dasharray: 2 7;
+  stroke-linecap: round;
+  stroke-width: 2.6;
+  opacity: 0.62;
+  animation: graph-flow 2.8s linear infinite;
+}
+
+.agent-graph__link--two {
+  animation-delay: -0.8s;
+}
+
+.agent-graph__link--three {
+  animation-delay: -1.45s;
+}
+
+.agent-graph__node {
+  fill: var(--background);
+  stroke: var(--accent-strong);
+  stroke-width: 2.8;
+  opacity: 0.82;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: node-pulse 3.8s ease-in-out infinite;
+}
+
+.agent-graph__node--two {
+  animation-delay: 0.28s;
+}
+
+.agent-graph__node--three {
+  animation-delay: 0.56s;
+}
+
+.agent-graph__node--four {
+  animation-delay: 0.84s;
+}
+
+.agent-graph__node--five {
+  animation-delay: 1.12s;
 }
 
 .page-shell {
@@ -322,7 +389,7 @@ a {
     margin-bottom: 2rem;
   }
 
-  .site-icon img {
+  .agent-graph {
     width: 48px;
     height: 48px;
   }
@@ -350,5 +417,12 @@ a {
 
   .projects-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-graph__link,
+  .agent-graph__node {
+    animation: none;
   }
 }

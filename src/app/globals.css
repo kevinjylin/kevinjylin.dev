@@ -5,6 +5,8 @@
   --border: #e5e5e5;
   --text: #1a1a1a;
   --muted: #737373;
+  --accent: #0969da;
+  --accent-soft: #edf5ff;
   --tag-background: #f0f0f0;
 }
 
@@ -57,7 +59,7 @@ a {
 }
 
 .intro {
-  max-width: 42rem;
+  max-width: 58rem;
   padding-bottom: 3rem;
   animation: fade-up 0.5s ease both;
 }
@@ -81,17 +83,68 @@ a {
 
 .intro h1 {
   margin: 0;
-  font-size: clamp(2.7rem, 6vw, 4.8rem);
-  font-weight: 600;
+  font-size: clamp(2.074rem, 4.608vw, 3.686rem);
+  font-weight: 700;
   letter-spacing: -0.06em;
   line-height: 1.02;
 }
 
-.intro-copy {
-  margin: 1.5rem 0 0;
-  max-width: 34rem;
+.intro-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  margin-top: 0.9rem;
   color: var(--muted);
-  font-size: 1.08rem;
+  font-size: clamp(1.05rem, 1.8vw, 1.28rem);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.intro-links a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+.intro-copy {
+  display: grid;
+  gap: 1rem;
+  margin: 2rem 0 0;
+  max-width: 56rem;
+  color: var(--text);
+  font-size: clamp(1.28rem, 2.4vw, 2rem);
+  letter-spacing: -0.025em;
+  line-height: 1.42;
+}
+
+.intro-copy p {
+  margin: 0;
+}
+
+.intro-copy strong {
+  font-weight: 700;
+}
+
+.intro-focus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.intro-focus li {
+  padding: 0.38rem 0.7rem;
+  border: 1px solid #d8e8fb;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: #315b86;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 .section {
@@ -250,6 +303,11 @@ a {
   font-size: 0.92rem;
 }
 
+.footer a {
+  text-decoration: underline !important;
+  text-underline-offset: 4px;
+}
+
 @media (max-width: 760px) {
   .page-shell {
     padding-inline: 1rem;
@@ -260,7 +318,18 @@ a {
   }
 
   .intro h1 {
-    font-size: clamp(2.2rem, 12vw, 3.4rem);
+    font-size: clamp(2.64rem, 14.4vw, 4.08rem);
+  }
+
+  .intro-links {
+    font-size: 1.05rem;
+  }
+
+  .intro-copy {
+    gap: 0.85rem;
+    margin-top: 1.6rem;
+    font-size: 1.22rem;
+    letter-spacing: -0.015em;
   }
 
   .section-heading,

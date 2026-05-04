@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { getProjects } from "@/lib/projects";
 
@@ -45,12 +46,24 @@ export default async function Home() {
           <div className="intro-copy">
             <p>
               I&apos;m a CS + Business student at <strong>UC Riverside</strong>, focused on
-              AI agent systems and product development
+              AI agent systems and product development at the moment.
             </p>
             <p>
-            I like turning rough ideas into shipped tools, especially when they involve
-            workflow automation, campus communities, or developer-facing products
+              I&apos;m continually building, making, questioning, and learning. Feel free to
+              explore my work or reach out—I&apos;d love to share what I&apos;ve been thinking about.
             </p>
+          </div>
+
+          <div className="intro-signoff" aria-label="Signature">
+            <Image
+              src="/signature.png"
+              alt="Kevin Lin signature"
+              width={1310}
+              height={451}
+              className="intro-signature"
+              priority
+            />
+            <p>carpe diem</p>
           </div>
         </section>
 

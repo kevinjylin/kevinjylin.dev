@@ -78,7 +78,6 @@ export default async function Home() {
               <article className="project-card" key={project.slug}>
                 <div className="project-meta">
                   <span>{project.year}</span>
-                  {project.featured ? <span>Featured</span> : <span>Archive</span>}
                 </div>
 
                 <div className="project-copy">

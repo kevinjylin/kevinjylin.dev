@@ -1,3 +1,3 @@
-# kevinjylin.dev
+# Kevin Lin's Personal Site
 
-https://kevinlinswebsite.vercel.app
+This is my personal website! Feel free to check it out at www.kevinjylin.dev

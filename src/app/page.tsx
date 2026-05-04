@@ -1,16 +1,5 @@
 import { getProjects } from "@/lib/projects";
 
-const profileLinks = [
-  {
-    href: "https://github.com/kevinjylin",
-    label: "GitHub"
-  },
-  {
-    href: "https://github.com/kevinjylin/personal-website",
-    label: "Source"
-  }
-] as const;
-
 export default async function Home() {
   const projects = await getProjects();
 
@@ -18,11 +7,35 @@ export default async function Home() {
     <main className="page-shell">
       <div className="page-frame">
         <section className="intro">
-          <p className="eyebrow">kevinjylin@gmail.com</p>
           <h1>Kevin Lin</h1>
-          <p className="intro-copy">
-            Collection of my projects and experiences
-          </p>
+          <nav className="intro-links" aria-label="Intro links">
+            <a href="mailto:kevinjylin@gmail.com">Email</a>
+            <span>/</span>
+            <a href="https://github.com/kevinjylin" rel="noreferrer" target="_blank">
+              GitHub
+            </a>
+            <span>/</span>
+            <a href="https://www.linkedin.com/in/kevinjylin/" rel="noreferrer" target="_blank">
+              LinkedIn
+            </a>
+          </nav>
+
+          <div className="intro-copy">
+            <p>
+              I&apos;m a CS + Business student at <strong>UC Riverside</strong>, focused on
+              AI agent systems and product development.
+            </p>
+            <p>
+              I like turning rough ideas into shipped tools, especially when they involve
+              workflow automation, campus communities, or developer-facing products.
+            </p>
+          </div>
+
+          <ul className="intro-focus" aria-label="Current focus areas">
+            <li>AI agents</li>
+            <li>Product engineering</li>
+            <li>Campus tools</li>
+          </ul>
         </section>
 
         <section className="section" aria-labelledby="projects-heading">
@@ -73,14 +86,28 @@ export default async function Home() {
         </section>
 
         <footer className="footer">
-          <p>Elsewhere</p>
-          <nav aria-label="External links" className="footer-links">
-            {profileLinks.map((link) => (
-              <a href={link.href} key={link.label} rel="noreferrer" target="_blank">
-                {link.label}
-              </a>
-            ))}
-          </nav>
+          <p>
+            <a
+              href="mailto:kevinjylin@gmail.com"
+              style={{ textDecoration: "underline", textUnderlineOffset: "4px" }}
+            >
+              Email
+            </a>{" "}
+            •{" "}
+            <a
+              href="https://github.com/kevinjylin"
+              style={{ textDecoration: "underline", textUnderlineOffset: "4px" }}
+            >
+              GitHub
+            </a>{" "}
+            •{" "}
+            <a
+              href="https://www.linkedin.com/in/kevinjylin/"
+              style={{ textDecoration: "underline", textUnderlineOffset: "4px" }}
+            >
+              LinkedIn
+            </a>
+          </p>
         </footer>
       </div>
     </main>

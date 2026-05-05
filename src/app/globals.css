@@ -455,6 +455,43 @@ a {
   animation-delay: 0.2s;
 }
 
+.twosum-lang-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-right: 0.75rem;
+}
+
+.twosum-lang-tab {
+  padding: 0.2rem 0.6rem;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: color 120ms ease, background-color 120ms ease;
+}
+
+.twosum-lang-tab:hover {
+  color: var(--text);
+}
+
+.twosum-lang-tab--active {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.twosum-info {
+  margin: 1rem 0 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: var(--tag-background);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .twosum-editor {
   border: 1px solid var(--border);
   border-radius: 0.85rem;
@@ -465,6 +502,7 @@ a {
 .twosum-editor-bar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0.5rem 0.9rem;
   border-bottom: 1px solid var(--border);
   background: var(--tag-background);
@@ -472,6 +510,20 @@ a {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   font-size: 0.78rem;
   letter-spacing: 0.04em;
+}
+
+.twosum-filename {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.twosum-lang-select {
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font: inherit;
 }
 
 .twosum-textarea {

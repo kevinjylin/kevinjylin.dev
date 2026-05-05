@@ -4,6 +4,14 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 
+import {
+  TESTS,
+  runCppTests,
+  runJavaScriptTests,
+  sameIndices,
+  type Result,
+} from "@/lib/two-sum-runner";
+
 type Lang = "js" | "python" | "cpp";
 
 const STARTERS: Record<Lang, string> = {
@@ -16,6 +24,7 @@ const STARTERS: Record<Lang, string> = {
     pass
 `,
   cpp: `#include <vector>
+#include <unordered_map>
 using namespace std;
 
 vector<int> twoSum(vector<int>& nums, int target) {
@@ -36,44 +45,6 @@ const LANG_LABELS: Record<Lang, string> = {
   cpp: "C++",
 };
 
-type TestCase = {
-  nums: number[];
-  target: number;
-  expected: [number, number];
-};
-
-const TESTS: TestCase[] = [
-  { nums: [2, 7, 11, 15], target: 9, expected: [0, 1] },
-  { nums: [3, 2, 4], target: 6, expected: [1, 2] },
-  { nums: [3, 3], target: 6, expected: [0, 1] },
-  { nums: [-1, -2, -3, -4, -5], target: -8, expected: [2, 4] },
-  { nums: [0, 4, 3, 0], target: 0, expected: [0, 3] },
-];
-
-type Result = {
-  test: TestCase;
-  got: unknown;
-  pass: boolean;
-  error: string | null;
-};
-
-function sameIndices(
-  got: unknown,
-  expected: [number, number],
-  nums: number[],
-  target: number
-): boolean {
-  if (!Array.isArray(got) || got.length !== 2) return false;
-  const [a, b] = got as [number, number];
-  if (!Number.isInteger(a) || !Number.isInteger(b)) return false;
-  if (a === b) return false;
-  if (a < 0 || b < 0 || a >= nums.length || b >= nums.length) return false;
-  if (nums[a] + nums[b] !== target) return false;
-  const sortedGot = [a, b].sort((x, y) => x - y);
-  const sortedExp = [...expected].sort((x, y) => x - y);
-  return sortedGot[0] === sortedExp[0] && sortedGot[1] === sortedExp[1];
-}
-
 interface PyodideInterface {
   runPythonAsync(code: string): Promise<unknown>;
 }
@@ -87,7 +58,6 @@ export default function TwoSumPage() {
   const [code, setCode] = useState(STARTERS.cpp);
   const [results, setResults] = useState<Result[] | null>(null);
   const [topError, setTopError] = useState<string | null>(null);
-  const [cppInfo, setCppInfo] = useState(false);
   const [pyLoading, setPyLoading] = useState(false);
   const pyodideRef = useRef<PyodideInterface | null>(null);
 
@@ -96,39 +66,29 @@ export default function TwoSumPage() {
     setCode(STARTERS[l]);
     setResults(null);
     setTopError(null);
-    setCppInfo(false);
   };
 
   const run = async () => {
     setTopError(null);
     setResults(null);
-    setCppInfo(false);
 
     if (lang === "cpp") {
-      setCppInfo(true);
+      const outcome = runCppTests(code);
+      if (outcome.error) {
+        setTopError(`C++ runner error: ${outcome.error}`);
+        return;
+      }
+      setResults(outcome.results);
       return;
     }
 
     if (lang === "js") {
-      type TwoSumFn = (nums: number[], target: number) => unknown;
-      let fn: TwoSumFn;
-      try {
-        const candidate = new Function(`${code}\n;return twoSum;`)() as unknown;
-        if (typeof candidate !== "function") throw new Error("twoSum is not a function");
-        fn = candidate as TwoSumFn;
-      } catch (e) {
-        setTopError(e instanceof Error ? e.message : String(e));
+      const outcome = runJavaScriptTests(code);
+      if (outcome.error) {
+        setTopError(outcome.error);
         return;
       }
-      const out: Result[] = TESTS.map((t) => {
-        try {
-          const got = fn(t.nums.slice(), t.target);
-          return { test: t, got, pass: sameIndices(got, t.expected, t.nums, t.target), error: null };
-        } catch (e) {
-          return { test: t, got: null, pass: false, error: e instanceof Error ? e.message : String(e) };
-        }
-      });
-      setResults(out);
+      setResults(outcome.results);
       return;
     }
 
@@ -182,7 +142,6 @@ export default function TwoSumPage() {
     setCode(STARTERS[lang]);
     setResults(null);
     setTopError(null);
-    setCppInfo(false);
   };
 
   const handleEditorKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -380,13 +339,6 @@ export default function TwoSumPage() {
                 </span>
               ) : null}
             </div>
-
-            {cppInfo ? (
-              <p className="twosum-info">
-                C++ can&apos;t run in the browser — copy the code and compile it locally
-                with <code>g++ -o solution solution.cpp && ./solution</code>.
-              </p>
-            ) : null}
 
             {topError ? (
               <pre className="twosum-error">{topError}</pre>

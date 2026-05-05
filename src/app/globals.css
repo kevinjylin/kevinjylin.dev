@@ -440,6 +440,185 @@ a {
   font-size: 0.92rem;
 }
 
+.intro-copy code {
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background: var(--tag-background);
+  color: var(--accent);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.92em;
+}
+
+.twosum {
+  margin-top: 1.5rem;
+  animation: fade-up 0.5s ease both;
+  animation-delay: 0.2s;
+}
+
+.twosum-editor {
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.twosum-editor-bar {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--tag-background);
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+
+.twosum-textarea {
+  display: block;
+  width: 100%;
+  min-height: 220px;
+  padding: 1rem 1.1rem;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.twosum-textarea:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--accent-soft);
+}
+
+.twosum-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.twosum-button {
+  padding: 0.55rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.twosum-button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.twosum-button--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.twosum-button--primary:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: #ffffff;
+}
+
+.twosum-summary {
+  margin-left: 0.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+.twosum-error {
+  margin: 1rem 0 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.6rem;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.88rem;
+  white-space: pre-wrap;
+}
+
+.twosum-results {
+  display: grid;
+  gap: 0.6rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.twosum-result {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: 0.55rem;
+  background: var(--surface);
+}
+
+.twosum-result--pass {
+  border-left-color: var(--accent);
+}
+
+.twosum-result--fail {
+  border-left-color: #b34a3a;
+}
+
+.twosum-result-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+}
+
+.twosum-badge {
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.twosum-result--pass .twosum-badge {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.twosum-result--fail .twosum-badge {
+  background: #b34a3a;
+  color: #ffffff;
+}
+
+.twosum-result-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-top: 0.45rem;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+}
+
+.twosum-result-body em {
+  color: #b34a3a;
+  font-style: normal;
+}
+
 @media (max-width: 760px) {
   .page-shell {
     --page-padding-right: 1.5rem;

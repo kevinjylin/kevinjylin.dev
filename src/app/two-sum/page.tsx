@@ -11,6 +11,12 @@ import {
   sameIndices,
   type Result,
 } from "@/lib/two-sum-runner";
+import {
+  COOKIE_BITE_TOTAL,
+  getNextCookieBiteCount,
+  getSubmissionStatus,
+  type SubmissionStatus,
+} from "@/lib/two-sum-submission";
 
 type Lang = "js" | "python" | "cpp";
 
@@ -57,6 +63,8 @@ export default function TwoSumPage() {
   const [lang, setLang] = useState<Lang>("cpp");
   const [code, setCode] = useState(STARTERS.cpp);
   const [results, setResults] = useState<Result[] | null>(null);
+  const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus | null>(null);
+  const [cookieBites, setCookieBites] = useState(0);
   const [topError, setTopError] = useState<string | null>(null);
   const [pyLoading, setPyLoading] = useState(false);
   const pyodideRef = useRef<PyodideInterface | null>(null);
@@ -65,12 +73,27 @@ export default function TwoSumPage() {
     setLang(l);
     setCode(STARTERS[l]);
     setResults(null);
+    setSubmissionStatus(null);
     setTopError(null);
+  };
+
+  const showResults = (nextResults: Result[]) => {
+    const nextStatus = getSubmissionStatus(nextResults);
+    setSubmissionStatus(nextStatus);
+
+    if (nextStatus.kind === "accepted") {
+      setResults(null);
+      setCookieBites(0);
+      return;
+    }
+
+    setResults(nextResults);
   };
 
   const run = async () => {
     setTopError(null);
     setResults(null);
+    setSubmissionStatus(null);
 
     if (lang === "cpp") {
       const outcome = runCppTests(code);
@@ -78,7 +101,7 @@ export default function TwoSumPage() {
         setTopError(`C++ runner error: ${outcome.error}`);
         return;
       }
-      setResults(outcome.results);
+      showResults(outcome.results);
       return;
     }
 
@@ -88,7 +111,7 @@ export default function TwoSumPage() {
         setTopError(outcome.error);
         return;
       }
-      setResults(outcome.results);
+      showResults(outcome.results);
       return;
     }
 
@@ -134,13 +157,15 @@ export default function TwoSumPage() {
           out.push({ test: t, got: null, pass: false, error: String(e) });
         }
       }
-      setResults(out);
+      showResults(out);
     }
   };
 
   const reset = () => {
     setCode(STARTERS[lang]);
     setResults(null);
+    setSubmissionStatus(null);
+    setCookieBites(0);
     setTopError(null);
   };
 
@@ -247,8 +272,51 @@ export default function TwoSumPage() {
     }
   };
 
-  const passCount = results?.filter((r) => r.pass).length ?? 0;
   const isRunning = pyLoading;
+
+  if (submissionStatus?.kind === "accepted") {
+    const bitesLeft = COOKIE_BITE_TOTAL - cookieBites;
+
+    return (
+      <main className="page-shell twosum-cookie-shell">
+        <section className="twosum-cookie-celebration" aria-live="polite">
+          <p className="twosum-submission-status twosum-submission-status--accepted">
+            {submissionStatus.message}
+          </p>
+          <h1>congrats! here&apos;s a cookie</h1>
+          <button
+            type="button"
+            className={`cookie-button cookie-button--bites-${cookieBites}`}
+            onClick={() => setCookieBites((current) => getNextCookieBiteCount(current))}
+            disabled={cookieBites === COOKIE_BITE_TOTAL}
+            aria-label={
+              bitesLeft > 0
+                ? `Eat the cookie. ${bitesLeft} bites left.`
+                : "Cookie fully eaten."
+            }
+          >
+            <span className="cookie-chip cookie-chip--one" />
+            <span className="cookie-chip cookie-chip--two" />
+            <span className="cookie-chip cookie-chip--three" />
+            <span className="cookie-chip cookie-chip--four" />
+            {Array.from({ length: COOKIE_BITE_TOTAL }, (_, index) => (
+              <span
+                key={index}
+                className={`cookie-bite cookie-bite--${index + 1}${
+                  cookieBites > index ? " cookie-bite--eaten" : ""
+                }`}
+              />
+            ))}
+          </button>
+          <p className="twosum-cookie-note">
+            {bitesLeft > 0
+              ? `Click the cookie ${bitesLeft} more ${bitesLeft === 1 ? "time" : "times"}.`
+              : "Cookie eaten."}
+          </p>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="page-shell">
@@ -328,20 +396,21 @@ export default function TwoSumPage() {
                 onClick={() => { void run(); }}
                 disabled={isRunning}
               >
-                {isRunning ? "Loading Python…" : "Run tests"}
+                {isRunning ? "Loading Python..." : "Submit"}
               </button>
               <button type="button" className="twosum-button" onClick={reset} disabled={isRunning}>
                 Reset
               </button>
-              {results ? (
-                <span className="twosum-summary">
-                  {passCount} / {results.length} passed
-                </span>
-              ) : null}
             </div>
 
             {topError ? (
               <pre className="twosum-error">{topError}</pre>
+            ) : null}
+
+            {submissionStatus?.kind === "wrong-answer" ? (
+              <p className="twosum-submission-status twosum-submission-status--wrong">
+                {submissionStatus.message}
+              </p>
             ) : null}
 
             {results ? (

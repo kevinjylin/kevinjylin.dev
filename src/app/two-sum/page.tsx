@@ -1,12 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import type { KeyboardEvent } from "react";
 
-const STARTER = `function twoSum(nums, target) {
+type Lang = "js" | "python" | "cpp";
+
+const STARTERS: Record<Lang, string> = {
+  js: `function twoSum(nums, target) {
   // return the indices of the two numbers that add to target
 }
-`;
+`,
+  python: `def two_sum(nums, target):
+    # return the indices of the two numbers that add to target
+    pass
+`,
+  cpp: `#include <vector>
+using namespace std;
+
+vector<int> twoSum(vector<int>& nums, int target) {
+    // return the indices of the two numbers that add to target
+}
+`,
+};
+
+const FILENAMES: Record<Lang, string> = {
+  js: "solution.js",
+  python: "solution.py",
+  cpp: "solution.cpp",
+};
+
+const LANG_LABELS: Record<Lang, string> = {
+  js: "JavaScript",
+  python: "Python",
+  cpp: "C++",
+};
 
 type TestCase = {
   nums: number[];
@@ -29,7 +57,12 @@ type Result = {
   error: string | null;
 };
 
-function sameIndices(got: unknown, expected: [number, number], nums: number[], target: number): boolean {
+function sameIndices(
+  got: unknown,
+  expected: [number, number],
+  nums: number[],
+  target: number
+): boolean {
   if (!Array.isArray(got) || got.length !== 2) return false;
   const [a, b] = got as [number, number];
   if (!Number.isInteger(a) || !Number.isInteger(b)) return false;
@@ -41,43 +74,222 @@ function sameIndices(got: unknown, expected: [number, number], nums: number[], t
   return sortedGot[0] === sortedExp[0] && sortedGot[1] === sortedExp[1];
 }
 
+interface PyodideInterface {
+  runPythonAsync(code: string): Promise<unknown>;
+}
+
+interface PyodideResult {
+  toJs?(): unknown[];
+}
+
 export default function TwoSumPage() {
-  const [code, setCode] = useState(STARTER);
+  const [lang, setLang] = useState<Lang>("cpp");
+  const [code, setCode] = useState(STARTERS.cpp);
   const [results, setResults] = useState<Result[] | null>(null);
   const [topError, setTopError] = useState<string | null>(null);
+  const [cppInfo, setCppInfo] = useState(false);
+  const [pyLoading, setPyLoading] = useState(false);
+  const pyodideRef = useRef<PyodideInterface | null>(null);
 
-  const run = () => {
+  const switchLang = (l: Lang) => {
+    setLang(l);
+    setCode(STARTERS[l]);
+    setResults(null);
     setTopError(null);
-    type TwoSumFn = (nums: number[], target: number) => unknown;
-    let fn: TwoSumFn;
-    try {
-      const candidate = new Function(`${code}\n;return twoSum;`)() as unknown;
-      if (typeof candidate !== "function") throw new Error("twoSum is not a function");
-      fn = candidate as TwoSumFn;
-    } catch (e) {
-      setTopError(e instanceof Error ? e.message : String(e));
-      setResults(null);
+    setCppInfo(false);
+  };
+
+  const run = async () => {
+    setTopError(null);
+    setResults(null);
+    setCppInfo(false);
+
+    if (lang === "cpp") {
+      setCppInfo(true);
       return;
     }
 
-    const out: Result[] = TESTS.map((t) => {
+    if (lang === "js") {
+      type TwoSumFn = (nums: number[], target: number) => unknown;
+      let fn: TwoSumFn;
       try {
-        const got = fn(t.nums.slice(), t.target);
-        return { test: t, got, pass: sameIndices(got, t.expected, t.nums, t.target), error: null };
+        const candidate = new Function(`${code}\n;return twoSum;`)() as unknown;
+        if (typeof candidate !== "function") throw new Error("twoSum is not a function");
+        fn = candidate as TwoSumFn;
       } catch (e) {
-        return { test: t, got: null, pass: false, error: e instanceof Error ? e.message : String(e) };
+        setTopError(e instanceof Error ? e.message : String(e));
+        return;
       }
-    });
-    setResults(out);
+      const out: Result[] = TESTS.map((t) => {
+        try {
+          const got = fn(t.nums.slice(), t.target);
+          return { test: t, got, pass: sameIndices(got, t.expected, t.nums, t.target), error: null };
+        } catch (e) {
+          return { test: t, got: null, pass: false, error: e instanceof Error ? e.message : String(e) };
+        }
+      });
+      setResults(out);
+      return;
+    }
+
+    if (lang === "python") {
+      if (!pyodideRef.current) {
+        setPyLoading(true);
+        try {
+          const loadFromCDN = new Function(
+            "url",
+            "return import(url)"
+          ) as (url: string) => Promise<{ loadPyodide(): Promise<PyodideInterface> }>;
+          const pyodideModule = await loadFromCDN(
+            "https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.mjs"
+          );
+          pyodideRef.current = await pyodideModule.loadPyodide();
+        } catch (e) {
+          setTopError(`Failed to load Python runtime: ${e instanceof Error ? e.message : String(e)}`);
+          setPyLoading(false);
+          return;
+        }
+        setPyLoading(false);
+      }
+
+      const pyodide = pyodideRef.current;
+      try {
+        await pyodide.runPythonAsync(code);
+      } catch (e) {
+        setTopError(String(e));
+        return;
+      }
+
+      const out: Result[] = [];
+      for (const t of TESTS) {
+        try {
+          const raw = await pyodide.runPythonAsync(
+            `two_sum(${JSON.stringify(t.nums)}, ${t.target})`
+          ) as PyodideResult | null;
+          const got = raw && typeof raw === "object" && typeof raw.toJs === "function"
+            ? Array.from(raw.toJs())
+            : raw;
+          out.push({ test: t, got, pass: sameIndices(got, t.expected, t.nums, t.target), error: null });
+        } catch (e) {
+          out.push({ test: t, got: null, pass: false, error: String(e) });
+        }
+      }
+      setResults(out);
+    }
   };
 
   const reset = () => {
-    setCode(STARTER);
+    setCode(STARTERS[lang]);
     setResults(null);
     setTopError(null);
+    setCppInfo(false);
+  };
+
+  const handleEditorKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.altKey || event.ctrlKey || event.metaKey) {
+      return;
+    }
+
+    const textarea = event.currentTarget;
+    const { selectionStart, selectionEnd, value } = textarea;
+    const indent = "  ";
+    const openerToCloser: Record<string, string> = {
+      "(": ")",
+      "[": "]",
+      "{": "}",
+    };
+
+    const applyEdit = (nextValue: string, nextStart: number, nextEnd = nextStart) => {
+      setCode(nextValue);
+      requestAnimationFrame(() => {
+        textarea.setSelectionRange(nextStart, nextEnd);
+      });
+    };
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+
+      const lineStart = value.lastIndexOf("\n", selectionStart - 1) + 1;
+      const linePrefix = value.slice(lineStart, selectionStart);
+      const currentIndent = linePrefix.match(/^[ \t]*/)?.[0] ?? "";
+      const before = value[selectionStart - 1] ?? "";
+      const closingForBefore = openerToCloser[before];
+      const lineEndIndex = value.indexOf("\n", selectionStart);
+      const restOfLine = value.slice(selectionStart, lineEndIndex === -1 ? value.length : lineEndIndex);
+
+      if (selectionStart === selectionEnd && closingForBefore && (restOfLine.trim() === "")) {
+        const insertion = `\n${currentIndent}${indent}\n${currentIndent}`;
+        const nextValue = value.slice(0, selectionStart) + insertion + value.slice(selectionEnd);
+        const nextCaret = selectionStart + 1 + currentIndent.length + indent.length;
+        applyEdit(nextValue, nextCaret);
+        return;
+      }
+
+      const insertion = `\n${currentIndent}`;
+      const nextValue = value.slice(0, selectionStart) + insertion + value.slice(selectionEnd);
+      const nextCaret = selectionStart + insertion.length;
+      applyEdit(nextValue, nextCaret);
+      return;
+    }
+
+    if (event.key === "Tab") {
+      event.preventDefault();
+
+      if (selectionStart === selectionEnd) {
+        const nextValue = `${value.slice(0, selectionStart)}${indent}${value.slice(selectionEnd)}`;
+        const nextCaret = selectionStart + indent.length;
+        applyEdit(nextValue, nextCaret);
+        return;
+      }
+
+      const selected = value.slice(selectionStart, selectionEnd);
+      const lines = selected.split("\n");
+      const indentedSelection = lines.map((line) => `${indent}${line}`).join("\n");
+      const nextValue =
+        value.slice(0, selectionStart) + indentedSelection + value.slice(selectionEnd);
+
+      applyEdit(
+        nextValue,
+        selectionStart + indent.length,
+        selectionEnd + indent.length * lines.length
+      );
+      return;
+    }
+
+    if (event.key in openerToCloser) {
+      event.preventDefault();
+      const closer = openerToCloser[event.key];
+
+      if (selectionStart !== selectionEnd) {
+        const selected = value.slice(selectionStart, selectionEnd);
+        const nextValue =
+          value.slice(0, selectionStart) +
+          event.key +
+          selected +
+          closer +
+          value.slice(selectionEnd);
+        applyEdit(nextValue, selectionStart + 1, selectionEnd + 1);
+        return;
+      }
+
+      const nextValue =
+        value.slice(0, selectionStart) + event.key + closer + value.slice(selectionEnd);
+      applyEdit(nextValue, selectionStart + 1);
+      return;
+    }
+
+    if ([")", "]", "}"].includes(event.key) && selectionStart === selectionEnd) {
+      const after = value[selectionStart] ?? "";
+      if (after === event.key) {
+        event.preventDefault();
+        applyEdit(value, selectionStart + 1);
+      }
+      return;
+    }
   };
 
   const passCount = results?.filter((r) => r.pass).length ?? 0;
+  const isRunning = pyLoading;
 
   return (
     <main className="page-shell">
@@ -123,22 +335,43 @@ export default function TwoSumPage() {
           <section className="twosum">
             <div className="twosum-editor">
               <div className="twosum-editor-bar">
-                <span>solution.js</span>
+                <div className="twosum-lang-tabs">
+                  <span className="twosum-filename">{FILENAMES[lang]}</span>
+                </div>
+                <div>
+                  <label htmlFor="twosum-lang-select" className="sr-only">Language</label>
+                  <select
+                    id="twosum-lang-select"
+                    className="twosum-lang-select"
+                    value={lang}
+                    onChange={(e) => switchLang(e.target.value as Lang)}
+                  >
+                    {(["js", "python", "cpp"] as Lang[]).map((l) => (
+                      <option key={l} value={l}>{LANG_LABELS[l]}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <textarea
                 className="twosum-textarea"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
+                onKeyDown={handleEditorKeyDown}
                 spellCheck={false}
                 aria-label="Solution code"
               />
             </div>
 
             <div className="twosum-actions">
-              <button type="button" className="twosum-button twosum-button--primary" onClick={run}>
-                Run tests
+              <button
+                type="button"
+                className="twosum-button twosum-button--primary"
+                onClick={() => { void run(); }}
+                disabled={isRunning}
+              >
+                {isRunning ? "Loading Python…" : "Run tests"}
               </button>
-              <button type="button" className="twosum-button" onClick={reset}>
+              <button type="button" className="twosum-button" onClick={reset} disabled={isRunning}>
                 Reset
               </button>
               {results ? (
@@ -148,8 +381,15 @@ export default function TwoSumPage() {
               ) : null}
             </div>
 
+            {cppInfo ? (
+              <p className="twosum-info">
+                C++ can&apos;t run in the browser — copy the code and compile it locally
+                with <code>g++ -o solution solution.cpp && ./solution</code>.
+              </p>
+            ) : null}
+
             {topError ? (
-              <pre className="twosum-error">SyntaxError: {topError}</pre>
+              <pre className="twosum-error">{topError}</pre>
             ) : null}
 
             {results ? (

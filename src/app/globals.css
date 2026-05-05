@@ -163,10 +163,12 @@ a {
 }
 
 .page-shell {
+  --page-padding-right: clamp(1.75rem, 8vw, 4.5rem);
+  --page-padding-left: clamp(3.5rem, 12vw, 7.25rem);
   padding-top: clamp(1.5rem, 3vw, 3rem);
-  padding-right: clamp(1.75rem, 8vw, 4.5rem);
+  padding-right: var(--page-padding-right);
   padding-bottom: clamp(2.75rem, 5vw, 4.75rem);
-  padding-left: clamp(3.5rem, 12vw, 7.25rem);
+  padding-left: var(--page-padding-left);
 }
 
 .page-frame {
@@ -175,7 +177,9 @@ a {
 }
 
 .intro-offset {
-  margin-left: clamp(2.5rem, 6vw, 5.75rem);
+  --intro-left-offset: clamp(2.5rem, 6vw, 5.75rem);
+  margin-left: var(--intro-left-offset);
+  margin-right: calc(var(--page-padding-left) + var(--intro-left-offset) - var(--page-padding-right));
 }
 
 .intro {
@@ -438,13 +442,15 @@ a {
 
 @media (max-width: 760px) {
   .page-shell {
+    --page-padding-right: 1.5rem;
+    --page-padding-left: 2.4rem;
     padding-top: 1.25rem;
-    padding-right: 1.5rem;
-    padding-left: 2.4rem;
+    padding-right: var(--page-padding-right);
+    padding-left: var(--page-padding-left);
   }
 
   .intro-offset {
-    margin-left: 2.1rem;
+    --intro-left-offset: 2.1rem;
   }
 
   .site-icon {

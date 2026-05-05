@@ -10,7 +10,7 @@ export default async function Home() {
     <main className="page-shell">
       <div className="page-frame">
         <div className="intro-offset">
-          <Link href="/" className="site-icon" aria-label="Home">
+          <Link href="/two-sum" className="site-icon" aria-label="Solve Two Sum">
             <svg
               className="agent-graph"
               viewBox="0 0 64 64"

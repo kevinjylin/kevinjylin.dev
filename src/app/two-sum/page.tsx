@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 
 import {
@@ -60,6 +61,7 @@ interface PyodideResult {
 }
 
 export default function TwoSumPage() {
+  const router = useRouter();
   const [lang, setLang] = useState<Lang>("cpp");
   const [code, setCode] = useState(STARTERS.cpp);
   const [results, setResults] = useState<Result[] | null>(null);
@@ -68,6 +70,7 @@ export default function TwoSumPage() {
   const [topError, setTopError] = useState<string | null>(null);
   const [pyLoading, setPyLoading] = useState(false);
   const pyodideRef = useRef<PyodideInterface | null>(null);
+  const cookieReturnTimerRef = useRef<number | null>(null);
 
   const switchLang = (l: Lang) => {
     setLang(l);
@@ -168,6 +171,23 @@ export default function TwoSumPage() {
     setCookieBites(0);
     setTopError(null);
   };
+
+  useEffect(() => {
+    if (submissionStatus?.kind !== "accepted" || cookieBites !== COOKIE_BITE_TOTAL) {
+      return;
+    }
+
+    cookieReturnTimerRef.current = window.setTimeout(() => {
+      router.push("/");
+    }, 1000);
+
+    return () => {
+      if (cookieReturnTimerRef.current !== null) {
+        window.clearTimeout(cookieReturnTimerRef.current);
+        cookieReturnTimerRef.current = null;
+      }
+    };
+  }, [cookieBites, router, submissionStatus]);
 
   const handleEditorKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.altKey || event.ctrlKey || event.metaKey) {

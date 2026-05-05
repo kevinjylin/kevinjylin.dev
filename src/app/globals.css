@@ -482,16 +482,6 @@ a {
   color: #ffffff;
 }
 
-.twosum-info {
-  margin: 1rem 0 0;
-  padding: 0.85rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: 0.6rem;
-  background: var(--tag-background);
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
 .twosum-editor {
   border: 1px solid var(--border);
   border-radius: 0.85rem;

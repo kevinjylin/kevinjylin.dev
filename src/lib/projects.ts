@@ -11,6 +11,7 @@ type FrontmatterRecord = Record<string, FrontmatterValue>;
 export type ProjectMetadata = {
   featured: boolean;
   liveUrl?: string;
+  order?: number;
   repoUrl?: string;
   slug: string;
   summary: string;
@@ -151,6 +152,24 @@ function getRequiredBoolean(
   return value;
 }
 
+function getOptionalNumber(
+  data: FrontmatterRecord,
+  key: string,
+  filePath: string
+): number | undefined {
+  const value = data[key];
+
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (typeof value !== "number") {
+    throw new Error(`Expected "${key}" to be a number in ${filePath}.`);
+  }
+
+  return value;
+}
+
 function getRequiredStringArray(
   data: FrontmatterRecord,
   key: string,
@@ -173,6 +192,7 @@ async function readProjectFile(fileName: string): Promise<ProjectMetadata> {
   return {
     featured: getRequiredBoolean(data, "featured", filePath),
     liveUrl: getOptionalString(data, "liveUrl", filePath),
+    order: getOptionalNumber(data, "order", filePath),
     repoUrl: getOptionalString(data, "repoUrl", filePath),
     slug: fileName.replace(/\.mdx$/, ""),
     summary: getRequiredString(data, "summary", filePath),
@@ -195,6 +215,13 @@ export const getProjects = cache(async (): Promise<ProjectMetadata[]> => {
     const projects = await Promise.all(fileNames.map(readProjectFile));
 
     return projects.sort((left, right) => {
+      const leftOrder = left.order ?? Infinity;
+      const rightOrder = right.order ?? Infinity;
+
+      if (leftOrder !== rightOrder) {
+        return leftOrder - rightOrder;
+      }
+
       if (left.featured !== right.featured) {
         return Number(right.featured) - Number(left.featured);
       }

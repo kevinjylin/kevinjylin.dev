@@ -293,50 +293,7 @@ export default function TwoSumPage() {
   };
 
   const isRunning = pyLoading;
-
-  if (submissionStatus?.kind === "accepted") {
-    const bitesLeft = COOKIE_BITE_TOTAL - cookieBites;
-
-    return (
-      <main className="page-shell twosum-cookie-shell">
-        <section className="twosum-cookie-celebration" aria-live="polite">
-          <p className="twosum-submission-status twosum-submission-status--accepted">
-            {submissionStatus.message}
-          </p>
-          <h1>congrats! here&apos;s a cookie</h1>
-          <button
-            type="button"
-            className={`cookie-button cookie-button--bites-${cookieBites}`}
-            onClick={() => setCookieBites((current) => getNextCookieBiteCount(current))}
-            disabled={cookieBites === COOKIE_BITE_TOTAL}
-            aria-label={
-              bitesLeft > 0
-                ? `Eat the cookie. ${bitesLeft} bites left.`
-                : "Cookie fully eaten."
-            }
-          >
-            <span className="cookie-chip cookie-chip--one" />
-            <span className="cookie-chip cookie-chip--two" />
-            <span className="cookie-chip cookie-chip--three" />
-            <span className="cookie-chip cookie-chip--four" />
-            {Array.from({ length: COOKIE_BITE_TOTAL }, (_, index) => (
-              <span
-                key={index}
-                className={`cookie-bite cookie-bite--${index + 1}${
-                  cookieBites > index ? " cookie-bite--eaten" : ""
-                }`}
-              />
-            ))}
-          </button>
-          <p className="twosum-cookie-note">
-            {bitesLeft > 0
-              ? `Click the cookie ${bitesLeft} more ${bitesLeft === 1 ? "time" : "times"}.`
-              : "Cookie eaten."}
-          </p>
-        </section>
-      </main>
-    );
-  }
+  const bitesLeft = COOKIE_BITE_TOTAL - cookieBites;
 
   return (
     <main className="page-shell">
@@ -364,20 +321,58 @@ export default function TwoSumPage() {
             </svg>
           </Link>
 
-          <section className="intro">
-            <h1>Two Sum</h1>
+          {submissionStatus?.kind === "accepted" ? (
+            <section className="twosum-cookie-celebration" aria-live="polite">
+              <p className="twosum-submission-status twosum-submission-status--accepted">
+                {submissionStatus.message}
+              </p>
+              <h1>congrats! here&apos;s a cookie</h1>
+              <button
+                type="button"
+                className={`cookie-button cookie-button--bites-${cookieBites}`}
+                onClick={() => setCookieBites((current) => getNextCookieBiteCount(current))}
+                disabled={cookieBites === COOKIE_BITE_TOTAL}
+                aria-label={
+                  bitesLeft > 0
+                    ? `Eat the cookie. ${bitesLeft} bites left.`
+                    : "Cookie fully eaten."
+                }
+              >
+                <span className="cookie-chip cookie-chip--one" />
+                <span className="cookie-chip cookie-chip--two" />
+                <span className="cookie-chip cookie-chip--three" />
+                <span className="cookie-chip cookie-chip--four" />
+                {Array.from({ length: COOKIE_BITE_TOTAL }, (_, index) => (
+                  <span
+                    key={index}
+                    className={`cookie-bite cookie-bite--${index + 1}${
+                      cookieBites > index ? " cookie-bite--eaten" : ""
+                    }`}
+                  />
+                ))}
+              </button>
+              <p className="twosum-cookie-note">
+                {bitesLeft > 0
+                  ? `Click the cookie ${bitesLeft} more ${bitesLeft === 1 ? "time" : "times"}.`
+                  : "Cookie eaten."}
+              </p>
+            </section>
+          ) : (
+            <section className="intro">
+              <h1>Two Sum</h1>
 
-            <div className="intro-copy">
-              <p>
-                Given an array of integers <code>nums</code> and an integer <code>target</code>,
-                return the indices of the two numbers such that they add up to <code>target</code>.
-              </p>
-              <p>
-                You may assume that each input has exactly one solution, and you may not use the
-                same element twice. Write your solution below and run it against the test cases.
-              </p>
-            </div>
-          </section>
+              <div className="intro-copy">
+                <p>
+                  Given an array of integers <code>nums</code> and an integer <code>target</code>,
+                  return the indices of the two numbers such that they add up to <code>target</code>.
+                </p>
+                <p>
+                  You may assume that each input has exactly one solution, and you may not use the
+                  same element twice. Write your solution below and run it against the test cases.
+                </p>
+              </div>
+            </section>
+          )}
 
           <section className="twosum">
             <div className="twosum-editor">

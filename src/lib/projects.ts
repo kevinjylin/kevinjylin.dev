@@ -29,7 +29,7 @@ function parseScalarValue(rawValue: string): boolean | number | string {
   const value = rawValue.trim();
 
   if (
-    (value.startsWith("\"") && value.endsWith("\"")) ||
+    (value.startsWith('"') && value.endsWith('"')) ||
     (value.startsWith("'") && value.endsWith("'"))
   ) {
     return value.slice(1, -1);
@@ -97,11 +97,7 @@ function parseFrontmatter(fileContents: string): FrontmatterRecord {
     }, {});
 }
 
-function getRequiredString(
-  data: FrontmatterRecord,
-  key: string,
-  filePath: string
-): string {
+function getRequiredString(data: FrontmatterRecord, key: string, filePath: string): string {
   const value = data[key];
 
   if (typeof value !== "string" || value.length === 0) {
@@ -114,7 +110,7 @@ function getRequiredString(
 function getOptionalString(
   data: FrontmatterRecord,
   key: string,
-  filePath: string
+  filePath: string,
 ): string | undefined {
   const value = data[key];
 
@@ -129,11 +125,7 @@ function getOptionalString(
   return value.length > 0 ? value : undefined;
 }
 
-function getRequiredNumber(
-  data: FrontmatterRecord,
-  key: string,
-  filePath: string
-): number {
+function getRequiredNumber(data: FrontmatterRecord, key: string, filePath: string): number {
   const value = data[key];
 
   if (typeof value !== "number") {
@@ -143,11 +135,7 @@ function getRequiredNumber(
   return value;
 }
 
-function getRequiredBoolean(
-  data: FrontmatterRecord,
-  key: string,
-  filePath: string
-): boolean {
+function getRequiredBoolean(data: FrontmatterRecord, key: string, filePath: string): boolean {
   const value = data[key];
 
   if (typeof value !== "boolean") {
@@ -160,7 +148,7 @@ function getRequiredBoolean(
 function getOptionalNumber(
   data: FrontmatterRecord,
   key: string,
-  filePath: string
+  filePath: string,
 ): number | undefined {
   const value = data[key];
 
@@ -175,11 +163,7 @@ function getOptionalNumber(
   return value;
 }
 
-function getRequiredStringArray(
-  data: FrontmatterRecord,
-  key: string,
-  filePath: string
-): string[] {
+function getRequiredStringArray(data: FrontmatterRecord, key: string, filePath: string): string[] {
   const value = data[key];
 
   if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string")) {
@@ -208,16 +192,16 @@ async function readProjectFile(fileName: string): Promise<Project> {
       summary: getRequiredString(data, "summary", filePath),
       tags: getRequiredStringArray(data, "tags", filePath),
       title: getRequiredString(data, "title", filePath),
-      year: getRequiredNumber(data, "year", filePath)
+      year: getRequiredNumber(data, "year", filePath),
     },
-    content: stripFrontmatter(fileContents)
+    content: stripFrontmatter(fileContents),
   };
 }
 
 const getAllProjects = cache(async (): Promise<Project[]> => {
   try {
     const directoryEntries = await readdir(projectsDirectory, {
-      withFileTypes: true
+      withFileTypes: true,
     });
 
     const fileNames = directoryEntries
@@ -245,12 +229,7 @@ const getAllProjects = cache(async (): Promise<Project[]> => {
       return left.metadata.title.localeCompare(right.metadata.title);
     });
   } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "ENOENT"
-    ) {
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT") {
       return [];
     }
 
@@ -263,9 +242,7 @@ export const getProjects = cache(async (): Promise<ProjectMetadata[]> => {
   return projects.map((project) => project.metadata);
 });
 
-export const getProjectBySlug = cache(
-  async (slug: string): Promise<Project | undefined> => {
-    const projects = await getAllProjects();
-    return projects.find((project) => project.metadata.slug === slug);
-  }
-);
+export const getProjectBySlug = cache(async (slug: string): Promise<Project | undefined> => {
+  const projects = await getAllProjects();
+  return projects.find((project) => project.metadata.slug === slug);
+});

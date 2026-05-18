@@ -142,16 +142,17 @@ export default function TwoSumPage() {
       if (!pyodideRef.current) {
         setPyLoading(true);
         try {
-          const loadFromCDN = new Function(
-            "url",
-            "return import(url)"
-          ) as (url: string) => Promise<{ loadPyodide(): Promise<PyodideInterface> }>;
+          const loadFromCDN = new Function("url", "return import(url)") as (
+            url: string,
+          ) => Promise<{ loadPyodide(): Promise<PyodideInterface> }>;
           const pyodideModule = await loadFromCDN(
-            "https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.mjs"
+            "https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.mjs",
           );
           pyodideRef.current = await pyodideModule.loadPyodide();
         } catch (e) {
-          setTopError(`Failed to load Python runtime: ${e instanceof Error ? e.message : String(e)}`);
+          setTopError(
+            `Failed to load Python runtime: ${e instanceof Error ? e.message : String(e)}`,
+          );
           setPyLoading(false);
           return;
         }
@@ -169,13 +170,19 @@ export default function TwoSumPage() {
       const out: Result[] = [];
       for (const t of TESTS) {
         try {
-          const raw = await pyodide.runPythonAsync(
-            `two_sum(${JSON.stringify(t.nums)}, ${t.target})`
-          ) as PyodideResult | null;
-          const got = raw && typeof raw === "object" && typeof raw.toJs === "function"
-            ? Array.from(raw.toJs())
-            : raw;
-          out.push({ test: t, got, pass: sameIndices(got, t.expected, t.nums, t.target), error: null });
+          const raw = (await pyodide.runPythonAsync(
+            `two_sum(${JSON.stringify(t.nums)}, ${t.target})`,
+          )) as PyodideResult | null;
+          const got =
+            raw && typeof raw === "object" && typeof raw.toJs === "function"
+              ? Array.from(raw.toJs())
+              : raw;
+          out.push({
+            test: t,
+            got,
+            pass: sameIndices(got, t.expected, t.nums, t.target),
+            error: null,
+          });
         } catch (e) {
           out.push({ test: t, got: null, pass: false, error: String(e) });
         }
@@ -224,9 +231,12 @@ export default function TwoSumPage() {
       const before = value[selectionStart - 1] ?? "";
       const closingForBefore = openerToCloser[before];
       const lineEndIndex = value.indexOf("\n", selectionStart);
-      const restOfLine = value.slice(selectionStart, lineEndIndex === -1 ? value.length : lineEndIndex);
+      const restOfLine = value.slice(
+        selectionStart,
+        lineEndIndex === -1 ? value.length : lineEndIndex,
+      );
 
-      if (selectionStart === selectionEnd && closingForBefore && (restOfLine.trim() === "")) {
+      if (selectionStart === selectionEnd && closingForBefore && restOfLine.trim() === "") {
         const insertion = `\n${currentIndent}${indent}\n${currentIndent}`;
         const nextValue = value.slice(0, selectionStart) + insertion + value.slice(selectionEnd);
         const nextCaret = selectionStart + 1 + currentIndent.length + indent.length;
@@ -260,7 +270,7 @@ export default function TwoSumPage() {
       applyEdit(
         nextValue,
         selectionStart + indent.length,
-        selectionEnd + indent.length * lines.length
+        selectionEnd + indent.length * lines.length,
       );
       return;
     }
@@ -300,8 +310,7 @@ export default function TwoSumPage() {
   const isRunning = pyLoading;
   const bitesLeft = COOKIE_BITE_TOTAL - cookieBites;
   const firstFailed = results?.find((r) => !r.pass) ?? null;
-  const showCookiePopup =
-    submissionStatus?.kind === "accepted" && !cookieDismissed;
+  const showCookiePopup = submissionStatus?.kind === "accepted" && !cookieDismissed;
 
   return (
     <main className="page-shell">
@@ -320,11 +329,36 @@ export default function TwoSumPage() {
                 <path className="agent-graph__link agent-graph__link--one" d="M20 22L34 14L48 25" />
                 <path className="agent-graph__link agent-graph__link--two" d="M20 22L30 38L48 25" />
                 <path className="agent-graph__link agent-graph__link--three" d="M30 38L44 47" />
-                <circle className="agent-graph__node agent-graph__node--one" cx="20" cy="22" r="5" />
-                <circle className="agent-graph__node agent-graph__node--two" cx="34" cy="14" r="4" />
-                <circle className="agent-graph__node agent-graph__node--three" cx="48" cy="25" r="5" />
-                <circle className="agent-graph__node agent-graph__node--four" cx="30" cy="38" r="5" />
-                <circle className="agent-graph__node agent-graph__node--five" cx="44" cy="47" r="4" />
+                <circle
+                  className="agent-graph__node agent-graph__node--one"
+                  cx="20"
+                  cy="22"
+                  r="5"
+                />
+                <circle
+                  className="agent-graph__node agent-graph__node--two"
+                  cx="34"
+                  cy="14"
+                  r="4"
+                />
+                <circle
+                  className="agent-graph__node agent-graph__node--three"
+                  cx="48"
+                  cy="25"
+                  r="5"
+                />
+                <circle
+                  className="agent-graph__node agent-graph__node--four"
+                  cx="30"
+                  cy="38"
+                  r="5"
+                />
+                <circle
+                  className="agent-graph__node agent-graph__node--five"
+                  cx="44"
+                  cy="47"
+                  r="4"
+                />
               </g>
             </svg>
           </Link>
@@ -351,7 +385,9 @@ export default function TwoSumPage() {
                   <span className="twosum-filename">{FILENAMES[lang]}</span>
                 </div>
                 <div>
-                  <label htmlFor="twosum-lang-select" className="sr-only">Language</label>
+                  <label htmlFor="twosum-lang-select" className="sr-only">
+                    Language
+                  </label>
                   <select
                     id="twosum-lang-select"
                     className="twosum-lang-select"
@@ -359,7 +395,9 @@ export default function TwoSumPage() {
                     onChange={(e) => switchLang(e.target.value as Lang)}
                   >
                     {(["js", "python", "cpp"] as Lang[]).map((l) => (
-                      <option key={l} value={l}>{LANG_LABELS[l]}</option>
+                      <option key={l} value={l}>
+                        {LANG_LABELS[l]}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -378,7 +416,9 @@ export default function TwoSumPage() {
               <button
                 type="button"
                 className="twosum-button twosum-button--primary"
-                onClick={() => { void run(); }}
+                onClick={() => {
+                  void run();
+                }}
                 disabled={isRunning}
               >
                 {isRunning ? "Loading Python..." : "Submit"}
@@ -388,9 +428,7 @@ export default function TwoSumPage() {
               </button>
             </div>
 
-            {topError ? (
-              <pre className="twosum-error">{topError}</pre>
-            ) : null}
+            {topError ? <pre className="twosum-error">{topError}</pre> : null}
 
             {submissionStatus ? (
               <div
@@ -404,8 +442,7 @@ export default function TwoSumPage() {
                     {submissionStatus.kind === "accepted" ? "Accepted" : "Wrong Answer"}
                   </span>
                   <span className="lc-result__runtime-chip">
-                    Runtime{" "}
-                    {submissionStats ? `${submissionStats.runtimeMs} ms` : "—"}
+                    Runtime {submissionStats ? `${submissionStats.runtimeMs} ms` : "—"}
                   </span>
                 </div>
 
@@ -429,7 +466,8 @@ export default function TwoSumPage() {
                         <span className="lc-stat__value">{submissionStats.runtimeMs} ms</span>
                       </div>
                       <div className="lc-stat__beats">
-                        Beats <strong>{submissionStats.runtimeBeats.toFixed(2)}%</strong> of users with {LANG_LABELS[lang]}
+                        Beats <strong>{submissionStats.runtimeBeats.toFixed(2)}%</strong> of users
+                        with {LANG_LABELS[lang]}
                       </div>
                       <div className="lc-stat__bar">
                         <span
@@ -445,7 +483,8 @@ export default function TwoSumPage() {
                         <span className="lc-stat__value">{submissionStats.memoryMb} MB</span>
                       </div>
                       <div className="lc-stat__beats">
-                        Beats <strong>{submissionStats.memoryBeats.toFixed(2)}%</strong> of users with {LANG_LABELS[lang]}
+                        Beats <strong>{submissionStats.memoryBeats.toFixed(2)}%</strong> of users
+                        with {LANG_LABELS[lang]}
                       </div>
                       <div className="lc-stat__bar">
                         <span
@@ -462,16 +501,14 @@ export default function TwoSumPage() {
                     <div className="lc-detail-row">
                       <div className="lc-detail-row__label">Input</div>
                       <pre className="lc-detail-row__value">
-                        nums = [{firstFailed.test.nums.join(",")}]
-                        {"\n"}target = {firstFailed.test.target}
+                        nums = [{firstFailed.test.nums.join(",")}]{"\n"}target ={" "}
+                        {firstFailed.test.target}
                       </pre>
                     </div>
                     <div className="lc-detail-row">
                       <div className="lc-detail-row__label">Output</div>
                       <pre className="lc-detail-row__value lc-detail-row__value--wrong">
-                        {firstFailed.error
-                          ? firstFailed.error
-                          : JSON.stringify(firstFailed.got)}
+                        {firstFailed.error ? firstFailed.error : JSON.stringify(firstFailed.got)}
                       </pre>
                     </div>
                     <div className="lc-detail-row">
@@ -506,9 +543,7 @@ export default function TwoSumPage() {
             onClick={() => setCookieBites((c) => getNextCookieBiteCount(c))}
             disabled={cookieBites === COOKIE_BITE_TOTAL}
             aria-label={
-              bitesLeft > 0
-                ? `Eat the cookie. ${bitesLeft} bites left.`
-                : "Cookie fully eaten."
+              bitesLeft > 0 ? `Eat the cookie. ${bitesLeft} bites left.` : "Cookie fully eaten."
             }
           >
             <span className="cookie-chip cookie-chip--one" />

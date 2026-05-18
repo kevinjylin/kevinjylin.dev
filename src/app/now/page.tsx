@@ -29,7 +29,7 @@ export default async function NowPage() {
   const { lastUpdated, content } = await getNow();
 
   return (
-    <main className="page-shell">
+    <main className="page-shell" id="main-content" tabIndex={-1}>
       <div className="page-frame">
         <div className="intro-offset">
           <Link href="/" className="project-back" aria-label="Back to home">

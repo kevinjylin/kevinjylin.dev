@@ -313,7 +313,7 @@ export default function TwoSumPage() {
   const showCookiePopup = submissionStatus?.kind === "accepted" && !cookieDismissed;
 
   return (
-    <main className="page-shell">
+    <main className="page-shell" id="main-content" tabIndex={-1}>
       <div className="page-frame">
         <div className="intro-offset">
           <Link href="/" className="site-icon" aria-label="Back home">

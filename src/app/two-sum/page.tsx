@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 
 import {
@@ -52,6 +51,24 @@ const LANG_LABELS: Record<Lang, string> = {
   cpp: "C++",
 };
 
+type SubmissionStats = {
+  runtimeMs: number;
+  memoryMb: number;
+  runtimeBeats: number;
+  memoryBeats: number;
+};
+
+function generateStats(lang: Lang): SubmissionStats {
+  const baseRuntime = lang === "cpp" ? 0 : lang === "js" ? 60 : 32;
+  const runtimeJitter = lang === "cpp" ? 6 : 24;
+  return {
+    runtimeMs: baseRuntime + Math.floor(Math.random() * runtimeJitter),
+    memoryMb: Math.round((40 + Math.random() * 6) * 10) / 10,
+    runtimeBeats: Math.round((80 + Math.random() * 19.99) * 100) / 100,
+    memoryBeats: Math.round((65 + Math.random() * 33) * 100) / 100,
+  };
+}
+
 interface PyodideInterface {
   runPythonAsync(code: string): Promise<unknown>;
 }
@@ -61,42 +78,45 @@ interface PyodideResult {
 }
 
 export default function TwoSumPage() {
-  const router = useRouter();
   const [lang, setLang] = useState<Lang>("cpp");
   const [code, setCode] = useState(STARTERS.cpp);
   const [results, setResults] = useState<Result[] | null>(null);
   const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus | null>(null);
+  const [submissionStats, setSubmissionStats] = useState<SubmissionStats | null>(null);
   const [cookieBites, setCookieBites] = useState(0);
+  const [cookieDismissed, setCookieDismissed] = useState(false);
   const [topError, setTopError] = useState<string | null>(null);
   const [pyLoading, setPyLoading] = useState(false);
   const pyodideRef = useRef<PyodideInterface | null>(null);
-  const cookieReturnTimerRef = useRef<number | null>(null);
 
   const switchLang = (l: Lang) => {
     setLang(l);
     setCode(STARTERS[l]);
     setResults(null);
     setSubmissionStatus(null);
+    setSubmissionStats(null);
     setTopError(null);
   };
 
   const showResults = (nextResults: Result[]) => {
     const nextStatus = getSubmissionStatus(nextResults);
     setSubmissionStatus(nextStatus);
+    setResults(nextResults);
 
     if (nextStatus.kind === "accepted") {
-      setResults(null);
+      setSubmissionStats(generateStats(lang));
       setCookieBites(0);
-      return;
+      setCookieDismissed(false);
+    } else {
+      setSubmissionStats(null);
     }
-
-    setResults(nextResults);
   };
 
   const run = async () => {
     setTopError(null);
     setResults(null);
     setSubmissionStatus(null);
+    setSubmissionStats(null);
 
     if (lang === "cpp") {
       const outcome = runCppTests(code);
@@ -168,26 +188,11 @@ export default function TwoSumPage() {
     setCode(STARTERS[lang]);
     setResults(null);
     setSubmissionStatus(null);
+    setSubmissionStats(null);
     setCookieBites(0);
+    setCookieDismissed(false);
     setTopError(null);
   };
-
-  useEffect(() => {
-    if (submissionStatus?.kind !== "accepted" || cookieBites !== COOKIE_BITE_TOTAL) {
-      return;
-    }
-
-    cookieReturnTimerRef.current = window.setTimeout(() => {
-      router.push("/");
-    }, 1000);
-
-    return () => {
-      if (cookieReturnTimerRef.current !== null) {
-        window.clearTimeout(cookieReturnTimerRef.current);
-        cookieReturnTimerRef.current = null;
-      }
-    };
-  }, [cookieBites, router, submissionStatus]);
 
   const handleEditorKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.altKey || event.ctrlKey || event.metaKey) {
@@ -294,6 +299,9 @@ export default function TwoSumPage() {
 
   const isRunning = pyLoading;
   const bitesLeft = COOKIE_BITE_TOTAL - cookieBites;
+  const firstFailed = results?.find((r) => !r.pass) ?? null;
+  const showCookiePopup =
+    submissionStatus?.kind === "accepted" && !cookieDismissed;
 
   return (
     <main className="page-shell">
@@ -321,58 +329,20 @@ export default function TwoSumPage() {
             </svg>
           </Link>
 
-          {submissionStatus?.kind === "accepted" ? (
-            <section className="twosum-cookie-celebration" aria-live="polite">
-              <p className="twosum-submission-status twosum-submission-status--accepted">
-                {submissionStatus.message}
-              </p>
-              <h1>congrats! here&apos;s a cookie</h1>
-              <button
-                type="button"
-                className={`cookie-button cookie-button--bites-${cookieBites}`}
-                onClick={() => setCookieBites((current) => getNextCookieBiteCount(current))}
-                disabled={cookieBites === COOKIE_BITE_TOTAL}
-                aria-label={
-                  bitesLeft > 0
-                    ? `Eat the cookie. ${bitesLeft} bites left.`
-                    : "Cookie fully eaten."
-                }
-              >
-                <span className="cookie-chip cookie-chip--one" />
-                <span className="cookie-chip cookie-chip--two" />
-                <span className="cookie-chip cookie-chip--three" />
-                <span className="cookie-chip cookie-chip--four" />
-                {Array.from({ length: COOKIE_BITE_TOTAL }, (_, index) => (
-                  <span
-                    key={index}
-                    className={`cookie-bite cookie-bite--${index + 1}${
-                      cookieBites > index ? " cookie-bite--eaten" : ""
-                    }`}
-                  />
-                ))}
-              </button>
-              <p className="twosum-cookie-note">
-                {bitesLeft > 0
-                  ? `Click the cookie ${bitesLeft} more ${bitesLeft === 1 ? "time" : "times"}.`
-                  : "Cookie eaten."}
-              </p>
-            </section>
-          ) : (
-            <section className="intro">
-              <h1>Two Sum</h1>
+          <section className="intro">
+            <h1>Two Sum</h1>
 
-              <div className="intro-copy">
-                <p>
-                  Given an array of integers <code>nums</code> and an integer <code>target</code>,
-                  return the indices of the two numbers such that they add up to <code>target</code>.
-                </p>
-                <p>
-                  You may assume that each input has exactly one solution, and you may not use the
-                  same element twice. Write your solution below and run it against the test cases.
-                </p>
-              </div>
-            </section>
-          )}
+            <div className="intro-copy">
+              <p>
+                Given an array of integers <code>nums</code> and an integer <code>target</code>,
+                return the indices of the two numbers such that they add up to <code>target</code>.
+              </p>
+              <p>
+                You may assume that each input has exactly one solution, and you may not use the
+                same element twice. Write your solution below and run it against the test cases.
+              </p>
+            </div>
+          </section>
 
           <section className="twosum">
             <div className="twosum-editor">
@@ -422,43 +392,145 @@ export default function TwoSumPage() {
               <pre className="twosum-error">{topError}</pre>
             ) : null}
 
-            {submissionStatus?.kind === "wrong-answer" ? (
-              <p className="twosum-submission-status twosum-submission-status--wrong">
-                {submissionStatus.message}
-              </p>
-            ) : null}
+            {submissionStatus ? (
+              <div
+                className={`lc-result lc-result--${
+                  submissionStatus.kind === "accepted" ? "accepted" : "wrong"
+                }`}
+                aria-live="polite"
+              >
+                <div className="lc-result__topbar">
+                  <span className="lc-result__tab lc-result__tab--active">
+                    {submissionStatus.kind === "accepted" ? "Accepted" : "Wrong Answer"}
+                  </span>
+                  <span className="lc-result__runtime-chip">
+                    Runtime{" "}
+                    {submissionStats ? `${submissionStats.runtimeMs} ms` : "—"}
+                  </span>
+                </div>
 
-            {results ? (
-              <ul className="twosum-results">
-                {results.map((r, i) => (
-                  <li
-                    key={i}
-                    className={`twosum-result ${r.pass ? "twosum-result--pass" : "twosum-result--fail"}`}
-                  >
-                    <div className="twosum-result-head">
-                      <span className="twosum-badge">{r.pass ? "PASS" : "FAIL"}</span>
-                      <code>
-                        twoSum([{r.test.nums.join(", ")}], {r.test.target})
-                      </code>
+                <div className="lc-result__header">
+                  <span className="lc-result__icon" aria-hidden="true">
+                    {submissionStatus.kind === "accepted" ? "✓" : "✕"}
+                  </span>
+                  <h2 className="lc-result__title">
+                    {submissionStatus.kind === "accepted" ? "Accepted" : "Wrong Answer"}
+                  </h2>
+                  <span className="lc-result__sub">
+                    {submissionStatus.passed} / {submissionStatus.total} testcases passed
+                  </span>
+                </div>
+
+                {submissionStatus.kind === "accepted" && submissionStats ? (
+                  <div className="lc-result__stats">
+                    <div className="lc-stat">
+                      <div className="lc-stat__head">
+                        <span className="lc-stat__label">Runtime</span>
+                        <span className="lc-stat__value">{submissionStats.runtimeMs} ms</span>
+                      </div>
+                      <div className="lc-stat__beats">
+                        Beats <strong>{submissionStats.runtimeBeats.toFixed(2)}%</strong> of users with {LANG_LABELS[lang]}
+                      </div>
+                      <div className="lc-stat__bar">
+                        <span
+                          className="lc-stat__bar-fill"
+                          style={{ width: `${submissionStats.runtimeBeats}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="twosum-result-body">
-                      <span>expected: [{r.test.expected.join(", ")}]</span>
-                      <span>
-                        got:{" "}
-                        {r.error ? (
-                          <em>{r.error}</em>
-                        ) : (
-                          <code>{JSON.stringify(r.got)}</code>
-                        )}
-                      </span>
+
+                    <div className="lc-stat">
+                      <div className="lc-stat__head">
+                        <span className="lc-stat__label">Memory</span>
+                        <span className="lc-stat__value">{submissionStats.memoryMb} MB</span>
+                      </div>
+                      <div className="lc-stat__beats">
+                        Beats <strong>{submissionStats.memoryBeats.toFixed(2)}%</strong> of users with {LANG_LABELS[lang]}
+                      </div>
+                      <div className="lc-stat__bar">
+                        <span
+                          className="lc-stat__bar-fill"
+                          style={{ width: `${submissionStats.memoryBeats}%` }}
+                        />
+                      </div>
                     </div>
-                  </li>
-                ))}
-              </ul>
+                  </div>
+                ) : null}
+
+                {submissionStatus.kind === "wrong-answer" && firstFailed ? (
+                  <div className="lc-result__detail">
+                    <div className="lc-detail-row">
+                      <div className="lc-detail-row__label">Input</div>
+                      <pre className="lc-detail-row__value">
+                        nums = [{firstFailed.test.nums.join(",")}]
+                        {"\n"}target = {firstFailed.test.target}
+                      </pre>
+                    </div>
+                    <div className="lc-detail-row">
+                      <div className="lc-detail-row__label">Output</div>
+                      <pre className="lc-detail-row__value lc-detail-row__value--wrong">
+                        {firstFailed.error
+                          ? firstFailed.error
+                          : JSON.stringify(firstFailed.got)}
+                      </pre>
+                    </div>
+                    <div className="lc-detail-row">
+                      <div className="lc-detail-row__label">Expected</div>
+                      <pre className="lc-detail-row__value">
+                        [{firstFailed.test.expected.join(",")}]
+                      </pre>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
             ) : null}
           </section>
         </div>
       </div>
+
+      {showCookiePopup ? (
+        <div className="cookie-popup" role="dialog" aria-label="You earned a cookie">
+          <button
+            type="button"
+            className="cookie-popup__close"
+            onClick={() => setCookieDismissed(true)}
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <p className="cookie-popup__eyebrow">surprise!</p>
+          <h2 className="cookie-popup__title">here&apos;s a cookie 🍪</h2>
+          <button
+            type="button"
+            className={`cookie-button cookie-button--bites-${cookieBites}`}
+            onClick={() => setCookieBites((c) => getNextCookieBiteCount(c))}
+            disabled={cookieBites === COOKIE_BITE_TOTAL}
+            aria-label={
+              bitesLeft > 0
+                ? `Eat the cookie. ${bitesLeft} bites left.`
+                : "Cookie fully eaten."
+            }
+          >
+            <span className="cookie-chip cookie-chip--one" />
+            <span className="cookie-chip cookie-chip--two" />
+            <span className="cookie-chip cookie-chip--three" />
+            <span className="cookie-chip cookie-chip--four" />
+            {Array.from({ length: COOKIE_BITE_TOTAL }, (_, index) => (
+              <span
+                key={index}
+                className={`cookie-bite cookie-bite--${index + 1}${
+                  cookieBites > index ? " cookie-bite--eaten" : ""
+                }`}
+              />
+            ))}
+          </button>
+          <p className="cookie-popup__note">
+            {bitesLeft > 0
+              ? `click the cookie ${bitesLeft} more ${bitesLeft === 1 ? "time" : "times"}.`
+              : "nom nom. delicious."}
+          </p>
+        </div>
+      ) : null}
     </main>
   );
 }

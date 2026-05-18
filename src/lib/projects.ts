@@ -20,6 +20,11 @@ export type ProjectMetadata = {
   year: number;
 };
 
+export type Project = {
+  metadata: ProjectMetadata;
+  content: string;
+};
+
 function parseScalarValue(rawValue: string): boolean | number | string {
   const value = rawValue.trim();
 
@@ -184,25 +189,32 @@ function getRequiredStringArray(
   return value;
 }
 
-async function readProjectFile(fileName: string): Promise<ProjectMetadata> {
+function stripFrontmatter(fileContents: string): string {
+  return fileContents.replace(frontmatterPattern, "");
+}
+
+async function readProjectFile(fileName: string): Promise<Project> {
   const filePath = path.join(projectsDirectory, fileName);
   const fileContents = await readFile(filePath, "utf8");
   const data = parseFrontmatter(fileContents);
 
   return {
-    featured: getRequiredBoolean(data, "featured", filePath),
-    liveUrl: getOptionalString(data, "liveUrl", filePath),
-    order: getOptionalNumber(data, "order", filePath),
-    repoUrl: getOptionalString(data, "repoUrl", filePath),
-    slug: fileName.replace(/\.mdx$/, ""),
-    summary: getRequiredString(data, "summary", filePath),
-    tags: getRequiredStringArray(data, "tags", filePath),
-    title: getRequiredString(data, "title", filePath),
-    year: getRequiredNumber(data, "year", filePath)
+    metadata: {
+      featured: getRequiredBoolean(data, "featured", filePath),
+      liveUrl: getOptionalString(data, "liveUrl", filePath),
+      order: getOptionalNumber(data, "order", filePath),
+      repoUrl: getOptionalString(data, "repoUrl", filePath),
+      slug: fileName.replace(/\.mdx$/, ""),
+      summary: getRequiredString(data, "summary", filePath),
+      tags: getRequiredStringArray(data, "tags", filePath),
+      title: getRequiredString(data, "title", filePath),
+      year: getRequiredNumber(data, "year", filePath)
+    },
+    content: stripFrontmatter(fileContents)
   };
 }
 
-export const getProjects = cache(async (): Promise<ProjectMetadata[]> => {
+const getAllProjects = cache(async (): Promise<Project[]> => {
   try {
     const directoryEntries = await readdir(projectsDirectory, {
       withFileTypes: true
@@ -215,22 +227,22 @@ export const getProjects = cache(async (): Promise<ProjectMetadata[]> => {
     const projects = await Promise.all(fileNames.map(readProjectFile));
 
     return projects.sort((left, right) => {
-      const leftOrder = left.order ?? Infinity;
-      const rightOrder = right.order ?? Infinity;
+      const leftOrder = left.metadata.order ?? Infinity;
+      const rightOrder = right.metadata.order ?? Infinity;
 
       if (leftOrder !== rightOrder) {
         return leftOrder - rightOrder;
       }
 
-      if (left.featured !== right.featured) {
-        return Number(right.featured) - Number(left.featured);
+      if (left.metadata.featured !== right.metadata.featured) {
+        return Number(right.metadata.featured) - Number(left.metadata.featured);
       }
 
-      if (left.year !== right.year) {
-        return right.year - left.year;
+      if (left.metadata.year !== right.metadata.year) {
+        return right.metadata.year - left.metadata.year;
       }
 
-      return left.title.localeCompare(right.title);
+      return left.metadata.title.localeCompare(right.metadata.title);
     });
   } catch (error) {
     if (
@@ -245,3 +257,15 @@ export const getProjects = cache(async (): Promise<ProjectMetadata[]> => {
     throw error;
   }
 });
+
+export const getProjects = cache(async (): Promise<ProjectMetadata[]> => {
+  const projects = await getAllProjects();
+  return projects.map((project) => project.metadata);
+});
+
+export const getProjectBySlug = cache(
+  async (slug: string): Promise<Project | undefined> => {
+    const projects = await getAllProjects();
+    return projects.find((project) => project.metadata.slug === slug);
+  }
+);

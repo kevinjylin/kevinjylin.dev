@@ -23,11 +23,36 @@ export default async function Home() {
                 <path className="agent-graph__link agent-graph__link--one" d="M20 22L34 14L48 25" />
                 <path className="agent-graph__link agent-graph__link--two" d="M20 22L30 38L48 25" />
                 <path className="agent-graph__link agent-graph__link--three" d="M30 38L44 47" />
-                <circle className="agent-graph__node agent-graph__node--one" cx="20" cy="22" r="5" />
-                <circle className="agent-graph__node agent-graph__node--two" cx="34" cy="14" r="4" />
-                <circle className="agent-graph__node agent-graph__node--three" cx="48" cy="25" r="5" />
-                <circle className="agent-graph__node agent-graph__node--four" cx="30" cy="38" r="5" />
-                <circle className="agent-graph__node agent-graph__node--five" cx="44" cy="47" r="4" />
+                <circle
+                  className="agent-graph__node agent-graph__node--one"
+                  cx="20"
+                  cy="22"
+                  r="5"
+                />
+                <circle
+                  className="agent-graph__node agent-graph__node--two"
+                  cx="34"
+                  cy="14"
+                  r="4"
+                />
+                <circle
+                  className="agent-graph__node agent-graph__node--three"
+                  cx="48"
+                  cy="25"
+                  r="5"
+                />
+                <circle
+                  className="agent-graph__node agent-graph__node--four"
+                  cx="30"
+                  cy="38"
+                  r="5"
+                />
+                <circle
+                  className="agent-graph__node agent-graph__node--five"
+                  cx="44"
+                  cy="47"
+                  r="4"
+                />
               </g>
             </svg>
           </Link>
@@ -44,16 +69,20 @@ export default async function Home() {
               <a href="https://www.linkedin.com/in/kevinjylin/" rel="noreferrer" target="_blank">
                 LinkedIn
               </a>
+              <span> / </span>
+              <Link href="/now">Now</Link>
             </nav>
 
             <div className="intro-copy">
               <p>
-                I&apos;m a Computer Science + Business student at <strong>UC Riverside</strong>, interested in 
-                AI agent systems, product development, and the process of turning ideas into useful tools.
+                I&apos;m a Computer Science + Business student at <strong>UC Riverside</strong>,
+                interested in AI agent systems, product development, and the process of turning
+                ideas into useful tools.
               </p>
               <p>
                 I&apos;m continually building, making, questioning, and learning. Feel free to
-                explore my work or reach out—I&apos;d love to share what I&apos;ve been thinking about.
+                explore my work or reach out—I&apos;d love to share what I&apos;ve been thinking
+                about.
               </p>
             </div>
 
@@ -85,7 +114,11 @@ export default async function Home() {
                 </div>
 
                 <div className="project-copy">
-                  <h3>{project.title}</h3>
+                  <h3>
+                    <Link href={`/projects/${project.slug}`} className="project-card__title-link">
+                      {project.title}
+                    </Link>
+                  </h3>
                   <p>{project.summary}</p>
                 </div>
 
@@ -119,10 +152,8 @@ export default async function Home() {
 
         <footer className="footer">
           <p>
-            <a href="mailto:kevinjylin@gmail.com">Email</a>{" "}
-            •{" "}
-            <a href="https://github.com/kevinjylin">GitHub</a>{" "}
-            •{" "}
+            <a href="mailto:kevinjylin@gmail.com">Email</a> •{" "}
+            <a href="https://github.com/kevinjylin">GitHub</a> •{" "}
             <a href="https://www.linkedin.com/in/kevinjylin/">LinkedIn</a>
           </p>
         </footer>

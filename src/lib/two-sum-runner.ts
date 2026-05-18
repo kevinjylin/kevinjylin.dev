@@ -30,7 +30,7 @@ export function sameIndices(
   got: unknown,
   expected: [number, number],
   nums: number[],
-  target: number
+  target: number,
 ): boolean {
   if (!Array.isArray(got) || got.length !== 2) return false;
   const [a, b] = got as [number, number];
@@ -115,7 +115,10 @@ function translateCppBody(body: string): string {
     .replace(/\bfalse\b/g, "false")
     .replace(/\bNULL\b/g, "null")
     .replace(/\bnullptr\b/g, "null")
-    .replace(/\bvector\s*<\s*int\s*>\s+([A-Za-z_]\w*)\s*=\s*\{\s*([^}]*)\s*\}\s*;/g, "let $1 = [$2];")
+    .replace(
+      /\bvector\s*<\s*int\s*>\s+([A-Za-z_]\w*)\s*=\s*\{\s*([^}]*)\s*\}\s*;/g,
+      "let $1 = [$2];",
+    )
     .replace(/\bvector\s*<\s*int\s*>\s+([A-Za-z_]\w*)\s*\{\s*([^}]*)\s*\}\s*;/g, "let $1 = [$2];")
     .replace(/\bvector\s*<\s*int\s*>\s+([A-Za-z_]\w*)\s*;/g, "let $1 = [];")
     .replace(/\b(?:unordered_map|map)\s*<[^;]+>\s+([A-Za-z_]\w*)\s*;/g, "const $1 = new Map();")
@@ -130,14 +133,20 @@ function translateCppBody(body: string): string {
 
   return js
     .replace(/\bfor\s*\(\s*(?:const\s+)?(?:long\s+long|size_t|int|auto)\s+/g, "for (let ")
-    .replace(/\b(?:const\s+)?(?:long\s+long|size_t|int|auto|double|float|bool)\s+([A-Za-z_]\w*)\s*=/g, "let $1 =")
-    .replace(/\b(?:const\s+)?(?:long\s+long|size_t|int|auto|double|float|bool)\s+([A-Za-z_]\w*)\s*;/g, "let $1;")
+    .replace(
+      /\b(?:const\s+)?(?:long\s+long|size_t|int|auto|double|float|bool)\s+([A-Za-z_]\w*)\s*=/g,
+      "let $1 =",
+    )
+    .replace(
+      /\b(?:const\s+)?(?:long\s+long|size_t|int|auto|double|float|bool)\s+([A-Za-z_]\w*)\s*;/g,
+      "let $1;",
+    )
     .replace(/\belse\s+if\b/g, "else if");
 }
 
 function collectMapNames(body: string): string[] {
   return Array.from(body.matchAll(/\b(?:unordered_map|map)\s*<[^;]+>\s+([A-Za-z_]\w*)/g)).map(
-    (match) => match[1]
+    (match) => match[1],
   );
 }
 
@@ -145,12 +154,18 @@ function translateMapCalls(source: string, mapName: string): string {
   const escaped = escapeRegExp(mapName);
   return source
     .replace(
-      new RegExp(`\\b${escaped}\\s*\\.\\s*find\\s*\\(([^;]+?)\\)\\s*!=\\s*${escaped}\\s*\\.\\s*end\\s*\\(\\s*\\)`, "g"),
-      `${mapName}.has($1)`
+      new RegExp(
+        `\\b${escaped}\\s*\\.\\s*find\\s*\\(([^;]+?)\\)\\s*!=\\s*${escaped}\\s*\\.\\s*end\\s*\\(\\s*\\)`,
+        "g",
+      ),
+      `${mapName}.has($1)`,
     )
     .replace(
-      new RegExp(`\\b${escaped}\\s*\\.\\s*find\\s*\\(([^;]+?)\\)\\s*==\\s*${escaped}\\s*\\.\\s*end\\s*\\(\\s*\\)`, "g"),
-      `!${mapName}.has($1)`
+      new RegExp(
+        `\\b${escaped}\\s*\\.\\s*find\\s*\\(([^;]+?)\\)\\s*==\\s*${escaped}\\s*\\.\\s*end\\s*\\(\\s*\\)`,
+        "g",
+      ),
+      `!${mapName}.has($1)`,
     )
     .replace(new RegExp(`\\b${escaped}\\s*\\.\\s*count\\s*\\(`, "g"), `${mapName}.has(`);
 }
@@ -238,7 +253,7 @@ function findStatementEnd(source: string, start: number): number {
       continue;
     }
 
-    if (char === "\"" || char === "'") {
+    if (char === '"' || char === "'") {
       quote = char;
       continue;
     }
@@ -258,12 +273,7 @@ function findStatementEnd(source: string, start: number): number {
   throw new Error("Could not parse map assignment.");
 }
 
-function findMatchingDelimiter(
-  source: string,
-  start: number,
-  open: string,
-  close: string
-): number {
+function findMatchingDelimiter(source: string, start: number, open: string, close: string): number {
   if (start < 0 || source[start] !== open) {
     throw new Error(`Could not parse C++ near ${open}${close}.`);
   }
@@ -311,7 +321,7 @@ function findMatchingDelimiter(
       continue;
     }
 
-    if (char === "\"" || char === "'") {
+    if (char === '"' || char === "'") {
       quote = char;
       continue;
     }

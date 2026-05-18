@@ -20,6 +20,8 @@ import {
 
 type Lang = "js" | "python" | "cpp";
 
+const LANGS: Lang[] = ["js", "python", "cpp"];
+
 const STARTERS: Record<Lang, string> = {
   js: `function twoSum(nums, target) {
   // return the indices of the two numbers that add to target
@@ -51,6 +53,16 @@ const LANG_LABELS: Record<Lang, string> = {
   cpp: "C++",
 };
 
+const EDITOR_INDENT = "  ";
+const OPENER_TO_CLOSER: Record<string, string> = {
+  "(": ")",
+  "[": "]",
+  "{": "}",
+};
+const CLOSERS = new Set(Object.values(OPENER_TO_CLOSER));
+
+const PYODIDE_CDN_URL = "https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.mjs";
+
 type SubmissionStats = {
   runtimeMs: number;
   memoryMb: number;
@@ -75,6 +87,42 @@ interface PyodideInterface {
 
 interface PyodideResult {
   toJs?(): unknown[];
+}
+
+// `new Function` keeps the dynamic import out of the bundler's static-analysis path,
+// so Next/webpack doesn't try to resolve the CDN URL at build time.
+async function loadPyodideFromCDN(): Promise<PyodideInterface> {
+  const dynamicImport = new Function("url", "return import(url)") as (
+    url: string,
+  ) => Promise<{ loadPyodide(): Promise<PyodideInterface> }>;
+  const pyodideModule = await dynamicImport(PYODIDE_CDN_URL);
+  return pyodideModule.loadPyodide();
+}
+
+async function runPythonTests(pyodide: PyodideInterface, code: string): Promise<Result[]> {
+  await pyodide.runPythonAsync(code);
+
+  const results: Result[] = [];
+  for (const test of TESTS) {
+    try {
+      const raw = (await pyodide.runPythonAsync(
+        `two_sum(${JSON.stringify(test.nums)}, ${test.target})`,
+      )) as PyodideResult | null;
+      const got =
+        raw && typeof raw === "object" && typeof raw.toJs === "function"
+          ? Array.from(raw.toJs())
+          : raw;
+      results.push({
+        test,
+        got,
+        pass: sameIndices(got, test.expected, test.nums, test.target),
+        error: null,
+      });
+    } catch (e) {
+      results.push({ test, got: null, pass: false, error: String(e) });
+    }
+  }
+  return results;
 }
 
 export default function TwoSumPage() {
@@ -142,13 +190,7 @@ export default function TwoSumPage() {
       if (!pyodideRef.current) {
         setPyLoading(true);
         try {
-          const loadFromCDN = new Function("url", "return import(url)") as (
-            url: string,
-          ) => Promise<{ loadPyodide(): Promise<PyodideInterface> }>;
-          const pyodideModule = await loadFromCDN(
-            "https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.mjs",
-          );
-          pyodideRef.current = await pyodideModule.loadPyodide();
+          pyodideRef.current = await loadPyodideFromCDN();
         } catch (e) {
           setTopError(
             `Failed to load Python runtime: ${e instanceof Error ? e.message : String(e)}`,
@@ -159,35 +201,12 @@ export default function TwoSumPage() {
         setPyLoading(false);
       }
 
-      const pyodide = pyodideRef.current;
       try {
-        await pyodide.runPythonAsync(code);
+        const pythonResults = await runPythonTests(pyodideRef.current, code);
+        showResults(pythonResults);
       } catch (e) {
         setTopError(String(e));
-        return;
       }
-
-      const out: Result[] = [];
-      for (const t of TESTS) {
-        try {
-          const raw = (await pyodide.runPythonAsync(
-            `two_sum(${JSON.stringify(t.nums)}, ${t.target})`,
-          )) as PyodideResult | null;
-          const got =
-            raw && typeof raw === "object" && typeof raw.toJs === "function"
-              ? Array.from(raw.toJs())
-              : raw;
-          out.push({
-            test: t,
-            got,
-            pass: sameIndices(got, t.expected, t.nums, t.target),
-            error: null,
-          });
-        } catch (e) {
-          out.push({ test: t, got: null, pass: false, error: String(e) });
-        }
-      }
-      showResults(out);
     }
   };
 
@@ -208,12 +227,6 @@ export default function TwoSumPage() {
 
     const textarea = event.currentTarget;
     const { selectionStart, selectionEnd, value } = textarea;
-    const indent = "  ";
-    const openerToCloser: Record<string, string> = {
-      "(": ")",
-      "[": "]",
-      "{": "}",
-    };
 
     const applyEdit = (nextValue: string, nextStart: number, nextEnd = nextStart) => {
       setCode(nextValue);
@@ -229,7 +242,7 @@ export default function TwoSumPage() {
       const linePrefix = value.slice(lineStart, selectionStart);
       const currentIndent = linePrefix.match(/^[ \t]*/)?.[0] ?? "";
       const before = value[selectionStart - 1] ?? "";
-      const closingForBefore = openerToCloser[before];
+      const closingForBefore = OPENER_TO_CLOSER[before];
       const lineEndIndex = value.indexOf("\n", selectionStart);
       const restOfLine = value.slice(
         selectionStart,
@@ -237,9 +250,9 @@ export default function TwoSumPage() {
       );
 
       if (selectionStart === selectionEnd && closingForBefore && restOfLine.trim() === "") {
-        const insertion = `\n${currentIndent}${indent}\n${currentIndent}`;
+        const insertion = `\n${currentIndent}${EDITOR_INDENT}\n${currentIndent}`;
         const nextValue = value.slice(0, selectionStart) + insertion + value.slice(selectionEnd);
-        const nextCaret = selectionStart + 1 + currentIndent.length + indent.length;
+        const nextCaret = selectionStart + 1 + currentIndent.length + EDITOR_INDENT.length;
         applyEdit(nextValue, nextCaret);
         return;
       }
@@ -255,29 +268,29 @@ export default function TwoSumPage() {
       event.preventDefault();
 
       if (selectionStart === selectionEnd) {
-        const nextValue = `${value.slice(0, selectionStart)}${indent}${value.slice(selectionEnd)}`;
-        const nextCaret = selectionStart + indent.length;
+        const nextValue = `${value.slice(0, selectionStart)}${EDITOR_INDENT}${value.slice(selectionEnd)}`;
+        const nextCaret = selectionStart + EDITOR_INDENT.length;
         applyEdit(nextValue, nextCaret);
         return;
       }
 
       const selected = value.slice(selectionStart, selectionEnd);
       const lines = selected.split("\n");
-      const indentedSelection = lines.map((line) => `${indent}${line}`).join("\n");
+      const indentedSelection = lines.map((line) => `${EDITOR_INDENT}${line}`).join("\n");
       const nextValue =
         value.slice(0, selectionStart) + indentedSelection + value.slice(selectionEnd);
 
       applyEdit(
         nextValue,
-        selectionStart + indent.length,
-        selectionEnd + indent.length * lines.length,
+        selectionStart + EDITOR_INDENT.length,
+        selectionEnd + EDITOR_INDENT.length * lines.length,
       );
       return;
     }
 
-    if (event.key in openerToCloser) {
+    if (event.key in OPENER_TO_CLOSER) {
       event.preventDefault();
-      const closer = openerToCloser[event.key];
+      const closer = OPENER_TO_CLOSER[event.key];
 
       if (selectionStart !== selectionEnd) {
         const selected = value.slice(selectionStart, selectionEnd);
@@ -297,7 +310,7 @@ export default function TwoSumPage() {
       return;
     }
 
-    if ([")", "]", "}"].includes(event.key) && selectionStart === selectionEnd) {
+    if (CLOSERS.has(event.key) && selectionStart === selectionEnd) {
       const after = value[selectionStart] ?? "";
       if (after === event.key) {
         event.preventDefault();
@@ -394,7 +407,7 @@ export default function TwoSumPage() {
                     value={lang}
                     onChange={(e) => switchLang(e.target.value as Lang)}
                   >
-                    {(["js", "python", "cpp"] as Lang[]).map((l) => (
+                    {LANGS.map((l) => (
                       <option key={l} value={l}>
                         {LANG_LABELS[l]}
                       </option>

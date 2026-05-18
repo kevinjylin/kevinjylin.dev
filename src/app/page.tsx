@@ -7,7 +7,7 @@ export default async function Home() {
   const projects = await getProjects();
 
   return (
-    <main className="page-shell">
+    <main className="page-shell" id="main-content" tabIndex={-1}>
       <div className="page-frame">
         <div className="intro-offset">
           <Link href="/two-sum" className="site-icon" aria-label="Solve Two Sum">

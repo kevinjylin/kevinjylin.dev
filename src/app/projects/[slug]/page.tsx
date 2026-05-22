@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 
+import { mdxComponents } from "@/components/mdx-components";
 import { getProjectBySlug, getProjects } from "@/lib/projects";
 
 type RouteParams = { slug: string };
@@ -82,7 +83,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
             {hasBody ? (
               <div className="project-detail__body">
-                <MDXRemote source={content} />
+                <MDXRemote source={content} components={mdxComponents} />
               </div>
             ) : null}
           </article>

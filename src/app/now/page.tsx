@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
 
+import { mdxComponents } from "@/components/mdx-components";
 import { getNow } from "@/lib/now";
 
 export const metadata: Metadata = {
@@ -46,7 +47,7 @@ export default async function NowPage() {
             </header>
 
             <div className="project-detail__body now-page__body">
-              <MDXRemote source={content} />
+              <MDXRemote source={content} components={mdxComponents} />
             </div>
           </article>
         </div>

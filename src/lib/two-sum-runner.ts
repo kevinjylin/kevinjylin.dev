@@ -111,8 +111,6 @@ function translateCppBody(body: string): string {
     .replace(/\bstd::/g, "")
     .replace(/\bnums\s*\.\s*size\s*\(\s*\)/g, "nums.length")
     .replace(/\bnums\s*\.\s*at\s*\(\s*([^)]+)\s*\)/g, "nums[$1]")
-    .replace(/\btrue\b/g, "true")
-    .replace(/\bfalse\b/g, "false")
     .replace(/\bNULL\b/g, "null")
     .replace(/\bnullptr\b/g, "null")
     .replace(
@@ -207,57 +205,77 @@ function skipWhitespace(source: string, index: number): number {
   return cursor;
 }
 
-function findStatementEnd(source: string, start: number): number {
-  let parenDepth = 0;
-  let bracketDepth = 0;
-  let braceDepth = 0;
-  let quote: string | null = null;
-  let lineComment = false;
-  let blockComment = false;
+type CppScanState = {
+  blockComment: boolean;
+  lineComment: boolean;
+  quote: string | null;
+};
+
+function forEachCppCodeIndex(
+  source: string,
+  start: number,
+  onCodeIndex: (index: number, char: string) => number | void,
+): number | null {
+  const state: CppScanState = { lineComment: false, blockComment: false, quote: null };
 
   for (let i = start; i < source.length; i += 1) {
     const char = source[i];
     const next = source[i + 1];
 
-    if (lineComment) {
-      if (char === "\n") lineComment = false;
+    if (state.lineComment) {
+      if (char === "\n") state.lineComment = false;
       continue;
     }
 
-    if (blockComment) {
+    if (state.blockComment) {
       if (char === "*" && next === "/") {
-        blockComment = false;
+        state.blockComment = false;
         i += 1;
       }
       continue;
     }
 
-    if (quote) {
+    if (state.quote) {
       if (char === "\\") {
         i += 1;
-      } else if (char === quote) {
-        quote = null;
+      } else if (char === state.quote) {
+        state.quote = null;
       }
       continue;
     }
 
     if (char === "/" && next === "/") {
-      lineComment = true;
+      state.lineComment = true;
       i += 1;
       continue;
     }
 
     if (char === "/" && next === "*") {
-      blockComment = true;
+      state.blockComment = true;
       i += 1;
       continue;
     }
 
     if (char === '"' || char === "'") {
-      quote = char;
+      state.quote = char;
       continue;
     }
 
+    const result = onCodeIndex(i, char);
+    if (typeof result === "number") {
+      return result;
+    }
+  }
+
+  return null;
+}
+
+function findStatementEnd(source: string, start: number): number {
+  let parenDepth = 0;
+  let bracketDepth = 0;
+  let braceDepth = 0;
+
+  const end = forEachCppCodeIndex(source, start, (_index, char) => {
     if (char === "(") parenDepth += 1;
     if (char === ")") parenDepth -= 1;
     if (char === "[") bracketDepth += 1;
@@ -266,11 +284,15 @@ function findStatementEnd(source: string, start: number): number {
     if (char === "}") braceDepth -= 1;
 
     if (char === ";" && parenDepth === 0 && bracketDepth === 0 && braceDepth === 0) {
-      return i;
+      return _index;
     }
+  });
+
+  if (end === null) {
+    throw new Error("Could not parse map assignment.");
   }
 
-  throw new Error("Could not parse map assignment.");
+  return end;
 }
 
 function findMatchingDelimiter(source: string, start: number, open: string, close: string): number {
@@ -279,61 +301,20 @@ function findMatchingDelimiter(source: string, start: number, open: string, clos
   }
 
   let depth = 0;
-  let quote: string | null = null;
-  let lineComment = false;
-  let blockComment = false;
 
-  for (let i = start; i < source.length; i += 1) {
-    const char = source[i];
-    const next = source[i + 1];
-
-    if (lineComment) {
-      if (char === "\n") lineComment = false;
-      continue;
-    }
-
-    if (blockComment) {
-      if (char === "*" && next === "/") {
-        blockComment = false;
-        i += 1;
-      }
-      continue;
-    }
-
-    if (quote) {
-      if (char === "\\") {
-        i += 1;
-      } else if (char === quote) {
-        quote = null;
-      }
-      continue;
-    }
-
-    if (char === "/" && next === "/") {
-      lineComment = true;
-      i += 1;
-      continue;
-    }
-
-    if (char === "/" && next === "*") {
-      blockComment = true;
-      i += 1;
-      continue;
-    }
-
-    if (char === '"' || char === "'") {
-      quote = char;
-      continue;
-    }
-
+  const end = forEachCppCodeIndex(source, start, (_index, char) => {
     if (char === open) depth += 1;
     if (char === close) {
       depth -= 1;
-      if (depth === 0) return i;
+      if (depth === 0) return _index;
     }
+  });
+
+  if (end === null) {
+    throw new Error(`Could not find matching ${close}.`);
   }
 
-  throw new Error(`Could not find matching ${close}.`);
+  return end;
 }
 
 function escapeRegExp(value: string): string {

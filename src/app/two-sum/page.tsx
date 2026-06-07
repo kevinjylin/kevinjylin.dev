@@ -336,7 +336,7 @@ async function runPythonTests(pyodide: PyodideInterface, code: string): Promise<
 export default function TwoSumPage() {
   const [lang, setLang] = useState<Lang>("cpp");
   const [code, setCode] = useState(STARTERS.cpp);
-  const [results, setResults] = useState<Result[] | null>(null);
+  const [firstFailed, setFirstFailed] = useState<Result | null>(null);
   const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus | null>(null);
   const [submissionStats, setSubmissionStats] = useState<SubmissionStats | null>(null);
   const [cookieBites, setCookieBites] = useState(0);
@@ -434,7 +434,7 @@ export default function TwoSumPage() {
     setLang(l);
     setCode(STARTERS[l]);
     setSelectionRange({ start: 0, end: 0 });
-    setResults(null);
+    setFirstFailed(null);
     setSubmissionStatus(null);
     setSubmissionStats(null);
     setTopError(null);
@@ -443,7 +443,7 @@ export default function TwoSumPage() {
   const showResults = (nextResults: Result[]) => {
     const nextStatus = getSubmissionStatus(nextResults);
     setSubmissionStatus(nextStatus);
-    setResults(nextResults);
+    setFirstFailed(nextResults.find((result) => !result.pass) ?? null);
 
     if (nextStatus.kind === "accepted") {
       setSubmissionStats(generateStats(lang));
@@ -456,7 +456,7 @@ export default function TwoSumPage() {
 
   const run = async () => {
     setTopError(null);
-    setResults(null);
+    setFirstFailed(null);
     setSubmissionStatus(null);
     setSubmissionStats(null);
 
@@ -507,7 +507,7 @@ export default function TwoSumPage() {
   const reset = () => {
     setCode(STARTERS[lang]);
     setSelectionRange({ start: 0, end: 0 });
-    setResults(null);
+    setFirstFailed(null);
     setSubmissionStatus(null);
     setSubmissionStats(null);
     setCookieBites(0);
@@ -886,7 +886,6 @@ export default function TwoSumPage() {
 
   const isRunning = pyLoading;
   const bitesLeft = COOKIE_BITE_TOTAL - cookieBites;
-  const firstFailed = results?.find((r) => !r.pass) ?? null;
   const showCookiePopup = submissionStatus?.kind === "accepted" && !cookieDismissed;
 
   return (

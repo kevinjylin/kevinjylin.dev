@@ -75,7 +75,7 @@ export function CodeEditor({ code, lang, onCodeChange, onLangChange }: CodeEdito
   return (
     <div className="twosum-editor">
       <div className="twosum-editor-bar">
-        <div className="twosum-lang-tabs">
+        <div className="twosum-editor-filename">
           <span className="twosum-filename">{FILENAMES[lang]}</span>
         </div>
         <div>

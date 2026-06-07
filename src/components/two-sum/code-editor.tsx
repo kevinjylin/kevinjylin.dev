@@ -2,12 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import {
-  FILENAMES,
-  LANGS,
-  LANG_LABELS,
-  type Lang,
-} from "@/lib/two-sum-constants";
+import { FILENAMES, LANGS, LANG_LABELS, type Lang } from "@/lib/two-sum-constants";
 import { createEditorKeyDownHandler, getBracketHighlights } from "@/lib/two-sum-editor";
 
 type CodeEditorProps = {

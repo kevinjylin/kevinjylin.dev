@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  COOKIE_BITE_TOTAL,
-  getNextCookieBiteCount,
-} from "@/lib/two-sum-submission";
+import { COOKIE_BITE_TOTAL, getNextCookieBiteCount } from "@/lib/two-sum-submission";
 
 type CookiePopupProps = {
   bites: number;
@@ -16,12 +13,7 @@ export function CookiePopup({ bites, onBite, onDismiss }: CookiePopupProps) {
 
   return (
     <div className="cookie-popup" role="dialog" aria-label="You earned a cookie">
-      <button
-        type="button"
-        className="cookie-popup__close"
-        onClick={onDismiss}
-        aria-label="Close"
-      >
+      <button type="button" className="cookie-popup__close" onClick={onDismiss} aria-label="Close">
         ×
       </button>
       <p className="cookie-popup__eyebrow">surprise!</p>

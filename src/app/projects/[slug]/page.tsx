@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 
 import { mdxComponents } from "@/components/mdx-components";
+import { ProjectLinks } from "@/components/project-links";
 import { getProjectBySlug, getProjects } from "@/lib/projects";
 
 type RouteParams = { slug: string };
@@ -64,21 +65,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 ))}
               </ul>
 
-              {(metadata.repoUrl || metadata.liveUrl) && (
-                <div className="project-links project-detail__links">
-                  {metadata.repoUrl ? (
-                    <a href={metadata.repoUrl} rel="noreferrer" target="_blank">
-                      Repository
-                    </a>
-                  ) : null}
-
-                  {metadata.liveUrl ? (
-                    <a href={metadata.liveUrl} rel="noreferrer" target="_blank">
-                      Live Site
-                    </a>
-                  ) : null}
-                </div>
-              )}
+              <ProjectLinks
+                className="project-links project-detail__links"
+                repoUrl={metadata.repoUrl}
+                liveUrl={metadata.liveUrl}
+              />
             </header>
 
             {hasBody ? (

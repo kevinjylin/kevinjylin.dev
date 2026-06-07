@@ -11,17 +11,6 @@
   --accent-soft: #f3ebe3;
 }
 
-@keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @keyframes graph-flow {
   from {
     stroke-dashoffset: 18;
@@ -239,7 +228,6 @@ a {
 .intro {
   max-width: 64rem;
   padding-bottom: 3rem;
-  animation: fade-up 0.5s ease both;
 }
 
 .eyebrow,
@@ -329,8 +317,6 @@ a {
 .section {
   padding: 2.5rem 0;
   border-top: 1px solid var(--border);
-  animation: fade-up 0.5s ease both;
-  animation-delay: 0.15s;
 }
 
 .section-heading {
@@ -375,7 +361,6 @@ a {
   border: 1px solid var(--border);
   border-radius: 1.1rem;
   background: var(--surface);
-  animation: fade-up 0.5s ease both;
   transition:
     background-color 160ms ease,
     border-color 160ms ease,
@@ -398,25 +383,6 @@ a {
 .project-card .project-links {
   position: relative;
   z-index: 1;
-}
-
-.project-card:nth-child(1) {
-  animation-delay: 0.25s;
-}
-.project-card:nth-child(2) {
-  animation-delay: 0.32s;
-}
-.project-card:nth-child(3) {
-  animation-delay: 0.39s;
-}
-.project-card:nth-child(4) {
-  animation-delay: 0.46s;
-}
-.project-card:nth-child(5) {
-  animation-delay: 0.53s;
-}
-.project-card:nth-child(6) {
-  animation-delay: 0.6s;
 }
 
 .project-card:hover {
@@ -502,8 +468,6 @@ a {
   gap: 1rem;
   padding: 2rem 0 0;
   border-top: 1px solid var(--border);
-  animation: fade-up 0.5s ease both;
-  animation-delay: 0.3s;
 }
 
 .footer p {
@@ -523,8 +487,6 @@ a {
 
 .twosum {
   margin-top: 1.5rem;
-  animation: fade-up 0.5s ease both;
-  animation-delay: 0.2s;
 }
 
 .twosum-lang-tabs {
@@ -590,6 +552,11 @@ a {
   font: inherit;
 }
 
+.twosum-editor-container {
+  position: relative;
+  width: 100%;
+}
+
 .twosum-textarea {
   display: block;
   width: 100%;
@@ -602,6 +569,37 @@ a {
   font-size: 0.95rem;
   line-height: 1.55;
   resize: vertical;
+  tab-size: 4;
+  -moz-tab-size: 4;
+  position: relative;
+  z-index: 1;
+}
+
+.twosum-editor-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  padding: 1rem 1.1rem;
+  border: 0;
+  color: transparent;
+  background: transparent;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  tab-size: 4;
+  -moz-tab-size: 4;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.twosum-bracket-highlight {
+  background-color: var(--tag-background);
+  border-radius: 4px;
 }
 
 .twosum-textarea:focus {
@@ -757,7 +755,6 @@ a {
     "Segoe UI",
     sans-serif;
   box-shadow: 0 8px 22px rgba(74, 44, 32, 0.08);
-  animation: fade-up 0.35s ease both;
 }
 
 .lc-result__topbar {
@@ -965,10 +962,6 @@ a {
   transform: translateX(-2px);
 }
 
-.project-detail {
-  animation: fade-up 0.5s ease both;
-}
-
 .project-detail__header {
   display: grid;
   gap: 1rem;
@@ -1077,10 +1070,6 @@ a {
   border-left: 2px solid var(--border);
   color: var(--muted);
   font-style: italic;
-}
-
-.now-page {
-  animation: fade-up 0.5s ease both;
 }
 
 .now-page__header {
@@ -1425,15 +1414,7 @@ a {
 
 @media (prefers-reduced-motion: reduce) {
   .agent-graph__link,
-  .agent-graph__node,
-  .intro,
-  .section,
-  .footer,
-  .project-card,
-  .lc-result,
-  .now-page,
-  .project-detail,
-  .twosum {
+  .agent-graph__node {
     animation: none;
   }
 

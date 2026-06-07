@@ -265,16 +265,6 @@ a {
   margin-top: 1.1rem;
 }
 
-.intro-kicker {
-  max-width: 34rem;
-  margin: 1rem 0 0;
-  color: var(--muted);
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.5;
-}
-
 .intro-copy {
   display: grid;
   gap: 1.15rem;
@@ -436,19 +426,14 @@ a {
   font-size: 0.8rem;
 }
 
-.project-links,
-.footer-links {
+.project-links {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-}
-
-.project-links {
   margin-top: auto;
 }
 
-.project-links a,
-.footer-links a {
+.project-links a {
   padding-bottom: 0.2rem;
   border-bottom: 1px solid transparent;
   transition:
@@ -456,8 +441,7 @@ a {
     color 160ms ease;
 }
 
-.project-links a:hover,
-.footer-links a:hover {
+.project-links a:hover {
   border-color: currentColor;
 }
 
@@ -493,29 +477,6 @@ a {
   display: flex;
   gap: 0.25rem;
   margin-right: 0.75rem;
-}
-
-.twosum-lang-tab {
-  padding: 0.2rem 0.6rem;
-  border: 1px solid transparent;
-  border-radius: 5px;
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: 0.78rem;
-  cursor: pointer;
-  transition:
-    color 120ms ease,
-    background-color 120ms ease;
-}
-
-.twosum-lang-tab:hover {
-  color: var(--text);
-}
-
-.twosum-lang-tab--active {
-  background: var(--accent);
-  color: #ffffff;
 }
 
 .twosum-editor {
@@ -659,86 +620,6 @@ a {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   font-size: 0.88rem;
   white-space: pre-wrap;
-}
-
-.twosum-submission-status {
-  margin: 1rem 0 0;
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.twosum-submission-status--accepted {
-  color: #16a34a;
-}
-
-.twosum-submission-status--wrong {
-  color: #dc2626;
-}
-
-.twosum-results {
-  display: grid;
-  gap: 0.6rem;
-  margin: 1.25rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.twosum-result {
-  padding: 0.85rem 1rem;
-  border: 1px solid var(--border);
-  border-left-width: 3px;
-  border-radius: 0.55rem;
-  background: var(--surface);
-}
-
-.twosum-result--pass {
-  border-left-color: var(--accent);
-}
-
-.twosum-result--fail {
-  border-left-color: #b34a3a;
-}
-
-.twosum-result-head {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 0.9rem;
-}
-
-.twosum-badge {
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.twosum-result--pass .twosum-badge {
-  background: var(--accent);
-  color: #ffffff;
-}
-
-.twosum-result--fail .twosum-badge {
-  background: #b34a3a;
-  color: #ffffff;
-}
-
-.twosum-result-body {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  margin-top: 0.45rem;
-  color: var(--muted);
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 0.85rem;
-}
-
-.twosum-result-body em {
-  color: #b34a3a;
-  font-style: normal;
 }
 
 .lc-result {

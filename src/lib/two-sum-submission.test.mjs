@@ -12,7 +12,6 @@ test("formats accepted status when every test passes", () => {
 
   assert.deepEqual(status, {
     kind: "accepted",
-    message: "Accepted",
     passed: 5,
     total: 5,
   });
@@ -29,7 +28,6 @@ test("formats wrong answer status with passed count", () => {
 
   assert.deepEqual(status, {
     kind: "wrong-answer",
-    message: "Wrong Answer 2/5 test cases passed",
     passed: 2,
     total: 5,
   });

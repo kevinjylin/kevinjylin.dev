@@ -473,7 +473,7 @@ a {
   margin-top: 1.5rem;
 }
 
-.twosum-lang-tabs {
+.twosum-editor-filename {
   display: flex;
   gap: 0.25rem;
   margin-right: 0.75rem;
@@ -1234,9 +1234,7 @@ a {
   .lc-result__detail {
     padding: 0.85rem 1.05rem 1.05rem;
   }
-}
 
-@media (max-width: 760px) {
   .page-shell {
     --page-padding-right: 1.5rem;
     --page-padding-left: 2.4rem;

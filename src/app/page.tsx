@@ -34,14 +34,18 @@ export default async function Home() {
 
             <div className="intro-copy">
               <p>
-                I&apos;m a Computer Science + Business student at <strong>UC Riverside</strong>,
-                interested in AI agent systems, product development, and the process of turning
-                ideas into useful tools.
+                I study Computer Science + Business at <strong>UC Riverside</strong>. The problem in
+                AI I find most compelling right now isn&apos;t making agents more capable—it&apos;s
+                closing the distance between what they can do and what people can actually trust
+                them with. That&apos;s where I spend most of my attention, and I care about the
+                engineering and the product side in equal measure.
               </p>
               <p>
-                I&apos;m continually building, making, questioning, and learning. Feel free to
-                explore my work or reach out—I&apos;d love to share what I&apos;ve been thinking
-                about.
+                I&apos;m always reading and building toward that, and glad to{" "}
+                <a href="https://www.linkedin.com/in/kevinjylin/" rel="noreferrer" target="_blank">
+                  connect
+                </a>{" "}
+                with anyone working on similar problems.
               </p>
             </div>
 
@@ -65,23 +69,20 @@ export default async function Home() {
             <p>{projects.length} entries</p>
           </div>
 
-          <div className="projects-grid">
+          <div className="projects-list">
             {projects.map((project) => (
-              <article className="project-card" key={project.slug}>
-                <div className="project-meta">
-                  <span>{project.year}</span>
-                </div>
+              <article className="project-row" key={project.slug}>
+                <div className="project-row__year">{project.year}</div>
 
-                <div className="project-copy">
-                  <h3>
-                    <Link href={`/projects/${project.slug}`} className="project-card__title-link">
-                      {project.title}
-                    </Link>
-                  </h3>
-                  <p>{project.summary}</p>
-                </div>
+                <h3 className="project-row__title">
+                  <Link href={`/projects/${project.slug}`} className="project-row__title-link">
+                    {project.title}
+                  </Link>
+                </h3>
 
-                <ul className="tag-list" aria-label={`${project.title} tags`}>
+                <p className="project-row__summary">{project.summary}</p>
+
+                <ul className="tag-list project-row__tags" aria-label={`${project.title} tags`}>
                   {project.tags.map((tag) => (
                     <li className="tag" key={tag}>
                       {tag}
@@ -89,7 +90,11 @@ export default async function Home() {
                   ))}
                 </ul>
 
-                <ProjectLinks repoUrl={project.repoUrl} liveUrl={project.liveUrl} />
+                <ProjectLinks
+                  className="project-links project-row__links"
+                  repoUrl={project.repoUrl}
+                  liveUrl={project.liveUrl}
+                />
               </article>
             ))}
           </div>

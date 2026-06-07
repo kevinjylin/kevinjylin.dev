@@ -83,9 +83,7 @@ export default function TwoSumPage() {
       try {
         pyodideRef.current = await loadPyodideFromCDN();
       } catch (e) {
-        setTopError(
-          `Failed to load Python runtime: ${e instanceof Error ? e.message : String(e)}`,
-        );
+        setTopError(`Failed to load Python runtime: ${e instanceof Error ? e.message : String(e)}`);
         setPyLoading(false);
         return;
       }

@@ -2,7 +2,6 @@ import type { KeyboardEvent } from "react";
 
 import type { Lang } from "@/lib/two-sum-constants";
 
-
 const EDITOR_INDENT = "\t";
 const OPENER_TO_CLOSER: Record<string, string> = {
   "(": ")",
@@ -155,11 +154,7 @@ function parseCodeStates(text: string, lang: Lang): CharState[] {
   return states;
 }
 
-function findMatchingBracketIndex(
-  text: string,
-  index: number,
-  states: CharState[]
-): number {
+function findMatchingBracketIndex(text: string, index: number, states: CharState[]): number {
   if (index < 0 || index >= text.length) return -1;
   if (!states[index]?.isNormal) return -1;
 
@@ -204,7 +199,7 @@ function findMatchingBracketIndex(
 function findContainingBrackets(
   text: string,
   cursorIndex: number,
-  states: CharState[]
+  states: CharState[],
 ): [number, number] | null {
   for (let i = cursorIndex - 1; i >= 0; i--) {
     if (!states[i]?.isNormal) continue;
@@ -261,7 +256,6 @@ type EditorKeyDownOptions = {
 
 export function createEditorKeyDownHandler({ lang, onCodeChange }: EditorKeyDownOptions) {
   return (event: KeyboardEvent<HTMLTextAreaElement>) => {
-
     const isCommentShortcut = event.key === "/" && (event.metaKey || event.ctrlKey);
 
     if (!isCommentShortcut && (event.altKey || event.ctrlKey || event.metaKey)) {
@@ -347,9 +341,8 @@ export function createEditorKeyDownHandler({ lang, onCodeChange }: EditorKeyDown
           diff = commentPrefix.length;
           modOffset = leading.length;
         } else {
-          const match = lang === "python"
-            ? line.match(/^([ \t]*)(\#[ \t]?)/)
-            : line.match(/^([ \t]*)(\/\/ ?)/);
+          const match =
+            lang === "python" ? line.match(/^([ \t]*)(\#[ \t]?)/) : line.match(/^([ \t]*)(\/\/ ?)/);
           if (match) {
             const leading = match[1];
             const prefix = match[2];
@@ -630,4 +623,3 @@ export function createEditorKeyDownHandler({ lang, onCodeChange }: EditorKeyDown
     }
   };
 }
-

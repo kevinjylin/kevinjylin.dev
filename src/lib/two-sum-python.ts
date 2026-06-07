@@ -20,10 +20,7 @@ export async function loadPyodideFromCDN(): Promise<PyodideInterface> {
   return pyodideModule.loadPyodide();
 }
 
-export async function runPythonTests(
-  pyodide: PyodideInterface,
-  code: string,
-): Promise<Result[]> {
+export async function runPythonTests(pyodide: PyodideInterface, code: string): Promise<Result[]> {
   await pyodide.runPythonAsync(code);
 
   const results: Result[] = [];

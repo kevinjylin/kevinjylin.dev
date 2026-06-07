@@ -14,10 +14,7 @@ export function SubmissionResult({ firstFailed, lang, stats, status }: Submissio
   const isAccepted = status.kind === "accepted";
 
   return (
-    <div
-      className={`lc-result lc-result--${isAccepted ? "accepted" : "wrong"}`}
-      aria-live="polite"
-    >
+    <div className={`lc-result lc-result--${isAccepted ? "accepted" : "wrong"}`} aria-live="polite">
       <div className="lc-result__topbar">
         <span className="lc-result__tab lc-result__tab--active">
           {isAccepted ? "Accepted" : "Wrong Answer"}

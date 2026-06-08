@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
-import { MAX_MESSAGE_LENGTH, MAX_NAME_LENGTH } from "@/lib/guestbook";
+import { MAX_MESSAGE_LENGTH, MAX_NAME_LENGTH } from "@/lib/wall";
 
-export function GuestbookForm() {
+export function WallForm() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
@@ -43,13 +43,13 @@ export function GuestbookForm() {
   };
 
   return (
-    <form className="guestbook-form" onSubmit={handleSubmit}>
-      <label htmlFor="guestbook-name" className="sr-only">
+    <form className="wall-form" onSubmit={handleSubmit}>
+      <label htmlFor="wall-name" className="sr-only">
         Your name
       </label>
       <input
-        id="guestbook-name"
-        className="guestbook-form__name"
+        id="wall-name"
+        className="wall-form__name"
         type="text"
         value={name}
         onChange={(event) => setName(event.target.value)}
@@ -59,12 +59,12 @@ export function GuestbookForm() {
         disabled={submitting}
       />
 
-      <label htmlFor="guestbook-message" className="sr-only">
+      <label htmlFor="wall-message" className="sr-only">
         Your note
       </label>
       <textarea
-        id="guestbook-message"
-        className="guestbook-form__message"
+        id="wall-message"
+        className="wall-form__message"
         value={message}
         onChange={(event) => setMessage(event.target.value)}
         placeholder="Leave your mark…"
@@ -75,10 +75,10 @@ export function GuestbookForm() {
       />
 
       {/* Honeypot: hidden from people, tempting to bots. */}
-      <div className="guestbook-form__honeypot" aria-hidden="true">
-        <label htmlFor="guestbook-website">Website</label>
+      <div className="wall-form__honeypot" aria-hidden="true">
+        <label htmlFor="wall-website">Website</label>
         <input
-          id="guestbook-website"
+          id="wall-website"
           type="text"
           tabIndex={-1}
           autoComplete="off"
@@ -87,8 +87,8 @@ export function GuestbookForm() {
         />
       </div>
 
-      <div className="guestbook-form__actions">
-        <span className="guestbook-form__count">
+      <div className="wall-form__actions">
+        <span className="wall-form__count">
           {message.length}/{MAX_MESSAGE_LENGTH}
         </span>
         <button
@@ -101,7 +101,7 @@ export function GuestbookForm() {
       </div>
 
       {error ? (
-        <p className="guestbook-form__error" role="alert">
+        <p className="wall-form__error" role="alert">
           {error}
         </p>
       ) : null}

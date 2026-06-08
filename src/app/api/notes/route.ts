@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { validateNoteInput } from "@/lib/guestbook";
-import { addNote, getNotes, isRateLimited } from "@/lib/guestbook-store";
+import { validateNoteInput } from "@/lib/wall";
+import { addNote, getNotes, isRateLimited } from "@/lib/wall-store";
 
 export const dynamic = "force-dynamic";
 

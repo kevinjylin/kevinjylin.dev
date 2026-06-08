@@ -1,10 +1,10 @@
 import type { Firestore } from "firebase-admin/firestore";
 
 import { getFirestoreDb } from "@/lib/firebase-admin";
-import type { Note, NoteInput } from "@/lib/guestbook";
+import type { Note, NoteInput } from "@/lib/wall";
 
-const NOTES_COLLECTION = "guestbook_notes";
-const RATE_LIMITS_COLLECTION = "guestbook_rate_limits";
+const NOTES_COLLECTION = "wall_notes";
+const RATE_LIMITS_COLLECTION = "wall_rate_limits";
 const MAX_STORED = 500;
 const MAX_VISIBLE = 100;
 const RATE_LIMIT_MAX = 5;
@@ -20,7 +20,7 @@ let warnedAboutFallback = false;
 function getDb(): Firestore | null {
   const db = getFirestoreDb();
   if (!db && !warnedAboutFallback) {
-    console.warn("[guestbook] Firebase Admin SDK not configured — using in-memory store (dev only).");
+    console.warn("[wall] Firebase Admin SDK not configured — using in-memory store (dev only).");
     warnedAboutFallback = true;
   }
   return db;
@@ -32,6 +32,9 @@ function createNote(input: NoteInput): Note {
     name: input.name,
     message: input.message,
     createdAt: Date.now(),
+    ...(input.x !== undefined ? { x: input.x } : {}),
+    ...(input.y !== undefined ? { y: input.y } : {}),
+    ...(input.color ? { color: input.color } : {}),
   };
 }
 
@@ -92,7 +95,7 @@ export async function isRateLimited(ip: string): Promise<boolean> {
   const db = getDb();
 
   if (!db) {
-    const key = `guestbook:rate:${ip}`;
+    const key = `wall:rate:${ip}`;
     const now = Date.now();
     const entry = memoryRates.get(key);
     if (!entry || entry.resetAt < now) {

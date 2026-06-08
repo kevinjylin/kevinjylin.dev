@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { DEFAULT_NAME, MAX_MESSAGE_LENGTH, validateNoteInput } from "./guestbook.ts";
+import { DEFAULT_NAME, MAX_MESSAGE_LENGTH, validateNoteInput } from "./wall.ts";
 
 test("accepts a note and trims whitespace", () => {
   const result = validateNoteInput({ name: "  Ada  ", message: "  hello world  " });

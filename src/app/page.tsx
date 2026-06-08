@@ -31,7 +31,7 @@ export default async function Home() {
               <span> / </span>
               <Link href="/now">Now</Link>
               <span> / </span>
-              <Link href="/guestbook">Guestbook</Link>
+              <Link href="/wall">Wall</Link>
             </nav>
 
             <div className="intro-copy">

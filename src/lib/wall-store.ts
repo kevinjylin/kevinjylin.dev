@@ -35,6 +35,7 @@ function createNote(input: NoteInput): Note {
     ...(input.x !== undefined ? { x: input.x } : {}),
     ...(input.y !== undefined ? { y: input.y } : {}),
     ...(input.color ? { color: input.color } : {}),
+    ...(input.imageUrl ? { imageUrl: input.imageUrl } : {}),
   };
 }
 

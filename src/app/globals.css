@@ -1009,30 +1009,38 @@ a {
 /* ── Note ──────────────────────────────────────────────────── */
 
 .wall-note {
+  --note-rot: 0deg;
   position: absolute;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) rotate(var(--note-rot));
   width: 13rem;
-  padding: 0.85rem 0.95rem 0.75rem;
-  background: var(--accent-soft);
-  border-radius: 6px;
+  padding: 0.95rem 1rem 0.8rem;
+  background:
+    linear-gradient(158deg, #f8f2ea 0%, #f1e7dd 100%);
+  border: 1px solid rgba(74, 44, 32, 0.08);
+  border-radius: 8px;
   z-index: 1;
+  box-shadow:
+    0 1px 2px rgba(74, 44, 32, 0.05),
+    0 5px 14px rgba(74, 44, 32, 0.06);
   transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
+    transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 200ms ease,
     z-index 0ms;
 }
 
 .wall-note:hover {
   z-index: 10;
-  transform: translate(-50%, -50%) translateY(-2px);
-  box-shadow: 0 4px 14px rgba(74, 44, 32, 0.08);
+  transform: translate(-50%, -50%) rotate(0deg) translateY(-4px);
+  box-shadow:
+    0 2px 4px rgba(74, 44, 32, 0.06),
+    0 12px 28px rgba(74, 44, 32, 0.12);
 }
 
 .wall-note__msg {
   margin: 0;
   color: var(--text);
   font-size: 0.88rem;
-  line-height: 1.5;
+  line-height: 1.55;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -1042,7 +1050,9 @@ a {
   align-items: baseline;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-top: 0.55rem;
+  margin-top: 0.7rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgba(74, 44, 32, 0.07);
   color: var(--muted);
   font-size: 0.72rem;
 }
@@ -1196,6 +1206,65 @@ a {
   color: #b34a3a;
   font-size: 0.78rem;
   text-align: center;
+}
+
+/* ── Image upload in compose ─────────────────────────────── */
+
+.wall-compose__image-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.wall-compose__image-label {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.wall-compose__image-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.wall-compose__preview {
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.wall-compose__preview-img {
+  display: block;
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+/* ── Image in notes ──────────────────────────────────────── */
+
+.wall-note--has-image {
+  width: 14.5rem;
+  padding-bottom: 0.7rem;
+}
+
+.wall-note__image-wrap {
+  margin: -0.95rem -1rem 0.65rem;
+  overflow: hidden;
+  border-radius: 7px 7px 0 0;
+}
+
+.wall-note__image {
+  display: block;
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
 }
 
 /* Honeypot (unchanged) */
@@ -1550,8 +1619,11 @@ a {
   .project-row:hover,
   .project-back:hover,
   .cookie-button:hover,
-  .twosum-button:hover,
-  .wall-note:hover {
+  .twosum-button:hover {
     transform: none;
+  }
+
+  .wall-note:hover {
+    transform: translate(-50%, -50%) rotate(var(--note-rot));
   }
 }

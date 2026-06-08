@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 
 import {
+  MAX_IMAGE_BYTES,
   MAX_MESSAGE_LENGTH,
   MAX_NAME_LENGTH,
   type Note,
@@ -32,6 +33,15 @@ function getDeterministicPosition(id: string) {
   return { x, y };
 }
 
+// A small, stable tilt per note so the wall feels hand-placed rather than gridded
+function getDeterministicRotation(id: string) {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash * 41 + id.charCodeAt(i)) % 10000;
+  }
+  return (hash % 45) / 10 - 2.2; // Range: -2.2deg to 2.3deg
+}
+
 export function Wall({ initialNotes }: WallProps) {
   const router = useRouter();
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -42,6 +52,9 @@ export function Wall({ initialNotes }: WallProps) {
   const [website, setWebsite] = useState(""); // Honeypot
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-focus the message field when the form opens
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -93,6 +106,61 @@ export function Wall({ initialNotes }: WallProps) {
     setActiveFormCoords(null);
     setMessage("");
     setError(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  /** Resize image on canvas to stay under size limit */
+  function resizeImage(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX_DIM = 400;
+          let { width, height } = img;
+          if (width > MAX_DIM || height > MAX_DIM) {
+            const scale = Math.min(MAX_DIM / width, MAX_DIM / height);
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d")!;
+          ctx.drawImage(img, 0, 0, width, height);
+          // Try JPEG at decreasing quality until under limit
+          let quality = 0.85;
+          let dataUrl = canvas.toDataURL("image/jpeg", quality);
+          while (dataUrl.length > MAX_IMAGE_BYTES && quality > 0.2) {
+            quality -= 0.1;
+            dataUrl = canvas.toDataURL("image/jpeg", quality);
+          }
+          if (dataUrl.length > MAX_IMAGE_BYTES) {
+            reject(new Error("Image is still too large after compression."));
+          } else {
+            resolve(dataUrl);
+          }
+        };
+        img.onerror = () => reject(new Error("Failed to load image."));
+        img.src = reader.result as string;
+      };
+      reader.onerror = () => reject(new Error("Failed to read file."));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError(null);
+    try {
+      const dataUrl = await resizeImage(file);
+      setImagePreview(dataUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Image processing failed.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const handleSubmit = async (event: FormEvent) => {
@@ -111,6 +179,7 @@ export function Wall({ initialNotes }: WallProps) {
           website,
           x: activeFormCoords.x,
           y: activeFormCoords.y,
+          ...(imagePreview ? { imageUrl: imagePreview } : {}),
         }),
       });
 
@@ -123,6 +192,8 @@ export function Wall({ initialNotes }: WallProps) {
       // Success: reset form inputs and state
       setMessage("");
       setActiveFormCoords(null);
+      setImagePreview(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       router.refresh();
     } catch {
       setError("Couldn't reach the server. Try again.");
@@ -150,16 +221,30 @@ export function Wall({ initialNotes }: WallProps) {
           const x = note.x ?? getDeterministicPosition(note.id).x;
           const y = note.y ?? getDeterministicPosition(note.id).y;
 
+          const rotation = getDeterministicRotation(note.id);
+
           return (
             <div
               key={note.id}
-              className="wall-note"
+              className={`wall-note${note.imageUrl ? " wall-note--has-image" : ""}`}
               style={{
                 left: `${x}%`,
                 top: `${y}%`,
+                ["--note-rot" as string]: `${rotation}deg`,
               }}
               onClick={(e) => e.stopPropagation()}
             >
+              {note.imageUrl && (
+                <div className="wall-note__image-wrap">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={note.imageUrl}
+                    alt=""
+                    className="wall-note__image"
+                    loading="lazy"
+                  />
+                </div>
+              )}
               <p className="wall-note__msg">{note.message}</p>
               <div className="wall-note__footer">
                 <span className="wall-note__author">{note.name}</span>
@@ -201,7 +286,6 @@ export function Wall({ initialNotes }: WallProps) {
               placeholder="leave your mark…"
               maxLength={MAX_MESSAGE_LENGTH}
               rows={3}
-              required
               disabled={submitting}
             />
 
@@ -232,7 +316,7 @@ export function Wall({ initialNotes }: WallProps) {
                 <button
                   type="submit"
                   className="wall-compose__btn wall-compose__btn--submit"
-                  disabled={submitting || message.trim().length === 0}
+                  disabled={submitting || (message.trim().length === 0 && !imagePreview)}
                 >
                   {submitting ? "posting…" : "post"}
                 </button>
@@ -243,6 +327,41 @@ export function Wall({ initialNotes }: WallProps) {
               <p className="wall-compose__error" role="alert">
                 {error}
               </p>
+            )}
+
+            {/* Image upload */}
+            <div className="wall-compose__image-row">
+              <label className="wall-compose__btn wall-compose__btn--ghost wall-compose__image-label">
+                📷 photo
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  className="wall-compose__image-input"
+                  onChange={handleImageChange}
+                  disabled={submitting}
+                />
+              </label>
+              {imagePreview && (
+                <button
+                  type="button"
+                  className="wall-compose__btn wall-compose__btn--ghost"
+                  onClick={() => {
+                    setImagePreview(null);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
+                  disabled={submitting}
+                >
+                  remove
+                </button>
+              )}
+            </div>
+
+            {imagePreview && (
+              <div className="wall-compose__preview">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={imagePreview} alt="Preview" className="wall-compose__preview-img" />
+              </div>
             )}
           </form>
         )}

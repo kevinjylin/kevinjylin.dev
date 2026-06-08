@@ -1,6 +1,9 @@
 export const MAX_NAME_LENGTH = 32;
 export const MAX_MESSAGE_LENGTH = 280;
 export const DEFAULT_NAME = "anonymous";
+// 500 KB base64 data-URL ceiling (roughly 375 KB raw image)
+export const MAX_IMAGE_BYTES = 500_000;
+export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"] as const;
 export const VALID_COLORS = ["yellow", "pink", "blue", "green", "orange", "purple"] as const;
 export type NoteColor = typeof VALID_COLORS[number];
 
@@ -12,6 +15,7 @@ export type Note = {
   x?: number;
   y?: number;
   color?: NoteColor;
+  imageUrl?: string;
 };
 
 export type NoteInput = {
@@ -20,6 +24,7 @@ export type NoteInput = {
   x?: number;
   y?: number;
   color?: NoteColor;
+  imageUrl?: string;
 };
 
 export type ValidationResult = { ok: true; value: NoteInput } | { ok: false; error: string };
@@ -69,7 +74,7 @@ export function validateNoteInput(input: unknown): ValidationResult {
     }
   }
 
-  if (message === "") {
+  if (message === "" && !imageUrl) {
     return { ok: false, error: "Message can't be empty." };
   }
   if (message.length > MAX_MESSAGE_LENGTH) {
@@ -77,6 +82,25 @@ export function validateNoteInput(input: unknown): ValidationResult {
   }
   if (name.length > MAX_NAME_LENGTH) {
     return { ok: false, error: `Name can't exceed ${MAX_NAME_LENGTH} characters.` };
+  }
+
+  // Validate image (if provided)
+  let imageUrl: string | undefined;
+  if (typeof record.imageUrl === "string" && record.imageUrl.trim() !== "") {
+    const img = record.imageUrl.trim();
+    // Must be a data URL with an allowed image MIME type
+    const dataUrlMatch = img.match(/^data:(image\/\w+);base64,/);
+    if (!dataUrlMatch) {
+      return { ok: false, error: "Image must be a base64 data URL." };
+    }
+    const mime = dataUrlMatch[1];
+    if (!ALLOWED_IMAGE_TYPES.includes(mime as typeof ALLOWED_IMAGE_TYPES[number])) {
+      return { ok: false, error: "Only JPEG, PNG, GIF, and WebP images are allowed." };
+    }
+    if (img.length > MAX_IMAGE_BYTES) {
+      return { ok: false, error: "Image is too large. Please use a smaller image (under ~375 KB)." };
+    }
+    imageUrl = img;
   }
 
   return {
@@ -87,6 +111,7 @@ export function validateNoteInput(input: unknown): ValidationResult {
       ...(x !== undefined ? { x } : {}),
       ...(y !== undefined ? { y } : {}),
       ...(color ? { color } : {}),
+      ...(imageUrl ? { imageUrl } : {}),
     },
   };
 }

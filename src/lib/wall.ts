@@ -74,16 +74,6 @@ export function validateNoteInput(input: unknown): ValidationResult {
     }
   }
 
-  if (message === "" && !imageUrl) {
-    return { ok: false, error: "Message can't be empty." };
-  }
-  if (message.length > MAX_MESSAGE_LENGTH) {
-    return { ok: false, error: `Message can't exceed ${MAX_MESSAGE_LENGTH} characters.` };
-  }
-  if (name.length > MAX_NAME_LENGTH) {
-    return { ok: false, error: `Name can't exceed ${MAX_NAME_LENGTH} characters.` };
-  }
-
   // Validate image (if provided)
   let imageUrl: string | undefined;
   if (typeof record.imageUrl === "string" && record.imageUrl.trim() !== "") {
@@ -101,6 +91,16 @@ export function validateNoteInput(input: unknown): ValidationResult {
       return { ok: false, error: "Image is too large. Please use a smaller image (under ~375 KB)." };
     }
     imageUrl = img;
+  }
+
+  if (message === "" && !imageUrl) {
+    return { ok: false, error: "Message can't be empty." };
+  }
+  if (message.length > MAX_MESSAGE_LENGTH) {
+    return { ok: false, error: `Message can't exceed ${MAX_MESSAGE_LENGTH} characters.` };
+  }
+  if (name.length > MAX_NAME_LENGTH) {
+    return { ok: false, error: `Name can't exceed ${MAX_NAME_LENGTH} characters.` };
   }
 
   return {

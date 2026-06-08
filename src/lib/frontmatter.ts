@@ -117,7 +117,11 @@ export function getRequiredNumber(data: FrontmatterRecord, key: string, filePath
   return value;
 }
 
-export function getRequiredBoolean(data: FrontmatterRecord, key: string, filePath: string): boolean {
+export function getRequiredBoolean(
+  data: FrontmatterRecord,
+  key: string,
+  filePath: string,
+): boolean {
   const value = data[key];
 
   if (typeof value !== "boolean") {

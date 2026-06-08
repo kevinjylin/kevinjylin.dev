@@ -966,6 +966,143 @@ a {
   margin-top: 2rem;
 }
 
+.guestbook {
+  padding-bottom: 2rem;
+}
+
+.guestbook-form {
+  display: grid;
+  gap: 0.75rem;
+  margin: 2rem 0 2.75rem;
+  max-width: 32rem;
+}
+
+.guestbook-form__name,
+.guestbook-form__message {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.96rem;
+}
+
+.guestbook-form__message {
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.guestbook-form__name:focus,
+.guestbook-form__message:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.guestbook-form__honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.guestbook-form__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.guestbook-form__count {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.guestbook-form__error {
+  margin: 0;
+  color: #b34a3a;
+  font-size: 0.88rem;
+}
+
+.guestbook__empty {
+  margin: 1.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.guestbook__wall {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1.1rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guestbook-note {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.1rem 1.15rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  background: var(--accent-soft);
+  box-shadow: 0 6px 16px rgba(74, 44, 32, 0.08);
+  transition: transform 160ms ease;
+}
+
+.guestbook-note:nth-child(3n) {
+  transform: rotate(-1.1deg);
+}
+
+.guestbook-note:nth-child(3n + 1) {
+  transform: rotate(0.8deg);
+}
+
+.guestbook-note:nth-child(4n) {
+  transform: rotate(1.4deg);
+}
+
+.guestbook-note:hover {
+  transform: rotate(0) translateY(-2px);
+}
+
+.guestbook-note__message {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.guestbook-note__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.guestbook-note__name {
+  overflow: hidden;
+  font-weight: 600;
+  color: var(--accent);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.guestbook-note time {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
 @keyframes cookie-pop {
   0% {
     opacity: 0;
@@ -1300,7 +1437,8 @@ a {
   .project-row,
   .project-back,
   .cookie-button,
-  .twosum-button {
+  .twosum-button,
+  .guestbook-note {
     transition: none;
   }
 
@@ -1308,7 +1446,8 @@ a {
   .project-row:hover,
   .project-back:hover,
   .cookie-button:hover,
-  .twosum-button:hover {
+  .twosum-button:hover,
+  .guestbook-note:hover {
     transform: none;
   }
 }

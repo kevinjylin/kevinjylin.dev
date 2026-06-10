@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
 
+import { AgentGraphIcon } from "@/components/agent-graph-icon";
 import { mdxComponents } from "@/components/mdx-components";
 import { getNow } from "@/lib/now";
 
@@ -33,14 +34,31 @@ export default async function NowPage() {
     <main className="page-shell" id="main-content" tabIndex={-1}>
       <div className="page-frame">
         <div className="intro-offset">
-          <Link href="/" className="project-back" aria-label="Back to home">
-            ← Back
+          <Link href="/" className="site-icon" aria-label="Back home">
+            <AgentGraphIcon />
           </Link>
+
+          <section className="intro">
+            <h1>Kevin Lin</h1>
+            <nav className="intro-links" aria-label="Intro links">
+              <a href="mailto:kevinjylin@gmail.com">Email</a>
+              <span> / </span>
+              <a href="https://github.com/kevinjylin" rel="noreferrer" target="_blank">
+                GitHub
+              </a>
+              <span> / </span>
+              <a href="https://www.linkedin.com/in/kevinjylin/" rel="noreferrer" target="_blank">
+                LinkedIn
+              </a>
+              <span> / </span>
+              <Link href="/now">Now</Link>
+              <span> / </span>
+              <Link href="/wall">Wall</Link>
+            </nav>
+          </section>
 
           <article className="now-page">
             <header className="now-page__header">
-              <p className="eyebrow">/ now</p>
-              <h1>What I&apos;m focused on</h1>
               <p className="now-page__updated">
                 Last updated <time dateTime={lastUpdated}>{formatLastUpdated(lastUpdated)}</time>
               </p>

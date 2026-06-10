@@ -4,11 +4,11 @@ export const LANGS: Lang[] = ["js", "python", "cpp"];
 
 export const STARTERS: Record<Lang, string> = {
   js: `function twoSum(nums, target) {
-    // return the indices of the two numbers that add to target
+    
 }
 `,
   python: `def two_sum(nums, target):
-    # return the indices of the two numbers that add to target
+    
     pass
 `,
   cpp: `#include <vector>
@@ -16,7 +16,7 @@ export const STARTERS: Record<Lang, string> = {
 using namespace std;
 
 vector<int> twoSum(vector<int>& nums, int target) {
-    // return the indices of the two numbers that add to target
+    
 }
 `,
 };

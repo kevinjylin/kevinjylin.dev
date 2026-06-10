@@ -5,6 +5,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 
 import { mdxComponents } from "@/components/mdx-components";
 import { ProjectLinks } from "@/components/project-links";
+import { Footer } from "@/components/footer";
 import { getProjectBySlug, getProjects } from "@/lib/projects";
 
 type RouteParams = { slug: string };
@@ -79,6 +80,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             ) : null}
           </article>
         </div>
+
+        <Footer />
       </div>
     </main>
   );

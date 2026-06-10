@@ -37,8 +37,6 @@ export default async function WallPage() {
               </a>
               <span> / </span>
               <Link href="/now">Now</Link>
-              <span> / </span>
-              <Link href="/wall">Wall</Link>
             </nav>
           </section>
 

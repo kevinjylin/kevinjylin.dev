@@ -130,6 +130,46 @@ a {
   color: var(--accent-strong);
 }
 
+.footer a.footer-built-with,
+.footer a.footer-built-with:hover {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #000000;
+  min-height: 1.5rem;
+}
+
+.built-with-text {
+  transition: opacity 200ms ease;
+}
+
+.footer a.footer-built-with::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 220px;
+  height: 55px;
+  background-image: url('/built-with-hover.gif');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+.footer a.footer-built-with:hover .built-with-text {
+  opacity: 0;
+}
+
+.footer a.footer-built-with:hover::after {
+  opacity: 1;
+}
+
 ::selection {
   background: var(--accent-soft);
   color: var(--text);
@@ -336,7 +376,6 @@ a {
 .projects-list {
   display: flex;
   flex-direction: column;
-  border-top: 1px solid var(--border);
 }
 
 .project-row {
@@ -437,7 +476,6 @@ a {
   justify-content: space-between;
   gap: 1rem;
   padding: 2rem 0 0;
-  border-top: 1px solid var(--border);
 }
 
 .footer p {
@@ -574,14 +612,12 @@ a {
   transition:
     background-color 160ms ease,
     border-color 160ms ease,
-    color 160ms ease,
-    transform 160ms ease;
+    color 160ms ease;
 }
 
 .twosum-button:hover {
   border-color: var(--accent);
   color: var(--accent);
-  transform: translateY(-1px);
 }
 
 .twosum-button--primary {

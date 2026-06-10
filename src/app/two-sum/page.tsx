@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 
 import { AgentGraphIcon } from "@/components/agent-graph-icon";
+import { Footer } from "@/components/footer";
 import { CodeEditor } from "@/components/two-sum/code-editor";
 import { CookiePopup } from "@/components/two-sum/cookie-popup";
 import { SubmissionResult } from "@/components/two-sum/submission-result";
@@ -123,12 +124,15 @@ export default function TwoSumPage() {
 
             <div className="intro-copy">
               <p>
-                Given an array of integers <code>nums</code> and an integer <code>target</code>,
-                return the indices of the two numbers such that they add up to <code>target</code>.
+                Given an array of integers <code>nums</code> and an integer <code>target</code>,{" "}
+                return <em>indices of the two numbers such that they add up to</em> <code>target</code>.
               </p>
               <p>
-                You may assume that each input has exactly one solution, and you may not use the
-                same element twice. Write your solution below and run it against the test cases.
+                You may assume that each input has <strong>exactly one solution</strong>, and you may not use the
+                <em> same</em> element twice.
+              </p>
+              <p>
+                You can return the answer in any order.
               </p>
             </div>
           </section>
@@ -170,6 +174,8 @@ export default function TwoSumPage() {
             ) : null}
           </section>
         </div>
+
+        <Footer />
       </div>
 
       {showCookiePopup ? (

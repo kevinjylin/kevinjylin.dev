@@ -4,6 +4,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 
 import { AgentGraphIcon } from "@/components/agent-graph-icon";
 import { mdxComponents } from "@/components/mdx-components";
+import { Footer } from "@/components/footer";
 import { getNow } from "@/lib/now";
 
 export const metadata: Metadata = {
@@ -52,8 +53,6 @@ export default async function NowPage() {
               </a>
               <span> / </span>
               <Link href="/now">Now</Link>
-              <span> / </span>
-              <Link href="/wall">Wall</Link>
             </nav>
           </section>
 
@@ -69,6 +68,8 @@ export default async function NowPage() {
             </div>
           </article>
         </div>
+
+        <Footer />
       </div>
     </main>
   );

@@ -66,7 +66,7 @@ test("returns visible failures for the unfinished C++ starter", () => {
 using namespace std;
 
 vector<int> twoSum(vector<int>& nums, int target) {
-    // return the indices of the two numbers that add to target
+    
 }
 `);
 

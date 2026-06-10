@@ -3,6 +3,7 @@ import Image from "next/image";
 
 import { AgentGraphIcon } from "@/components/agent-graph-icon";
 import { ProjectLinks } from "@/components/project-links";
+import { Footer } from "@/components/footer";
 import { getProjects } from "@/lib/projects";
 
 export default async function Home() {
@@ -30,8 +31,6 @@ export default async function Home() {
               </a>
               <span> / </span>
               <Link href="/now">Now</Link>
-              <span> / </span>
-              <Link href="/wall">Wall</Link>
             </nav>
 
             <div className="intro-copy">
@@ -101,14 +100,7 @@ export default async function Home() {
             ))}
           </div>
         </section>
-
-        <footer className="footer">
-          <p>
-            <a href="mailto:kevinjylin@gmail.com">Email</a> •{" "}
-            <a href="https://github.com/kevinjylin">GitHub</a> •{" "}
-            <a href="https://www.linkedin.com/in/kevinjylin/">LinkedIn</a>
-          </p>
-        </footer>
+        <Footer />
       </div>
     </main>
   );

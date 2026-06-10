@@ -1,4 +1,4 @@
-export const COOKIE_BITE_TOTAL = 5;
+export const COOKIE_BITE_TOTAL = 3;
 
 export type SubmissionStatus =
   | {

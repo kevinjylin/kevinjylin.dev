@@ -33,11 +33,11 @@ test("formats wrong answer status with passed count", () => {
   });
 });
 
-test("caps cookie bites after the fifth click", () => {
+test("caps cookie bites after the third click", () => {
   let bites = 0;
   for (let i = 0; i < COOKIE_BITE_TOTAL + 3; i += 1) {
     bites = getNextCookieBiteCount(bites);
   }
-
-  assert.equal(bites, 5);
+ 
+  assert.equal(bites, COOKIE_BITE_TOTAL);
 });

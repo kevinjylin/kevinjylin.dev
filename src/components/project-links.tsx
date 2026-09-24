@@ -4,6 +4,10 @@ type ProjectLinksProps = {
   repoUrl?: string;
 };
 
+function getLiveLabel(liveUrl: string) {
+  return /(^|\.)devpost\.com$/.test(new URL(liveUrl).hostname) ? "Devpost" : "Live Site";
+}
+
 export function ProjectLinks({ className = "project-links", liveUrl, repoUrl }: ProjectLinksProps) {
   if (!repoUrl && !liveUrl) {
     return null;
@@ -18,7 +22,7 @@ export function ProjectLinks({ className = "project-links", liveUrl, repoUrl }: 
       ) : null}
       {liveUrl ? (
         <a href={liveUrl} rel="noreferrer" target="_blank">
-          Live Site
+          {getLiveLabel(liveUrl)}
         </a>
       ) : null}
     </div>

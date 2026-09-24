@@ -6,17 +6,23 @@ import {
   getOptionalNumber,
   getOptionalString,
   getRequiredBoolean,
-  getRequiredNumber,
   getRequiredString,
   getRequiredStringArray,
   parseFrontmatter,
+  type FrontmatterRecord,
   stripFrontmatter,
 } from "@/lib/frontmatter";
 
 const projectsDirectory = path.join(process.cwd(), "content", "projects");
+const monthPattern = /^\d{4}-(0[1-9]|1[0-2])$/;
 
 export type ProjectMetadata = {
+  award?: string;
+  // "YYYY-MM"
+  date: string;
+  event?: string;
   featured: boolean;
+  kind?: string;
   liveUrl?: string;
   order?: number;
   repoUrl?: string;
@@ -24,13 +30,22 @@ export type ProjectMetadata = {
   summary: string;
   tags: string[];
   title: string;
-  year: number;
 };
 
 export type Project = {
   metadata: ProjectMetadata;
   content: string;
 };
+
+function getRequiredMonth(data: FrontmatterRecord, key: string, filePath: string): string {
+  const value = getRequiredString(data, key, filePath);
+
+  if (!monthPattern.test(value)) {
+    throw new Error(`Expected "${key}" to be a YYYY-MM month in ${filePath}.`);
+  }
+
+  return value;
+}
 
 async function readProjectFile(fileName: string): Promise<Project> {
   const filePath = path.join(projectsDirectory, fileName);
@@ -39,7 +54,11 @@ async function readProjectFile(fileName: string): Promise<Project> {
 
   return {
     metadata: {
+      award: getOptionalString(data, "award", filePath),
+      date: getRequiredMonth(data, "date", filePath),
+      event: getOptionalString(data, "event", filePath),
       featured: getRequiredBoolean(data, "featured", filePath),
+      kind: getOptionalString(data, "kind", filePath),
       liveUrl: getOptionalString(data, "liveUrl", filePath),
       order: getOptionalNumber(data, "order", filePath),
       repoUrl: getOptionalString(data, "repoUrl", filePath),
@@ -47,7 +66,6 @@ async function readProjectFile(fileName: string): Promise<Project> {
       summary: getRequiredString(data, "summary", filePath),
       tags: getRequiredStringArray(data, "tags", filePath),
       title: getRequiredString(data, "title", filePath),
-      year: getRequiredNumber(data, "year", filePath),
     },
     content: stripFrontmatter(fileContents),
   };
@@ -77,8 +95,8 @@ const getAllProjects = cache(async (): Promise<Project[]> => {
         return Number(right.metadata.featured) - Number(left.metadata.featured);
       }
 
-      if (left.metadata.year !== right.metadata.year) {
-        return right.metadata.year - left.metadata.year;
+      if (left.metadata.date !== right.metadata.date) {
+        return right.metadata.date.localeCompare(left.metadata.date);
       }
 
       return left.metadata.title.localeCompare(right.metadata.title);

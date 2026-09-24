@@ -7,6 +7,7 @@ import { mdxComponents } from "@/components/mdx-components";
 import { ProjectLinks } from "@/components/project-links";
 import { Footer } from "@/components/footer";
 import { getProjectBySlug, getProjects } from "@/lib/projects";
+import { formatMonth } from "@/lib/utils";
 
 type RouteParams = { slug: string };
 
@@ -54,7 +55,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
           <article className="project-detail">
             <header className="project-detail__header">
-              <p className="project-detail__year">{metadata.year}</p>
+              <p className="project-detail__year">
+                <time dateTime={metadata.date}>
+                  {formatMonth(metadata.date, { month: "long", year: "numeric" })}
+                </time>
+                {metadata.kind ? ` · ${metadata.kind}` : null}
+                {metadata.event ? ` · ${metadata.event}` : null}
+              </p>
               <h1>{metadata.title}</h1>
               <p className="project-detail__summary">{metadata.summary}</p>
 

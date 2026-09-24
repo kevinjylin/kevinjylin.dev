@@ -79,16 +79,6 @@
 main:focus-visible {
   outline: none;
 }
-
-.project-row:focus-within {
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
-}
-
-.project-row:focus-within .project-row__title-link:focus-visible {
-  outline: none;
-}
-
 html {
   min-height: 100%;
 }
@@ -270,7 +260,6 @@ a {
 
 .eyebrow,
 .section-heading,
-.project-row__year,
 .tag,
 .footer {
   font-family:
@@ -373,79 +362,6 @@ a {
   font-size: 0.92rem;
 }
 
-.projects-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.project-row {
-  position: relative;
-  display: grid;
-  grid-template-columns: 80px 180px 1fr auto auto;
-  gap: 1.5rem;
-  align-items: center;
-  padding: 1.25rem 0.5rem;
-  border-bottom: 1px solid var(--border);
-  transition:
-    background-color 160ms ease,
-    padding 160ms ease,
-    border-color 160ms ease;
-  cursor: pointer;
-}
-
-.project-row:hover {
-  background-color: var(--accent-soft);
-  padding-left: 1.25rem;
-  padding-right: 0.5rem;
-}
-
-.project-row__year {
-  color: var(--muted);
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.project-row__title {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--text);
-}
-
-.project-row__title-link {
-  color: inherit;
-  text-decoration: none;
-}
-
-.project-row__title-link::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-}
-
-.project-row__summary {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.95rem;
-  line-height: 1.45;
-}
-
-.project-row__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.project-row__links {
-  position: relative;
-  z-index: 1;
-  margin-top: 0;
-  display: flex;
-  gap: 1rem;
-}
-
 .tag-list {
   display: flex;
   flex-wrap: wrap;
@@ -468,6 +384,226 @@ a {
   flex-wrap: wrap;
   gap: 1rem;
   margin-top: auto;
+}
+
+/* ── Projects: a list with a shared-stack graph in the margin ── */
+
+.projects-section {
+  max-width: 56rem;
+  margin: 0 auto;
+}
+
+.project-graph {
+  --graph-gutter: 6rem;
+  position: relative;
+  margin-left: calc(-1 * var(--graph-gutter));
+}
+
+.project-graph__edges {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Same dotted, flowing links as the agent graph icon */
+.project-graph__edge {
+  fill: none;
+  stroke: var(--accent);
+  stroke-dasharray: 2 7;
+  stroke-linecap: round;
+  stroke-width: 2.2;
+  opacity: 0.26;
+  transition: opacity 220ms ease;
+}
+
+.project-graph--focused .project-graph__edge {
+  opacity: 0.1;
+}
+
+.project-graph .project-graph__edge.is-lit {
+  opacity: 0.75;
+  animation: graph-flow 1.4s linear infinite;
+}
+
+.project-graph__node {
+  fill: var(--background);
+  stroke: var(--accent-strong);
+  stroke-width: 2.4;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    fill 220ms ease,
+    opacity 220ms ease;
+}
+
+.project-graph--focused .project-graph__node:not(.is-lit) {
+  opacity: 0.45;
+}
+
+.project-graph__node.is-lit {
+  fill: var(--accent-soft);
+}
+
+.project-graph__node.is-focused {
+  fill: var(--accent-strong);
+  animation: node-pulse 2.4s ease-in-out infinite;
+}
+
+.project-graph__list {
+  margin: 0;
+  padding: 0 0 0 var(--graph-gutter);
+  list-style: none;
+}
+
+.project-entry {
+  position: relative;
+  padding: 1.35rem 0;
+  transition: opacity 220ms ease;
+}
+
+.project-graph--focused .project-entry:not(.is-lit) {
+  opacity: 0.45;
+}
+
+.project-entry__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.85rem;
+}
+
+.project-entry__title {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.25;
+}
+
+.project-entry__title-link {
+  transition: color 160ms ease;
+}
+
+/* The whole entry is clickable */
+.project-entry__title-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.project-entry__title-link:focus-visible {
+  outline: none;
+}
+
+.project-entry:has(.project-entry__title-link:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+.project-entry.is-focused .project-entry__title-link {
+  color: var(--accent);
+}
+
+.project-entry__note {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.project-entry__note strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.project-entry__date {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.project-entry__summary {
+  margin: 0.3rem 0 0;
+  max-width: 40rem;
+  color: var(--muted);
+  font-size: 1.02rem;
+  line-height: 1.5;
+}
+
+.project-entry__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem 1.5rem;
+  margin-top: 0.55rem;
+  font-size: 0.86rem;
+}
+
+.project-entry__tags {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+}
+
+.project-entry__tags li {
+  transition: color 160ms ease;
+  cursor: default;
+}
+
+.project-entry__tags li:not(:last-child)::after {
+  content: "/";
+  margin: 0 0.45rem;
+  color: var(--border);
+}
+
+.project-entry__tags li.is-lit {
+  color: var(--accent);
+}
+
+.project-entry__links {
+  position: relative;
+  z-index: 1;
+  margin-top: 0;
+}
+
+/* Not enough page margin on phones, so the graph moves inside the column */
+@media (max-width: 760px) {
+  .project-graph {
+    --graph-gutter: 2.75rem;
+    margin-left: 0;
+  }
+
+  .project-entry__date {
+    order: -1;
+    width: 100%;
+    margin-left: 0;
+    font-size: 0.82rem;
+  }
+
+  .project-entry__head {
+    align-items: center;
+  }
+
+  .project-entry__title {
+    font-size: 1.3rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-graph .project-graph__edge.is-lit,
+  .project-graph__node.is-focused {
+    animation: none;
+  }
 }
 
 .footer {
@@ -1504,16 +1640,6 @@ a {
     flex-direction: column;
     align-items: flex-start;
   }
-
-  .project-row {
-    grid-template-columns: 1fr;
-    gap: 0.65rem;
-    padding: 1.25rem 0.25rem;
-  }
-
-  .project-row:hover {
-    padding-left: 0.5rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1528,7 +1654,6 @@ a {
   }
 
   .site-icon,
-  .project-row,
   .project-back,
   .cookie-button,
   .twosum-button,
@@ -1537,7 +1662,6 @@ a {
   }
 
   .site-icon:hover,
-  .project-row:hover,
   .project-back:hover,
   .cookie-button:hover,
   .twosum-button:hover {

@@ -1,0 +1,225 @@
+.ga {
+  --ga-fg: var(--text);
+  --ga-bg: var(--background);
+  --ga-card: var(--surface);
+  --ga-muted: color-mix(in srgb, var(--text) 70%, transparent);
+  --ga-faint: color-mix(in srgb, var(--text) 40%, transparent);
+  --ga-cell-empty: color-mix(in srgb, var(--text) 8%, transparent);
+  --ga-hover: color-mix(in srgb, var(--text) 5%, transparent);
+  --ga-avatar: #e5e5e5;
+  --ga-chevron: #c4c9cc;
+
+  position: relative;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 28px;
+  background: var(--ga-bg);
+  padding: 1rem;
+  border: 1px solid var(--border);
+}
+
+.ga--has-repos {
+  padding-bottom: 76px;
+}
+
+.ga__heading {
+  margin: 0 0 1rem;
+  padding: 0 0.375rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ga-fg);
+}
+
+.ga__grid {
+  position: relative;
+}
+
+.ga__months {
+  display: flex;
+  justify-content: center;
+}
+
+.ga__month-slot {
+  position: relative;
+  height: 0.75rem;
+  flex-shrink: 0;
+}
+
+.ga__month-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 10px;
+  line-height: 1;
+  color: var(--ga-faint);
+}
+
+.ga__weeks {
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.ga__week {
+  display: flex;
+  flex-direction: column;
+}
+
+.ga__cell {
+  flex-shrink: 0;
+  border-radius: 3px;
+  background: var(--ga-cell-empty);
+}
+
+.ga__cell-fill {
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+}
+
+.ga__tooltip-root {
+  pointer-events: none;
+  position: fixed;
+  z-index: 50;
+}
+
+.ga__tooltip {
+  white-space: nowrap;
+  border-radius: 0.5rem;
+  background: var(--text);
+  padding: 0.25rem 0.5rem;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--background);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--text) 18%, transparent);
+}
+
+.ga__panel {
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--ga-card) 90%, transparent);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--border);
+}
+
+.ga__panel[data-state="open"] {
+  top: 0.75rem;
+}
+
+.ga__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.ga__panel-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  color: var(--ga-fg);
+}
+
+.ga__panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ga__avatar-stack {
+  display: flex;
+  align-items: center;
+}
+
+.ga__toggle {
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex-shrink: 0;
+  place-items: center;
+  border: none;
+  border-radius: 999px;
+  background: var(--ga-card);
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+.ga__list {
+  margin: 0;
+  padding: 0 0.125rem 0.25rem;
+  list-style: none;
+}
+
+.ga__row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 160ms ease;
+}
+
+.ga__row:hover {
+  background: var(--ga-hover);
+}
+
+.ga__row-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  color: var(--ga-fg);
+}
+
+.ga__row-count {
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ga-muted);
+}
+
+.ga__avatar {
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex-shrink: 0;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--ga-avatar);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--ga-muted);
+  box-shadow: 0 0 0 2px var(--ga-bg);
+}
+
+.ga__avatar--stacked {
+  margin-left: -0.5rem;
+}
+
+.ga__avatar--stacked:first-child {
+  margin-left: 0;
+}
+
+.ga__avatar img,
+.ga__avatar svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ga__chevron {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--ga-chevron);
+}

@@ -5,6 +5,8 @@ import { AgentGraphIcon } from "@/components/agent-graph-icon";
 import { ProjectLinks } from "@/components/project-links";
 import { Footer } from "@/components/footer";
 import { getProjects } from "@/lib/projects";
+import { GitHubActivity } from "@/components/github-activity";
+
 
 export default async function Home() {
   const projects = await getProjects();
@@ -100,6 +102,7 @@ export default async function Home() {
             ))}
           </div>
         </section>
+        <GitHubActivity username="kevinjylin" showMonths />
         <Footer />
       </div>
     </main>

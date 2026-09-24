@@ -102,7 +102,15 @@ export default async function Home() {
             ))}
           </div>
         </section>
-        <GitHubActivity username="kevinjylin" showMonths />
+        <section className="section" aria-labelledby="activity-heading">
+          <div className="section-heading">
+            <h2 id="activity-heading">Activity</h2>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <GitHubActivity username="kevinjylin" showMonths />
+          </div>
+        </section>
         <Footer />
       </div>
     </main>

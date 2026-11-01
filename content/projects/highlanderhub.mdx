@@ -1,9 +1,10 @@
 ---
 title: "Highlander Hub"
-summary: "Campus bulletin that tracks every event on campus"
+summary: "Campus bulletin that pulls every UCR club event from 640+ Instagram accounts"
 date: "2026-05"
 kind: "Web app + data pipeline"
-tags: [Next.js, Supabase, Python, Gemini, Vision OCR]
+order: 2
+tags: [Next.js, Supabase, Python, Gemini, Vision OCR, Apify]
 repoUrl: "https://github.com/Highlander-Builders-Initiative/HighlanderHub"
 liveUrl: "https://highlanderhub.app"
 featured: true
@@ -14,4 +15,10 @@ few flyers, and whatever group chat happened to mention it, and I still missed h
 Highlander Hub pulls every campus event into one place so students can find what's going on
 without the scavenger hunt.
 
-It started as a "why doesn't this already exist?" question, which is usually how my projects start.
+It now follows more than 640 club Instagram accounts. Every eight hours a pipeline collects new
+posts, reads every slide of each flyer with Google Vision OCR, and has Gemini decide whether a post
+is really an event and when it happens before anything gets published. Duplicate posts of the same
+event are merged into one listing.
+
+Built with the builders at Highlander Builders Initiative. It started as a "why doesn't this
+already exist?" question, which is usually how my projects start.

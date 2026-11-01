@@ -1,0 +1,940 @@
+/* ── Projects graph: an Obsidian-style force graph of projects and their tools ── */
+
+.pg {
+  --pg-surface: #fdfbf8;
+  --pg-grid: #e9e0d5;
+  --pg-link: #e1d7cb;
+  --pg-chrome: rgba(255, 255, 255, 0.86);
+  --pg-product: #4a2c20;
+  --pg-hackathon: #c0653c;
+  --pg-side: #7c8752;
+  --pg-tool: #c9b9a8;
+  --pg-tool-shared: #a08a75;
+  --pg-tag-label: 1;
+  position: relative;
+  height: clamp(31rem, 70vh, 39rem);
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background-color: var(--pg-surface);
+  background-image: radial-gradient(circle at center, var(--pg-grid) 1px, transparent 1.5px);
+  background-size: 22px 22px;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Soft vignette so the field fades out at the edges */
+.pg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(
+    120% 95% at 50% 50%,
+    transparent 58%,
+    color-mix(in srgb, var(--pg-surface) 92%, transparent) 100%
+  );
+  pointer-events: none;
+}
+
+.pg-tone--product {
+  --pg-node-color: var(--pg-product);
+}
+
+.pg-tone--hackathon {
+  --pg-node-color: var(--pg-hackathon);
+}
+
+.pg-tone--side {
+  --pg-node-color: var(--pg-side);
+}
+
+.pg-tone--tool {
+  --pg-node-color: var(--pg-tool-shared);
+}
+
+.pg-svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.pg.is-dragging .pg-svg,
+.pg.is-dragging .pg-node {
+  cursor: grabbing;
+}
+
+/* ── Links ── */
+
+.pg-link,
+.pg-flow {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.pg-link {
+  stroke: var(--pg-link);
+  stroke-width: 1.15;
+  transition:
+    opacity 260ms ease,
+    stroke 260ms ease;
+}
+
+.pg-link.is-hidden {
+  opacity: 0;
+}
+
+.pg.has-highlight .pg-link:not(.is-hidden) {
+  opacity: 0.4;
+}
+
+.pg.has-highlight .pg-link.is-soft {
+  opacity: 0.55;
+  stroke: var(--pg-node-color);
+}
+
+.pg.has-highlight .pg-link.is-lit {
+  opacity: 0.4;
+  stroke: var(--pg-node-color);
+  stroke-width: 1.5;
+}
+
+/* The flowing dots from the site icon, running along lit links */
+.pg-flow {
+  stroke: var(--pg-node-color);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-dasharray: 0.5 7.5;
+  opacity: 0;
+  transition: opacity 260ms ease;
+}
+
+.pg-flow.is-lit {
+  opacity: 0.9;
+  animation: pg-flow 0.9s linear infinite;
+}
+
+@keyframes pg-flow {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+/* ── Nodes ── */
+
+.pg-node {
+  cursor: pointer;
+  touch-action: none;
+  transition: opacity 260ms ease;
+}
+
+.pg-node a {
+  outline: none;
+}
+
+.pg-node.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pg.has-highlight .pg-node:not(.is-lit, .is-soft) {
+  opacity: 0.13;
+}
+
+.pg.has-highlight .pg-node.is-soft {
+  opacity: 0.62;
+}
+
+.pg-node__body {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  transform: scale(1);
+  transition: transform 560ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pg-node.is-hidden .pg-node__body {
+  transform: scale(0.01);
+  transition-duration: 220ms;
+  transition-timing-function: ease-in;
+}
+
+.pg-node.is-focus .pg-node__body {
+  transform: scale(1.14);
+  transition-duration: 320ms;
+}
+
+.pg-node__hit {
+  fill: transparent;
+}
+
+.pg-node__dot {
+  fill: var(--pg-node-color);
+  stroke: var(--pg-surface);
+  stroke-width: 2;
+  transition:
+    fill 220ms ease,
+    stroke 220ms ease;
+}
+
+.pg-node--tag .pg-node__dot {
+  fill: var(--pg-tool);
+  stroke-width: 1.5;
+}
+
+.pg-node--tag.pg-node--shared .pg-node__dot {
+  fill: var(--pg-tool-shared);
+}
+
+.pg.has-highlight .pg-node--tag.is-lit .pg-node__dot {
+  fill: var(--accent-strong);
+}
+
+.pg-node__halo {
+  fill: var(--pg-node-color);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 220ms ease;
+}
+
+.pg-node.is-focus .pg-node__halo {
+  opacity: 0.15;
+  animation: pg-halo 2.6s ease-in-out infinite;
+}
+
+.pg-node.is-selected .pg-node__halo {
+  opacity: 0.22;
+}
+
+.pg-node a:focus-visible .pg-node__dot {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.pg-node a:focus-visible .pg-node__halo {
+  opacity: 0.2;
+}
+
+@keyframes pg-halo {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.35);
+  }
+}
+
+/* A sonar ping when a project first appears */
+.pg-node__ping {
+  fill: none;
+  stroke: var(--pg-node-color);
+  stroke-width: 1.5;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.pg-node:not(.is-hidden) .pg-node__ping {
+  animation: pg-ping 1.3s cubic-bezier(0.2, 0.7, 0.3, 1) 150ms both;
+}
+
+@keyframes pg-ping {
+  0% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(4.2);
+  }
+}
+
+/* Award winners wear a dotted medal ring */
+.pg-node__award {
+  fill: none;
+  stroke: var(--pg-node-color);
+  stroke-width: 1.4;
+  stroke-dasharray: 1.4 2.6;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+
+.pg-node__label {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  transform: scale(var(--pg-label-scale, 1));
+  fill: var(--text);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--pg-surface);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  transition: opacity 220ms ease;
+}
+
+.pg-node--tag .pg-node__label {
+  fill: var(--muted);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  opacity: var(--pg-tag-label);
+}
+
+.pg.has-highlight .pg-node--tag.is-lit .pg-node__label {
+  opacity: 1;
+  fill: var(--text);
+}
+
+.pg.has-highlight .pg-node--tag:not(.is-lit, .is-soft) .pg-node__label {
+  opacity: 0;
+}
+
+/* ── Overlays ── */
+
+.pg-top,
+.pg-bottom {
+  position: absolute;
+  right: 12px;
+  left: 12px;
+  z-index: 2;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.pg-top {
+  top: 12px;
+  align-items: flex-start;
+}
+
+.pg-bottom {
+  bottom: 12px;
+  align-items: center;
+  transition: opacity 200ms ease;
+}
+
+.pg-legend,
+.pg-search,
+.pg-timeline,
+.pg-zoom {
+  pointer-events: auto;
+}
+
+.pg-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pg-chip,
+.pg-search,
+.pg-timeline,
+.pg-zoom {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--pg-chrome);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.pg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  padding: 0.24rem 0.66rem 0.24rem 0.55rem;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.pg-chip:hover {
+  border-color: #cfc1b2;
+  color: var(--text);
+}
+
+.pg-chip.is-active {
+  border-color: var(--pg-node-color);
+  background: #ffffff;
+  color: var(--text);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pg-node-color) 14%, transparent);
+}
+
+.pg-chip--key {
+  cursor: default;
+}
+
+.pg-chip--key:hover {
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+.pg-chip__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pg-node-color);
+}
+
+.pg-chip--key .pg-chip__dot {
+  width: 6px;
+  height: 6px;
+  background: var(--pg-tool);
+  box-shadow: 0 0 0 1.5px var(--pg-surface);
+}
+
+.pg-search {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.42rem;
+  width: 10.5rem;
+  padding: 0.24rem 0.7rem;
+  color: var(--muted);
+  transition:
+    width 220ms ease,
+    border-color 160ms ease;
+}
+
+.pg-search:focus-within {
+  width: 13.5rem;
+  border-color: var(--accent);
+}
+
+.pg-search svg {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.pg-search input {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  outline: none;
+}
+
+.pg-search input::placeholder {
+  color: var(--muted);
+}
+
+.pg-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.pg-search__clear {
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--tag-background);
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pg-search__clear:hover {
+  color: var(--accent);
+}
+
+.pg-timeline {
+  display: flex;
+  flex: 0 1 25rem;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+  padding: 0.28rem 0.85rem 0.28rem 0.3rem;
+}
+
+.pg-play {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.pg-play:hover {
+  background: var(--accent-strong);
+  transform: scale(1.06);
+}
+
+.pg-play svg {
+  fill: currentColor;
+}
+
+.pg-track {
+  --pg-thumb: 14px;
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  height: 22px;
+}
+
+.pg-range {
+  width: 100%;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.pg-range::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    var(--accent) calc(var(--pg-progress) * 100%),
+    var(--border) calc(var(--pg-progress) * 100%)
+  );
+}
+
+.pg-range::-moz-range-track {
+  height: 2px;
+  border-radius: 2px;
+  background: var(--border);
+}
+
+.pg-range::-moz-range-progress {
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.pg-range::-webkit-slider-thumb {
+  width: var(--pg-thumb);
+  height: var(--pg-thumb);
+  margin-top: -6px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(74, 44, 32, 0.22);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.pg-range::-moz-range-thumb {
+  box-sizing: border-box;
+  width: var(--pg-thumb);
+  height: var(--pg-thumb);
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(74, 44, 32, 0.22);
+}
+
+.pg-range:focus-visible {
+  outline: none;
+}
+
+.pg-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+/* A dot on the track for each month something new was made */
+.pg-track__mark {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--pg-thumb) / 2 + (100% - var(--pg-thumb)) * var(--pg-position));
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--pg-surface);
+  box-shadow: inset 0 0 0 1.5px var(--pg-node-color);
+  pointer-events: none;
+  transition: background-color 200ms ease;
+}
+
+.pg-track__mark.is-past {
+  background: var(--pg-node-color);
+}
+
+.pg-month {
+  flex: none;
+  min-width: 4.6rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.pg-zoom {
+  display: flex;
+  flex: none;
+  overflow: hidden;
+}
+
+.pg-zoom button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    background-color 160ms ease;
+}
+
+.pg-zoom button + button {
+  border-left: 1px solid var(--border);
+}
+
+.pg-zoom button:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.pg-zoom svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Big faint month behind the graph while the timelapse plays */
+.pg-watermark {
+  position: absolute;
+  bottom: 3.4rem;
+  left: 1.1rem;
+  z-index: 0;
+  margin: 0;
+  color: var(--accent);
+  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: -0.055em;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 500ms ease;
+}
+
+.pg.is-playing .pg-watermark {
+  opacity: 0.08;
+}
+
+.pg-toast {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 4;
+  margin: 0;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  background: rgba(31, 20, 14, 0.82);
+  color: #ffffff;
+  font-size: 0.8rem;
+  opacity: 0;
+  pointer-events: none;
+  translate: -50% -50%;
+  transition: opacity 220ms ease;
+}
+
+.pg-toast.is-visible {
+  opacity: 1;
+}
+
+/* ── Preview card, like Obsidian's page preview ── */
+
+.pg-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  width: 17.5rem;
+  padding: 0.85rem 0.95rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 1px 2px rgba(74, 44, 32, 0.06),
+    0 14px 36px rgba(74, 44, 32, 0.13);
+  pointer-events: none;
+  will-change: transform;
+  animation: pg-card-in 200ms ease-out;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.pg-card.is-pinned {
+  pointer-events: auto;
+}
+
+.pg.is-dragging .pg-card {
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+@keyframes pg-card-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+.pg-card__close {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.5rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pg-card__close:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.pg-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pg-card__dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--pg-node-color);
+}
+
+.pg-card__title {
+  margin: 0.3rem 0 0;
+  font-size: 1.14rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+
+.pg-card__event {
+  margin: 0.15rem 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.pg-card__event strong {
+  color: var(--pg-node-color);
+  font-weight: 600;
+}
+
+.pg-card__summary {
+  margin: 0.45rem 0 0;
+  color: var(--text);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.pg-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pg-card__tags li {
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  background: var(--tag-background);
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.pg-card__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.9rem;
+  margin-top: 0.7rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+}
+
+.pg-card__open {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.pg-card__open:hover {
+  color: var(--accent-strong);
+}
+
+.pg-card__links {
+  gap: 0.9rem;
+  margin: 0;
+}
+
+.pg-card__hint {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.pg-card__projects {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.86rem;
+}
+
+.pg-card__projects li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pg-card__projects button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.pg-caption {
+  margin: 0.8rem 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* ── Narrow canvases ── */
+
+.pg.is-compact {
+  height: clamp(30rem, 74vh, 36rem);
+}
+
+.pg.is-compact .pg-legend {
+  gap: 5px;
+}
+
+.pg.is-compact .pg-chip {
+  padding: 0.18rem 0.55rem 0.18rem 0.48rem;
+  font-size: 0.72rem;
+}
+
+.pg.is-compact .pg-search {
+  display: none;
+}
+
+/* Zoom buttons stack above the timeline on the right */
+.pg.is-compact .pg-zoom {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  flex-direction: column;
+  border-radius: 12px;
+}
+
+.pg.is-compact .pg-zoom button + button {
+  border-top: 1px solid var(--border);
+  border-left: 0;
+}
+
+.pg.is-compact .pg-timeline {
+  flex: 1;
+}
+
+/* On phones the preview docks to the bottom instead of following the node */
+.pg-card.is-docked {
+  top: auto;
+  right: 10px;
+  bottom: 10px;
+  left: 10px;
+  width: auto;
+  transform: none;
+}
+
+.pg.is-compact.has-card .pg-bottom {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pg.is-compact.has-card .pg-bottom * {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-node,
+  .pg-node__body,
+  .pg-link,
+  .pg-flow,
+  .pg-search,
+  .pg-watermark {
+    transition: none;
+  }
+
+  .pg-flow.is-lit,
+  .pg-node:not(.is-hidden) .pg-node__ping,
+  .pg-node.is-focus .pg-node__halo,
+  .pg-card {
+    animation: none;
+  }
+}

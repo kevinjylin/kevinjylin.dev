@@ -3,10 +3,9 @@ import Image from "next/image";
 
 import { AgentGraphIcon } from "@/components/agent-graph-icon";
 import { Footer } from "@/components/footer";
-import { ProjectGraph } from "@/components/project-graph";
-import { getProjects } from "@/lib/projects";
 import { GitHubActivity } from "@/components/github-activity";
-
+import { ProjectsSection } from "@/components/projects-section";
+import { getProjects } from "@/lib/projects";
 
 export default async function Home() {
   const projects = await getProjects();
@@ -62,15 +61,12 @@ export default async function Home() {
           </section>
         </div>
 
-        <section className="section projects-section" aria-labelledby="projects-heading">
-          <div className="section-heading">
-            <h2 id="projects-heading">Projects</h2>
-          </div>
-
-          <ProjectGraph projects={projects} />
-        </section>
-        <section className="section" style={{ borderTop: "none" }} aria-labelledby="activity-heading">
-
+        <ProjectsSection projects={projects} />
+        <section
+          className="section"
+          style={{ borderTop: "none" }}
+          aria-labelledby="activity-heading"
+        >
           <div style={{ display: "flex", justifyContent: "center" }}>
             <GitHubActivity username="kevinjylin" showMonths />
           </div>

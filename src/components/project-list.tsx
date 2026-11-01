@@ -7,7 +7,7 @@ import { ProjectLinks } from "@/components/project-links";
 import type { ProjectMetadata } from "@/lib/projects";
 import { cn, formatMonth } from "@/lib/utils";
 
-type ProjectGraphProps = {
+type ProjectListProps = {
   projects: ProjectMetadata[];
 };
 
@@ -52,7 +52,7 @@ function getArcPath(start: Point, end: Point) {
   return `M ${start.x} ${start.y} C ${start.x - bulge} ${start.y}, ${end.x - bulge} ${end.y}, ${end.x} ${end.y}`;
 }
 
-export function ProjectGraph({ projects }: ProjectGraphProps) {
+export function ProjectList({ projects }: ProjectListProps) {
   const graphRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLOListElement>(null);
   const titleRefs = useRef<Array<HTMLHeadingElement | null>>([]);
@@ -137,16 +137,16 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
 
   return (
     <div
-      className={cn("project-graph", focus && "project-graph--focused")}
+      className={cn("project-list", focus && "project-list--focused")}
       ref={graphRef}
       onMouseLeave={() => setFocus(null)}
     >
-      <svg className="project-graph__edges" aria-hidden="true" focusable="false">
+      <svg className="project-list__edges" aria-hidden="true" focusable="false">
         {points
           ? edges.map((edge) => (
               <path
                 key={`${edge.from}-${edge.to}`}
-                className={cn("project-graph__edge", isEdgeLit(edge) && "is-lit")}
+                className={cn("project-list__edge", isEdgeLit(edge) && "is-lit")}
                 d={getArcPath(points[edge.from], points[edge.to])}
               />
             ))
@@ -155,7 +155,7 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
           <circle
             key={projects[index].slug}
             className={cn(
-              "project-graph__node",
+              "project-list__node",
               isProjectLit(index) && "is-lit",
               focus?.kind === "project" && focus.index === index && "is-focused",
             )}
@@ -166,7 +166,7 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
         ))}
       </svg>
 
-      <ol className="project-graph__list" ref={listRef}>
+      <ol className="project-list__items" ref={listRef}>
         {projects.map((project, index) => (
           <li
             className={cn(

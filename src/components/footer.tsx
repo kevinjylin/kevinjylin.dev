@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 export function Footer() {
   return (
     <footer className="footer">
@@ -9,9 +7,9 @@ export function Footer() {
         <a href="https://www.linkedin.com/in/kevinjylin/">LinkedIn</a>
       </p>
       <p>
-        <Link href="/wall" className="footer-built-with">
+        <span className="footer-built-with">
           <span className="built-with-text">Built with ❤️ by Kevin</span>
-        </Link>
+        </span>
       </p>
     </footer>
   );

@@ -206,6 +206,19 @@ export function highlightGroup(graph: ProjectGraphData, group: ProjectGroup): Hi
   return { nodes, links };
 }
 
+// Every tool, with projects left dim
+export function highlightTools(graph: ProjectGraphData): Highlight {
+  const nodes = new Map<number, HighlightLevel>();
+
+  graph.nodes.forEach((node, nodeIndex) => {
+    if (node.kind === "tag") {
+      raise(nodes, nodeIndex, 2);
+    }
+  });
+
+  return { nodes, links: new Map() };
+}
+
 function getSearchText(node: GraphNode) {
   if (node.kind === "tag") {
     return node.label;

@@ -376,15 +376,6 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--pg-node-color) 14%, transparent);
 }
 
-.pg-chip--key {
-  cursor: default;
-}
-
-.pg-chip--key:hover {
-  border-color: var(--border);
-  color: var(--muted);
-}
-
 .pg-chip__dot {
   width: 8px;
   height: 8px;

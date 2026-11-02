@@ -24,6 +24,7 @@ import {
   highlightGroup,
   highlightNode,
   highlightSearch,
+  highlightTools,
   PROJECT_GROUPS,
   type GraphNode,
   type Highlight,
@@ -303,7 +304,7 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
   const [hovered, setHovered] = useState<number | null>(null);
   const [keyboardFocus, setKeyboardFocus] = useState<number | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
-  const [group, setGroup] = useState<ProjectGroup | null>(null);
+  const [group, setGroup] = useState<ProjectGroup | "tools" | null>(null);
   const [query, setQuery] = useState("");
   // Index into `months` of the last month shown; -1 shows nothing yet
   const [cursor, setCursor] = useState(-1);
@@ -349,6 +350,10 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
   const highlight = useMemo<Highlight | null>(() => {
     if (focusIndex !== null) {
       return highlightNode(graph, focusIndex);
+    }
+
+    if (group === "tools") {
+      return highlightTools(graph);
     }
 
     if (group) {
@@ -1277,7 +1282,7 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
         </svg>
 
         <div className="pg-top">
-          <div className="pg-legend" role="group" aria-label="Highlight projects by type">
+          <div className="pg-legend" role="group" aria-label="Highlight by type">
             {groupsPresent.map((entry) => (
               <button
                 key={entry.id}
@@ -1293,10 +1298,18 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
                 {entry.label}
               </button>
             ))}
-            <span className="pg-chip pg-chip--key pg-tone--tool">
+            <button
+              type="button"
+              className={cn("pg-chip pg-chip--key pg-tone--tool", group === "tools" && "is-active")}
+              aria-pressed={group === "tools"}
+              onClick={() => {
+                setSelected(null);
+                setGroup((current) => (current === "tools" ? null : "tools"));
+              }}
+            >
               <span className="pg-chip__dot" aria-hidden="true" />
               Tools
-            </span>
+            </button>
           </div>
 
           <label className="pg-search">

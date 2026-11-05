@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useRef, useState } from "react";
 
-import { AgentGraphIcon } from "@/components/agent-graph-icon";
+import { CoffeeMark } from "@/components/coffee-mark";
 import { Footer } from "@/components/footer";
 import { CodeEditor } from "@/components/two-sum/code-editor";
 import { CookiePopup } from "@/components/two-sum/cookie-popup";
@@ -115,9 +114,7 @@ export default function TwoSumPage() {
     <main className="page-shell" id="main-content" tabIndex={-1}>
       <div className="page-frame">
         <div className="intro-offset">
-          <Link href="/" className="site-icon" aria-label="Back home">
-            <AgentGraphIcon />
-          </Link>
+          <CoffeeMark href="/" label="Back home" />
 
           <section className="intro">
             <h1>Two Sum</h1>
@@ -125,15 +122,15 @@ export default function TwoSumPage() {
             <div className="intro-copy">
               <p>
                 Given an array of integers <code>nums</code> and an integer <code>target</code>,{" "}
-                return <em>indices of the two numbers such that they add up to</em> <code>target</code>.
+                return <em>indices of the two numbers such that they add up to</em>{" "}
+                <code>target</code>.
               </p>
               <p>
-                You may assume that each input has <strong>exactly one solution</strong>, and you may not use the
+                You may assume that each input has <strong>exactly one solution</strong>, and you
+                may not use the
                 <em> same</em> element twice.
               </p>
-              <p>
-                You can return the answer in any order.
-              </p>
+              <p>You can return the answer in any order.</p>
             </div>
           </section>
 

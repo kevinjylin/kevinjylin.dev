@@ -152,74 +152,6 @@ a {
   color: var(--text);
 }
 
-.site-icon {
-  display: inline-block;
-  margin-bottom: 7.5rem;
-  border: 1.5px solid var(--accent);
-  border-radius: 8px;
-  padding: 6px;
-  line-height: 0;
-  transition:
-    border-color 160ms ease,
-    transform 160ms ease;
-}
-
-.site-icon:hover {
-  border-color: var(--accent-strong);
-  transform: translateY(-1px);
-}
-
-.agent-graph {
-  display: block;
-  width: 56px;
-  height: 56px;
-  overflow: visible;
-}
-
-.agent-graph__link {
-  fill: none;
-  stroke: var(--accent);
-  stroke-dasharray: 2 7;
-  stroke-linecap: round;
-  stroke-width: 2.6;
-  opacity: 0.62;
-  animation: graph-flow 2.8s linear infinite;
-}
-
-.agent-graph__link--two {
-  animation-delay: -0.8s;
-}
-
-.agent-graph__link--three {
-  animation-delay: -1.45s;
-}
-
-.agent-graph__node {
-  fill: var(--background);
-  stroke: var(--accent-strong);
-  stroke-width: 2.8;
-  opacity: 0.82;
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: node-pulse 3.8s ease-in-out infinite;
-}
-
-.agent-graph__node--two {
-  animation-delay: 0.28s;
-}
-
-.agent-graph__node--three {
-  animation-delay: 0.56s;
-}
-
-.agent-graph__node--four {
-  animation-delay: 0.84s;
-}
-
-.agent-graph__node--five {
-  animation-delay: 1.12s;
-}
-
 .page-shell {
   --page-padding-right: clamp(1.75rem, 8vw, 4.5rem);
   --page-padding-left: clamp(3.5rem, 12vw, 7.25rem);
@@ -375,7 +307,8 @@ a {
 
 /* ── Projects: a graph view and a list view ── */
 
-.projects-section {
+.projects-section,
+.activity-section {
   max-width: 56rem;
   margin: 0 auto;
 }
@@ -1100,15 +1033,6 @@ a {
     max-width: 100%;
   }
 
-  .site-icon {
-    margin-bottom: 5.25rem;
-  }
-
-  .agent-graph {
-    width: 48px;
-    height: 48px;
-  }
-
   .intro {
     padding-bottom: 2.5rem;
   }
@@ -1141,24 +1065,17 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .agent-graph__link,
-  .agent-graph__node {
-    animation: none;
-  }
-
   .cookie-popup {
     animation: none;
     transform: translate(-50%, -50%);
   }
 
-  .site-icon,
   .project-back,
   .cookie-button,
   .twosum-button {
     transition: none;
   }
 
-  .site-icon:hover,
   .project-back:hover,
   .cookie-button:hover,
   .twosum-button:hover {

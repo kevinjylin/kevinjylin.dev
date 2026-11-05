@@ -28,16 +28,15 @@ export type RepoContribution = {
   href?: string;
 };
 
-const DEFAULT_ACCENT = "#39d353";
-const DEFAULT_CELL_SIZE = 11;
-const DEFAULT_LABEL = "Top contributions in:";
+// Levels 1–4, from the site's browns; level 0 is the empty cell
+const DEFAULT_ACCENT = ["#d4b08c", "#ad7f58", "#7d5232", "#4a2c20"];
+// The smallest a cell may shrink to before whole weeks are dropped to make room
+const DEFAULT_CELL_SIZE = 10;
+const DEFAULT_LABEL = "Most active in";
 const DEFAULT_MONTHS = 12;
 const WEEKS_PER_MONTH = 365.25 / 12 / 7;
 const STACK_LIMIT = 3;
-const MIN_CARD_WIDTH = 320;
 const MIN_LABEL_WEEKS = 3;
-// the p-4 on the card, both sides; the width math below has to add it back
-const CARD_PADDING = 32;
 
 const gapFor = (cellSize: number) => Math.max(2, Math.round(cellSize / 4));
 // never zero: weeks.slice(-0) would hand back the whole history instead of nothing
@@ -237,26 +236,32 @@ function toWeeks(contributions: Contribution[]) {
   return weeks;
 }
 
-function useFittedColumns(cellSize: number, gap: number) {
+// Cells stretch so the weeks always span the card's full width. When the card is too
+// narrow to fit every week at the minimum size, the oldest weeks are dropped instead.
+function useFittedGrid(maxColumns: number, minCell: number, gap: number) {
   const ref = React.useRef<HTMLDivElement>(null);
-  const [columns, setColumns] = React.useState<number>();
+  const [fit, setFit] = React.useState<{ columns: number; cell: number }>();
 
   useIsoLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    const measure = () =>
-      setColumns(
-        Math.max(1, Math.floor((el.clientWidth + gap) / (cellSize + gap))),
+    const measure = () => {
+      const width = el.clientWidth;
+      const columns = Math.min(
+        maxColumns,
+        Math.max(1, Math.floor((width + gap) / (minCell + gap))),
       );
+      setFit({ columns, cell: (width + gap) / columns - gap });
+    };
 
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [cellSize, gap]);
+  }, [maxColumns, minCell, gap]);
 
-  return [ref, columns] as const;
+  return [ref, fit] as const;
 }
 
 const Tooltip = ({
@@ -318,11 +323,12 @@ const ContributionGrid = ({
 }) => {
   const weeks = React.useMemo(() => toWeeks(contributions), [contributions]);
   const gap = gapFor(cellSize);
-  const [ref, columns] = useFittedColumns(cellSize, gap);
+  const cap = Math.min(weeks.length, weeksFor(months));
+  const [ref, fit] = useFittedGrid(cap, cellSize, gap);
   const [hovered, setHovered] = React.useState<HoveredDay>();
 
-  const cap = Math.min(weeks.length, weeksFor(months));
-  const visible = weeks.slice(-Math.min(cap, columns ?? cap));
+  const cell = fit?.cell ?? cellSize;
+  const visible = weeks.slice(-Math.min(cap, fit?.columns ?? cap));
   const sweepEnd = (visible.length - 1) * COLUMN_STAGGER + CELL_FADE.duration;
 
   const hover = (day: Contribution) => (event: React.PointerEvent) => {
@@ -357,7 +363,7 @@ const ContributionGrid = ({
             <div
               key={index}
               className="ga__month-slot"
-              style={{ width: cellSize }}
+              style={{ width: cell }}
             >
               {month && <span className="ga__month-label">{month}</span>}
             </div>
@@ -377,7 +383,7 @@ const ContributionGrid = ({
                 key={day.date}
                 onPointerEnter={hover(day)}
                 className="ga__cell"
-                style={{ width: cellSize, height: cellSize }}
+                style={{ width: cell, height: cell }}
                 initial={reduceMotion ? false : { opacity: 0, scale: 0.4 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{
@@ -555,28 +561,31 @@ const GitHubActivity = ({
     [contributions],
   );
 
-  const parsedYear = Number(contributions.at(-1)?.date.slice(0, 4));
-  const displayYear = year ?? (Number.isFinite(parsedYear) ? parsedYear : null);
-  const heading = `${total} contributions${displayYear ? ` in ${displayYear}` : ""}`;
-
-  const gap = gapFor(cellSize);
-  const columns = Math.min(
-    Math.ceil(contributions.length / 7),
-    weeksFor(months),
-  );
-  const width = Math.max(
-    MIN_CARD_WIDTH,
-    columns * (cellSize + gap) - gap + CARD_PADDING,
-  );
+  // The calendar covers the past twelve months, not a calendar year
+  const heading = `${total.toLocaleString("en-US")} contributions ${
+    year ? `in ${year}` : "in the last year"
+  }`;
 
   return (
     <div
       data-slot="github-activity"
       className={cn("ga", repos.length > 0 && "ga--has-repos", className)}
-      style={{ width, ...style }}
+      style={style}
       {...props}
     >
-      <p className="ga__heading">{heading}</p>
+      <div className="ga__top">
+        <p className="ga__heading">{heading}</p>
+
+        <div className="ga__legend" aria-hidden="true">
+          <span>Less</span>
+          {scale.map((level, index) => (
+            <span key={index} className="ga__legend-cell">
+              <span className="ga__cell-fill" style={level} />
+            </span>
+          ))}
+          <span>More</span>
+        </div>
+      </div>
 
       <ContributionGrid
         contributions={contributions}
@@ -595,7 +604,7 @@ const GitHubActivity = ({
           data-slot="github-activity-panel"
           data-state={open ? "open" : "closed"}
           className="ga__panel"
-          style={{ borderRadius: 18 }}
+          style={{ borderRadius: 12 }}
           transition={transition}
         >
           <motion.div

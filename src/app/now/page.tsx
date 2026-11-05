@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
 
-import { AgentGraphIcon } from "@/components/agent-graph-icon";
+import { CoffeeMark } from "@/components/coffee-mark";
 import { mdxComponents } from "@/components/mdx-components";
 import { Footer } from "@/components/footer";
 import { getNow } from "@/lib/now";
@@ -35,9 +35,7 @@ export default async function NowPage() {
     <main className="page-shell" id="main-content" tabIndex={-1}>
       <div className="page-frame">
         <div className="intro-offset">
-          <Link href="/" className="site-icon" aria-label="Back home">
-            <AgentGraphIcon />
-          </Link>
+          <CoffeeMark href="/" label="Back home" />
 
           <section className="intro">
             <h1>Kevin Lin</h1>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 
-import { AgentGraphIcon } from "@/components/agent-graph-icon";
+import { CoffeeMark } from "@/components/coffee-mark";
 import { Footer } from "@/components/footer";
 import { GitHubActivity } from "@/components/github-activity";
 import { ProjectsSection } from "@/components/projects-section";
@@ -14,9 +14,7 @@ export default async function Home() {
     <main className="page-shell" id="main-content" tabIndex={-1}>
       <div className="page-frame">
         <div className="intro-offset">
-          <Link href="/two-sum" className="site-icon" aria-label="Solve Two Sum">
-            <AgentGraphIcon />
-          </Link>
+          <CoffeeMark href="/two-sum" label="Solve Two Sum" />
 
           <section className="intro">
             <h1>Kevin Lin</h1>
@@ -62,14 +60,12 @@ export default async function Home() {
         </div>
 
         <ProjectsSection projects={projects} />
-        <section
-          className="section"
-          style={{ borderTop: "none" }}
-          aria-labelledby="activity-heading"
-        >
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <GitHubActivity username="kevinjylin" showMonths />
+        <section className="section activity-section" aria-labelledby="activity-heading">
+          <div className="section-heading">
+            <h2 id="activity-heading">Activity</h2>
           </div>
+
+          <GitHubActivity username="kevinjylin" showMonths />
         </section>
         <Footer />
       </div>

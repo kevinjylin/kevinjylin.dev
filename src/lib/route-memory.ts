@@ -27,3 +27,15 @@ export function rememberProjectsView(view: View) {
 export function lastProjectsView(): View {
   return projectsView;
 }
+
+// Whether the list was opened past its first few projects, kept the same way, so going back
+// to the home page doesn't fold away the row you came from.
+let projectsListOpen = false;
+
+export function rememberProjectsListOpen(open: boolean) {
+  projectsListOpen = open;
+}
+
+export function lastProjectsListOpen(): boolean {
+  return projectsListOpen;
+}

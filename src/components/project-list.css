@@ -84,8 +84,34 @@
   text-wrap: pretty;
 }
 
+/* "Show more", set like the other quiet links on the page */
+.pl-more {
+  margin: 0.35rem 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--fs-small);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition:
+    color 160ms ease,
+    text-decoration-color 160ms ease;
+}
+
+.pl-more:hover,
+.pl-more:focus-visible {
+  color: var(--highlight);
+  text-decoration-color: currentColor;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .pl-row__title-link {
+  .pl-row__title-link,
+  .pl-more {
     transition: none;
   }
 }

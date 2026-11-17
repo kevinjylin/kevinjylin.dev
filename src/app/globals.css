@@ -283,36 +283,63 @@ html[data-returning] .page-frame--enter .coffee-mark {
 
 /* ── Projects: a graph view and a list view ── */
 
-/* Set like the intro links: slashes between, the view not in use underlined */
+/* The two views of the projects, as small pen drawings in place of the words. The one showing
+   is in full ink; the other waits, fainter, until it is pointed at. */
 .view-toggle {
-  color: var(--muted);
-  font-size: var(--fs-small);
+  display: flex;
+  align-items: center;
+  align-self: center;
+  gap: 0.3rem;
 }
 
 .view-toggle button {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
   padding: 0;
   border: 0;
+  border-radius: 4px;
   background: transparent;
   color: var(--muted);
-  font: inherit;
-  text-decoration: underline;
-  text-decoration-color: var(--rule);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 4px;
   cursor: pointer;
+  opacity: 0.5;
   transition:
     color 160ms ease,
-    text-decoration-color 160ms ease;
+    opacity 160ms ease;
 }
 
 .view-toggle button:hover {
   color: var(--highlight);
-  text-decoration-color: currentColor;
+  opacity: 1;
 }
 
 .view-toggle button[aria-pressed="true"] {
-  color: var(--text);
-  text-decoration-color: transparent;
+  color: var(--accent);
+  opacity: 1;
+}
+
+.view-toggle svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.view-toggle__ink {
+  fill: currentColor;
+  stroke: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view-toggle button {
+    transition: none;
+  }
 }
 
 .activity-section .section-heading {

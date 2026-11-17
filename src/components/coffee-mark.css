@@ -7,12 +7,6 @@
   margin-bottom: 2.75rem;
   color: var(--accent);
   transform: rotate(-1.5deg);
-  transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.coffee-mark:hover,
-.coffee-mark:focus-visible {
-  transform: rotate(-4deg) scale(1.04);
 }
 
 .coffee-mark:focus-visible {
@@ -72,11 +66,6 @@
   animation-delay: calc(var(--steam-duration) * -0.7);
 }
 
-.coffee-mark:hover .coffee-mark__steam,
-.coffee-mark:focus-visible .coffee-mark__steam {
-  --steam-duration: 2.2s;
-}
-
 @media (max-width: 760px) {
   .coffee-mark {
     width: 54px;
@@ -86,10 +75,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .coffee-mark {
-    transition: none;
-  }
-
   .coffee-mark__steam {
     animation: none;
     stroke-dasharray: none;

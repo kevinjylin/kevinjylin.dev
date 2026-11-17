@@ -157,16 +157,9 @@ a {
   max-width: var(--column);
 }
 
-/* ── Entrance: the home page sets itself down once, top to bottom, then keeps still ── */
+/* ── Entrance: the stamp is pressed onto the home page once, when the visit begins ── */
 
-@keyframes enter-rise {
-  from {
-    opacity: 0;
-    translate: 0 6px;
-  }
-}
-
-/* The stamp comes down onto the paper a little crooked and settles */
+/* It comes down onto the paper a little crooked and settles */
 @keyframes enter-press {
   from {
     opacity: 0;
@@ -178,50 +171,13 @@ a {
   animation: enter-press 380ms cubic-bezier(0.3, 1.4, 0.5, 1) backwards;
 }
 
-.page-frame--enter :is(.intro > h1, .intro-links, .intro-copy, .section, .footer) {
-  animation: enter-rise 520ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--enter-delay, 0ms) backwards;
-}
-
-.page-frame--enter .intro > h1 {
-  --enter-delay: 100ms;
-}
-
-.page-frame--enter .intro-links {
-  --enter-delay: 160ms;
-}
-
-.page-frame--enter .intro-copy {
-  --enter-delay: 220ms;
-}
-
-/* Each section follows the one above it */
-.page-frame--enter .section {
-  --enter-delay: 300ms;
-}
-
-.page-frame--enter .section ~ .section {
-  --enter-delay: 370ms;
-}
-
-.page-frame--enter .section ~ .section ~ .section {
-  --enter-delay: 440ms;
-}
-
-.page-frame--enter .footer {
-  --enter-delay: 510ms;
-}
-
-/* Only when the visit begins: coming back to the home page from another finds it already set */
-html[data-returning] .page-frame--enter .coffee-mark,
-html[data-returning]
-  .page-frame--enter
-  :is(.intro > h1, .intro-links, .intro-copy, .section, .footer) {
+/* Coming back to the home page from another finds it already there */
+html[data-returning] .page-frame--enter .coffee-mark {
   animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .page-frame--enter .coffee-mark,
-  .page-frame--enter :is(.intro > h1, .intro-links, .intro-copy, .section, .footer) {
+  .page-frame--enter .coffee-mark {
     animation: none;
   }
 }
@@ -1000,36 +956,10 @@ html[data-returning]
   text-align: right;
 }
 
-/* Sets itself down once, like the home page */
-.project-detail > *,
-.project-turn {
-  animation: enter-rise 520ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--enter-delay, 0ms) backwards;
-}
-
-.project-detail > :nth-child(2) {
-  --enter-delay: 70ms;
-}
-
-.project-detail > :nth-child(3) {
-  --enter-delay: 140ms;
-}
-
-.project-detail > :nth-child(n + 4),
-.project-turn {
-  --enter-delay: 210ms;
-}
-
 @media (max-width: 560px) {
   .project-facts > div {
     grid-template-columns: 5.5rem minmax(0, 1fr);
     column-gap: 1rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .project-detail > *,
-  .project-turn {
-    animation: none;
   }
 }
 

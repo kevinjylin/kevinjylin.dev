@@ -19,6 +19,11 @@ const monthPattern = /^\d{4}-(0[1-9]|1[0-2])$/;
 
 export type ProjectMetadata = {
   award?: string;
+  // Path to a picture under public/ shown at the top of the project's page, with the words a
+  // screen reader says for it and an optional caption beneath
+  cover?: string;
+  coverAlt?: string;
+  coverCaption?: string;
   // "YYYY-MM"
   date: string;
   event?: string;
@@ -62,6 +67,9 @@ async function readProjectFile(fileName: string): Promise<Project> {
   return {
     metadata: {
       award: getOptionalString(data, "award", filePath),
+      cover: getOptionalString(data, "cover", filePath),
+      coverAlt: getOptionalString(data, "coverAlt", filePath),
+      coverCaption: getOptionalString(data, "coverCaption", filePath),
       date: getRequiredMonth(data, "date", filePath),
       event: getOptionalString(data, "event", filePath),
       featured: getRequiredBoolean(data, "featured", filePath),

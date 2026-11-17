@@ -41,6 +41,15 @@ export default function RootLayout({ children }: RootLayoutProps) {
           Skip to main content
         </a>
         {children}
+        {/* The pen's roughness, kept here once so anything on the site can be drawn with it */}
+        <svg className="ink-defs" aria-hidden="true" focusable="false">
+          <defs>
+            <filter id="ink-rough" x="-5%" y="-5%" width="110%" height="110%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="5" />
+              <feDisplacementMap in="SourceGraphic" scale="3.4" />
+            </filter>
+          </defs>
+        </svg>
         <EasterEggs />
       </body>
     </html>

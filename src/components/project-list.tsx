@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import "./project-list.css";
 
+import { inListOrder } from "@/lib/project-order";
 import type { ProjectMetadata } from "@/lib/projects";
 import { formatMonth } from "@/lib/utils";
 
@@ -9,19 +10,10 @@ type ProjectListProps = {
   projects: ProjectMetadata[];
 };
 
-// Pinned projects lead; the rest run newest first.
-function inOrder(projects: ProjectMetadata[]): ProjectMetadata[] {
-  return [...projects].sort(
-    (left, right) =>
-      Number(Boolean(right.pinned)) - Number(Boolean(left.pinned)) ||
-      right.date.localeCompare(left.date),
-  );
-}
-
 export function ProjectList({ projects }: ProjectListProps) {
   return (
     <ol className="pl">
-      {inOrder(projects).map((project) => (
+      {inListOrder(projects).map((project) => (
         <li key={project.slug} className="pl-row">
           <div className="pl-row__head">
             <h3 className="pl-row__title">

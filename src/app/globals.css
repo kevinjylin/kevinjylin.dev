@@ -42,6 +42,13 @@
   box-sizing: border-box;
 }
 
+/* Holds the pen's roughness filter; takes up no room */
+.ink-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -112,6 +119,8 @@ a {
 .intro-links a,
 .footer a,
 .activity-repos a,
+.project-facts a,
+.project-turn a,
 .project-links a {
   color: inherit;
   text-decoration: underline;
@@ -127,6 +136,8 @@ a {
 .intro-links a:hover,
 .footer a:hover,
 .activity-repos a:hover,
+.project-facts a:hover,
+.project-turn a:hover,
 .project-links a:hover {
   color: var(--highlight);
   text-decoration-color: currentColor;
@@ -870,12 +881,24 @@ a {
   transform: translateX(-2px);
 }
 
+/* Each picture on the page is numbered from one */
+.project-detail {
+  counter-reset: picture;
+}
+
 .project-detail__header {
   display: grid;
   gap: 1rem;
   padding-bottom: 1.5rem;
 }
 
+/* A project's header runs straight on into its facts, so it keeps closer company */
+.project-detail__header--project {
+  gap: 0.75rem;
+  padding-bottom: 0;
+}
+
+/* The date line above a note's title */
 .project-detail__year {
   margin: 0;
   color: var(--muted);
@@ -896,10 +919,110 @@ a {
   font-size: var(--fs-body);
   letter-spacing: -0.011em;
   line-height: 1.6;
+  text-wrap: pretty;
 }
 
-.project-detail__links {
-  margin-top: 0.5rem;
+/* Why it exists, in my words, set the way the home page's list sets it */
+.project-detail__why {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--fs-small);
+  font-style: italic;
+  line-height: 1.45;
+}
+
+.project-detail__cover {
+  margin: 2rem 0 0;
+}
+
+/* The facts: a muted label in the gutter and what it is beside it, like the shelf on /things */
+.project-facts {
+  display: grid;
+  gap: 0.45rem;
+  margin: 2rem 0 0;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--fs-small);
+  line-height: 1.55;
+}
+
+.project-facts > div {
+  display: grid;
+  grid-template-columns: 8rem minmax(0, 1fr);
+  column-gap: 1.5rem;
+}
+
+.project-facts dt {
+  color: var(--muted);
+}
+
+.project-facts dd {
+  margin: 0;
+}
+
+.project-facts strong {
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+/* The projects either side of this one in the list */
+.project-turn {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 3.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-small);
+}
+
+.project-turn p {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+}
+
+.project-turn span {
+  color: var(--muted);
+  font-size: var(--fs-micro);
+}
+
+.project-turn__next {
+  margin-left: auto;
+  text-align: right;
+}
+
+/* Sets itself down once, like the home page */
+.project-detail > *,
+.project-turn {
+  animation: enter-rise 520ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--enter-delay, 0ms) backwards;
+}
+
+.project-detail > :nth-child(2) {
+  --enter-delay: 70ms;
+}
+
+.project-detail > :nth-child(3) {
+  --enter-delay: 140ms;
+}
+
+.project-detail > :nth-child(n + 4),
+.project-turn {
+  --enter-delay: 210ms;
+}
+
+@media (max-width: 560px) {
+  .project-facts > div {
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    column-gap: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-detail > *,
+  .project-turn {
+    animation: none;
+  }
 }
 
 .project-detail__body {
@@ -931,6 +1054,15 @@ a {
 .project-detail__body ul,
 .project-detail__body ol {
   padding-left: 1.25rem;
+}
+
+.project-detail__body li::marker {
+  color: var(--muted);
+}
+
+/* A picture gets a little more air than a paragraph does */
+.project-detail__body p:has(> .picture) {
+  margin-block: 0.6rem;
 }
 
 .project-detail__body li + li {

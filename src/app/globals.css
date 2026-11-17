@@ -211,6 +211,14 @@ a {
   --enter-delay: 510ms;
 }
 
+/* Only when the visit begins: coming back to the home page from another finds it already set */
+html[data-returning] .page-frame--enter .coffee-mark,
+html[data-returning]
+  .page-frame--enter
+  :is(.intro > h1, .intro-links, .intro-copy, .section, .footer) {
+  animation: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .page-frame--enter .coffee-mark,
   .page-frame--enter :is(.intro > h1, .intro-links, .intro-copy, .section, .footer) {

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 
+import { BackLink } from "@/components/back-link";
 import { Footer } from "@/components/footer";
 import { mdxComponents } from "@/components/mdx-components";
 import { formatDay } from "@/lib/content-page";
@@ -56,9 +56,9 @@ export default async function NotePage({ params }: NotePageProps) {
     <main className="page-shell" id="main-content" tabIndex={-1}>
       <div className="page-frame">
         <div className="intro-offset">
-          <Link href="/notes" className="project-back">
+          <BackLink href="/notes" className="project-back">
             ← Notes
-          </Link>
+          </BackLink>
 
           <article className="project-detail">
             <header className="project-detail__header">

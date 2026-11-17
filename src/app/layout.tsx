@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { EasterEggs } from "@/components/easter-eggs";
+import { RouteMemory } from "@/components/route-memory";
 
 import "./globals.css";
 
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             </filter>
           </defs>
         </svg>
+        <RouteMemory />
         <EasterEggs />
       </body>
     </html>

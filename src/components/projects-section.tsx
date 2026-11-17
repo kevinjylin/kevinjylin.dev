@@ -5,8 +5,7 @@ import { Fragment, useState } from "react";
 import { ProjectGraph } from "@/components/project-graph/project-graph";
 import { ProjectList } from "@/components/project-list";
 import type { ProjectMetadata } from "@/lib/projects";
-
-type View = "graph" | "list";
+import { lastProjectsView, rememberProjectsView, type View } from "@/lib/route-memory";
 
 const views: Array<{ id: View; label: string }> = [
   { id: "list", label: "List" },
@@ -18,7 +17,13 @@ type ProjectsSectionProps = {
 };
 
 export function ProjectsSection({ projects }: ProjectsSectionProps) {
-  const [view, setView] = useState<View>("list");
+  // Opens on the view last chosen, so coming back from a project's page finds it as you left it
+  const [view, setView] = useState<View>(lastProjectsView);
+
+  const choose = (next: View) => {
+    rememberProjectsView(next);
+    setView(next);
+  };
 
   return (
     <section className="section projects-section" aria-labelledby="projects-heading">
@@ -32,7 +37,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
               <button
                 type="button"
                 aria-pressed={view === option.id}
-                onClick={() => setView(option.id)}
+                onClick={() => choose(option.id)}
               >
                 {option.label}
               </button>

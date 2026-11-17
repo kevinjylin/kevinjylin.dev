@@ -10,6 +10,8 @@
 .pl-row {
   position: relative;
   padding: 0.65rem 0;
+  /* When a project's page links back to its row, leave some of the list showing above it */
+  scroll-margin-top: 6rem;
 }
 
 .pl-row__head {

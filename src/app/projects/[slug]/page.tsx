@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { Fragment } from "react";
 
+import { BackLink } from "@/components/back-link";
 import { Footer } from "@/components/footer";
 import { mdxComponents } from "@/components/mdx-components";
 import { Picture } from "@/components/picture";
@@ -72,9 +73,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     <main className="page-shell" id="main-content" tabIndex={-1}>
       <div className="page-frame">
         <div className="intro-offset">
-          <Link href="/" className="project-back" aria-label="Back to home">
+          {/* Back to where you were in the list, or to this project's row if you arrived here cold */}
+          <BackLink href={`/#project-${slug}`} className="project-back" aria-label="Back to home">
             ← Back
-          </Link>
+          </BackLink>
 
           <article className="project-detail">
             <header className="project-detail__header project-detail__header--project">

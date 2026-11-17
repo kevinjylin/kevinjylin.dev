@@ -14,7 +14,7 @@ export function ProjectList({ projects }: ProjectListProps) {
   return (
     <ol className="pl">
       {inListOrder(projects).map((project) => (
-        <li key={project.slug} className="pl-row">
+        <li key={project.slug} id={`project-${project.slug}`} className="pl-row">
           <div className="pl-row__head">
             <h3 className="pl-row__title">
               <Link href={`/projects/${project.slug}`} className="pl-row__title-link">

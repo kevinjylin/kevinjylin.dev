@@ -36,7 +36,6 @@ export function ProjectList({ projects }: ProjectListProps) {
           </div>
 
           <p className="pl-row__summary">{project.summary}</p>
-          {project.why ? <p className="pl-row__why">{project.why}</p> : null}
         </li>
       ))}
     </ol>

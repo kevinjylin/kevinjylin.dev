@@ -40,7 +40,7 @@ export type ProjectMetadata = {
   summary: string;
   tags: string[];
   title: string;
-  // One line on why it exists, in my words; shown under the summary in the list
+  // One line on why it exists, in my words; shown on the project's page
   why?: string;
 };
 

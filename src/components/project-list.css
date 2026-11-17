@@ -84,16 +84,6 @@
   text-wrap: pretty;
 }
 
-/* Why it exists, in a quieter voice than what it does */
-.pl-row__why {
-  margin: 0.2rem 0 0;
-  color: var(--muted);
-  font-size: var(--fs-small);
-  font-style: italic;
-  line-height: 1.45;
-  text-wrap: pretty;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .pl-row__title-link {
     transition: none;

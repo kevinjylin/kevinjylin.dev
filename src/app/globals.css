@@ -897,7 +897,7 @@ html[data-returning] .page-frame--enter .coffee-mark {
   text-wrap: pretty;
 }
 
-/* Why it exists, in my words, set the way the home page's list sets it */
+/* Why it exists, in my words, in a quieter voice than what it does */
 .project-detail__why {
   margin: 0;
   color: var(--muted);

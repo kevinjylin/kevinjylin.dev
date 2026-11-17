@@ -28,9 +28,18 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
     return {};
   }
 
+  const title = `${project.metadata.title} — Kevin Lin`;
+
   return {
-    title: `${project.metadata.title} — Kevin Lin`,
+    title,
     description: project.metadata.summary,
+    openGraph: {
+      type: "article",
+      siteName: "Kevin Lin",
+      title,
+      description: project.metadata.summary,
+      url: `/projects/${slug}`,
+    },
   };
 }
 

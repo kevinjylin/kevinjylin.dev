@@ -1,14 +1,32 @@
 :root {
   color-scheme: light;
-  --background: #ffffff;
+  /* Warm paper, so the brown ink has something to sit on */
+  --background: #fdfbf8;
   --surface: #ffffff;
   --text: #1f140e;
   --muted: #7a6b5d;
+  /* The one color that isn't ink: links under the pointer, and hackathon dots */
+  --highlight: #a65d33;
+  /* Underline on a link at rest */
+  --rule: color-mix(in srgb, var(--text) 28%, transparent);
+  /* Four sizes for the whole site */
+  --fs-title: 1.875rem;
+  --fs-body: 1rem;
+  --fs-small: 0.875rem;
+  --fs-micro: 0.75rem;
+  /* Everything sits in one column */
+  --column: 40rem;
   --border: #e0d6cb;
   --tag-background: #efe7df;
   --accent: #4a2c20;
   --accent-strong: #6b4423;
   --accent-soft: #f3ebe3;
+  /* Coffee tones for the three kinds of project */
+  --tone-product: #3d2418;
+  --tone-hackathon: var(--highlight);
+  --tone-side: #c29a6e;
+  /* Sparse flecks of ink, like the tooth of good paper */
+  --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.29 0 0 0 0 0.17 0 0 0 0 0.12 0 0 0 0.6 -0.33'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
 }
 
 @keyframes graph-flow {
@@ -93,58 +111,25 @@ a {
 .intro-copy a,
 .intro-links a,
 .footer a,
+.activity-repos a,
 .project-links a {
-  color: var(--accent);
+  color: inherit;
   text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-decoration-thickness: 1px;
   text-underline-offset: 4px;
-  transition: color 160ms ease;
+  transition:
+    color 160ms ease,
+    text-decoration-color 160ms ease;
 }
 
 .intro-copy a:hover,
 .intro-links a:hover,
 .footer a:hover,
+.activity-repos a:hover,
 .project-links a:hover {
-  color: var(--accent-strong);
-}
-
-.footer .footer-built-with,
-.footer .footer-built-with:hover {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  color: #000000;
-  min-height: 1.5rem;
-}
-
-.built-with-text {
-  transition: opacity 200ms ease;
-}
-
-.footer .footer-built-with::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 220px;
-  height: 55px;
-  background-image: url("/built-with-hover.gif");
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 200ms ease;
-}
-
-.footer .footer-built-with:hover .built-with-text {
-  opacity: 0;
-}
-
-.footer .footer-built-with:hover::after {
-  opacity: 1;
+  color: var(--highlight);
+  text-decoration-color: currentColor;
 }
 
 ::selection {
@@ -153,31 +138,14 @@ a {
 }
 
 .page-shell {
-  --page-padding-right: clamp(1.75rem, 8vw, 4.5rem);
-  --page-padding-left: clamp(3.5rem, 12vw, 7.25rem);
-  padding-top: clamp(1.5rem, 3vw, 3rem);
-  padding-right: var(--page-padding-right);
-  padding-bottom: clamp(2.75rem, 5vw, 4.75rem);
-  padding-left: var(--page-padding-left);
+  padding: clamp(2rem, 7vh, 4.5rem) clamp(1.5rem, 5vw, 3rem) clamp(2.75rem, 5vw, 4.75rem);
 }
 
 .page-frame {
   margin: 0 auto;
-  max-width: 72rem;
+  max-width: var(--column);
 }
 
-.intro-offset {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 56rem;
-}
-
-.intro {
-  max-width: 50rem;
-  padding-bottom: 3rem;
-}
-
-.eyebrow,
 .section-heading,
 .tag,
 .footer {
@@ -189,37 +157,31 @@ a {
     sans-serif;
 }
 
-.eyebrow {
-  margin: 0 0 1rem;
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.intro h1 {
+.intro h1,
+.intro__name {
   margin: 0;
-  font-size: clamp(2.074rem, 4.608vw, 3.686rem);
-  font-weight: 700;
-  letter-spacing: -0.06em;
-  line-height: 1.02;
+  font-size: var(--fs-title);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
 }
 
 .intro-links {
   display: block;
-  margin-top: 1.1rem;
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: var(--fs-small);
 }
 
 .intro-copy {
   display: grid;
-  gap: 1.15rem;
-  margin: 1.9rem 0 0;
-  max-width: 64rem;
+  gap: 0.9rem;
+  margin: 1.5rem 0 0;
   color: var(--text);
-  font-size: clamp(1.08rem, 1.55vw, 1.42rem);
-  letter-spacing: -0.018em;
-  line-height: 1.52;
+  font-size: var(--fs-body);
+  letter-spacing: -0.011em;
+  line-height: 1.6;
+  text-wrap: pretty;
 }
 
 .intro-copy p {
@@ -227,32 +189,11 @@ a {
 }
 
 .intro-copy strong {
-  font-weight: 700;
-}
-
-.intro-signoff {
-  margin-top: 1.85rem;
-}
-
-.intro-signature {
-  display: block;
-  width: clamp(10rem, 18vw, 15rem);
-  height: auto;
-  mix-blend-mode: multiply;
-}
-
-.intro-signoff p {
-  margin: 0.45rem 0 0;
-  color: rgba(122, 107, 93, 0.52);
-  font-size: 0.78rem;
-  font-style: italic;
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  font-weight: 600;
 }
 
 .section {
-  padding: 2.5rem 0;
-  border-top: 1px solid var(--border);
+  padding: 3.5rem 0 0;
 }
 
 .section-heading {
@@ -260,7 +201,7 @@ a {
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .section-heading h2,
@@ -269,16 +210,15 @@ a {
 }
 
 .section-heading h2 {
-  color: var(--muted);
-  font-size: 0.84rem;
+  color: var(--text);
+  font-size: var(--fs-body);
   font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: -0.011em;
 }
 
 .section-heading p {
   color: var(--muted);
-  font-size: 0.92rem;
+  font-size: var(--fs-small);
 }
 
 .tag-list {
@@ -295,7 +235,7 @@ a {
   border-radius: 999px;
   background: var(--tag-background);
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: var(--fs-micro);
 }
 
 .project-links {
@@ -307,56 +247,168 @@ a {
 
 /* ── Projects: a graph view and a list view ── */
 
-.projects-section,
-.activity-section {
-  max-width: 56rem;
-  margin: 0 auto;
-}
-
+/* Set like the intro links: slashes between, the view not in use underlined */
 .view-toggle {
-  display: inline-flex;
-  padding: 2px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface);
+  color: var(--muted);
+  font-size: var(--fs-small);
 }
 
 .view-toggle button {
-  padding: 0.2rem 0.8rem;
+  padding: 0;
   border: 0;
-  border-radius: 999px;
   background: transparent;
   color: var(--muted);
   font: inherit;
-  font-size: 0.78rem;
-  line-height: 1.5;
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
   cursor: pointer;
   transition:
-    background-color 160ms ease,
-    color 160ms ease;
+    color 160ms ease,
+    text-decoration-color 160ms ease;
 }
 
 .view-toggle button:hover {
-  color: var(--text);
+  color: var(--highlight);
+  text-decoration-color: currentColor;
 }
 
 .view-toggle button[aria-pressed="true"] {
-  background: var(--accent);
-  color: #ffffff;
+  color: var(--text);
+  text-decoration-color: transparent;
+}
+
+.activity-section .section-heading {
+  margin-bottom: 1rem;
+}
+
+.activity-repos {
+  margin: 0.9rem 0 0;
+  color: var(--muted);
+  font-size: var(--fs-small);
 }
 
 .footer {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 2rem 0 0;
+  gap: 1.5rem;
+  padding: 3.5rem 0 0;
 }
 
 .footer p {
   margin: 0;
   color: var(--muted);
-  font-size: 0.92rem;
+  font-size: var(--fs-small);
+}
+
+.footer__signature {
+  display: block;
+  width: 8.5rem;
+  aspect-ratio: 640 / 183;
+  margin-left: auto;
+  background: var(--accent);
+  -webkit-mask: url("/signature-ink.png") center / contain no-repeat;
+  mask: url("/signature-ink.png") center / contain no-repeat;
+}
+
+.footer .footer__motto {
+  margin-top: 0.3rem;
+  font-size: var(--fs-micro);
+  font-style: italic;
+  text-align: right;
+}
+
+/* ── Notes: date in the gutter, title and one line beside it ── */
+.note-list {
+  display: grid;
+  gap: 1.1rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.note-list__row {
+  display: grid;
+  grid-template-columns: 8rem minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: baseline;
+}
+
+.note-list__date,
+.note-list__draft {
+  color: var(--muted);
+  font-size: var(--fs-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.note-list__title,
+.section-heading__link,
+.footer__pages a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition:
+    color 160ms ease,
+    text-decoration-color 160ms ease;
+}
+
+.note-list__title {
+  font-weight: 500;
+}
+
+.note-list__title:hover,
+.section-heading__link:hover,
+.footer__pages a:hover {
+  color: var(--highlight);
+  text-decoration-color: currentColor;
+}
+
+.note-list__summary {
+  margin: 0.15rem 0 0;
+  color: var(--muted);
+  font-size: var(--fs-small);
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+@media (max-width: 560px) {
+  .note-list__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.1rem;
+  }
+}
+
+.footer .footer__pages {
+  margin-top: 0.35rem;
+}
+
+/* The "coffee" easter egg: a small ink label that rises from the bottom of the page */
+.refill-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  z-index: 50;
+  margin: 0;
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--text);
+  color: var(--background);
+  font-size: var(--fs-small);
+  opacity: 0;
+  pointer-events: none;
+  translate: -50% 0.5rem;
+  transition:
+    opacity 200ms ease,
+    translate 200ms ease;
+}
+
+.refill-toast.is-visible {
+  opacity: 1;
+  translate: -50% 0;
 }
 
 .intro-copy code {
@@ -728,8 +780,7 @@ a {
   display: inline-block;
   margin-bottom: 2.5rem;
   color: var(--muted);
-  font-size: 0.92rem;
-  letter-spacing: -0.01em;
+  font-size: var(--fs-small);
   transition:
     color 160ms ease,
     transform 160ms ease;
@@ -743,31 +794,29 @@ a {
 .project-detail__header {
   display: grid;
   gap: 1rem;
-  padding-bottom: 2.25rem;
-  border-bottom: 1px solid var(--border);
+  padding-bottom: 1.5rem;
 }
 
 .project-detail__year {
   margin: 0;
   color: var(--muted);
-  font-size: 0.86rem;
+  font-size: var(--fs-small);
 }
 
 .project-detail h1 {
   margin: 0;
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1.04;
+  font-size: var(--fs-title);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
 }
 
 .project-detail__summary {
   margin: 0;
-  max-width: 48rem;
   color: var(--muted);
-  font-size: clamp(1.05rem, 1.4vw, 1.25rem);
-  letter-spacing: -0.015em;
-  line-height: 1.5;
+  font-size: var(--fs-body);
+  letter-spacing: -0.011em;
+  line-height: 1.6;
 }
 
 .project-detail__links {
@@ -778,10 +827,10 @@ a {
   display: grid;
   gap: 1.15rem;
   margin-top: 2.25rem;
-  max-width: 48rem;
   color: var(--text);
-  font-size: 1.05rem;
-  line-height: 1.65;
+  font-size: var(--fs-body);
+  letter-spacing: -0.011em;
+  line-height: 1.6;
 }
 
 .project-detail__body :where(p, ul, ol, blockquote, pre, h2, h3, h4) {
@@ -789,16 +838,15 @@ a {
 }
 
 .project-detail__body h2 {
-  margin-top: 0.5rem;
-  font-size: 1.35rem;
+  margin-top: 0.75rem;
+  font-size: var(--fs-body);
   font-weight: 600;
-  letter-spacing: -0.02em;
 }
 
 .project-detail__body h3 {
-  font-size: 1.15rem;
+  font-size: var(--fs-body);
   font-weight: 600;
-  letter-spacing: -0.015em;
+  color: var(--muted);
 }
 
 .project-detail__body ul,
@@ -806,15 +854,24 @@ a {
   padding-left: 1.25rem;
 }
 
+.project-detail__body li + li {
+  margin-top: 0.6rem;
+}
+
 .project-detail__body a {
-  color: var(--accent);
+  color: inherit;
   text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-decoration-thickness: 1px;
   text-underline-offset: 4px;
-  transition: color 160ms ease;
+  transition:
+    color 160ms ease,
+    text-decoration-color 160ms ease;
 }
 
 .project-detail__body a:hover {
-  color: var(--accent-strong);
+  color: var(--highlight);
+  text-decoration-color: currentColor;
 }
 
 .project-detail__body code {
@@ -850,29 +907,75 @@ a {
   font-style: italic;
 }
 
+.now-page {
+  margin-top: 2rem;
+}
+
 .now-page__header {
   display: grid;
   gap: 0.65rem;
-  padding-bottom: 2rem;
-  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
 }
 
 .now-page__header h1 {
   margin: 0;
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1.04;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  letter-spacing: -0.011em;
+  line-height: 1.4;
 }
 
 .now-page__updated {
   margin: 0;
   color: var(--muted);
-  font-size: 0.92rem;
+  font-size: var(--fs-small);
 }
 
 .now-page__body {
   margin-top: 2rem;
+}
+
+/* /things: each ## label sits in a muted gutter, its list beside it, like a shelf index */
+.things-page__body {
+  grid-template-columns: 8rem minmax(0, 1fr);
+  column-gap: 1.5rem;
+  row-gap: 1.75rem;
+}
+
+.things-page__body > :not(h2, ul) {
+  grid-column: 1 / -1;
+}
+
+.things-page__body > h2 {
+  margin: 0;
+  padding-top: 0.1rem;
+  color: var(--muted);
+  font-size: var(--fs-small);
+  font-weight: 500;
+}
+
+.things-page__body > ul {
+  padding: 0;
+  list-style: none;
+}
+
+.things-page__body li + li {
+  margin-top: 0.45rem;
+}
+
+.things-page__body li strong {
+  font-weight: 500;
+}
+
+@media (max-width: 560px) {
+  .things-page__body {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0.5rem;
+  }
+
+  .things-page__body > h2:not(:first-child) {
+    margin-top: 1.25rem;
+  }
 }
 
 @keyframes cookie-pop {
@@ -1022,45 +1125,12 @@ a {
   }
 
   .page-shell {
-    --page-padding-right: 1.5rem;
-    --page-padding-left: 2.4rem;
-    padding-top: 1.25rem;
-    padding-right: var(--page-padding-right);
-    padding-left: var(--page-padding-left);
+    padding-top: 1.5rem;
   }
 
-  .intro-offset {
-    max-width: 100%;
-  }
-
-  .intro {
-    padding-bottom: 2.5rem;
-  }
-
-  .intro h1 {
-    font-size: clamp(2.64rem, 14.4vw, 4.08rem);
-  }
-
-  .intro-copy {
-    gap: 0.95rem;
-    margin-top: 1.55rem;
-    font-size: 1.06rem;
-    letter-spacing: -0.01em;
-    line-height: 1.5;
-  }
-
-  .intro-signoff {
-    margin-top: 1.6rem;
-  }
-
-  .intro-signature {
-    width: 10.5rem;
-  }
-
-  .section-heading,
+  .section,
   .footer {
-    flex-direction: column;
-    align-items: flex-start;
+    padding-top: 3rem;
   }
 }
 
@@ -1072,7 +1142,8 @@ a {
 
   .project-back,
   .cookie-button,
-  .twosum-button {
+  .twosum-button,
+  .refill-toast {
     transition: none;
   }
 

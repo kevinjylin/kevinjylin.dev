@@ -5,7 +5,7 @@
   --ga-paper: #fdfbf8;
   --ga-card: #ffffff;
   --ga-muted: var(--muted);
-  --ga-faint: color-mix(in srgb, var(--muted) 70%, transparent);
+  --ga-faint: var(--muted);
   --ga-cell-empty: #f3eee8;
   --ga-hover: var(--accent-soft);
   --ga-inset: 1.1rem;
@@ -22,6 +22,22 @@
   padding-bottom: 4.25rem;
 }
 
+/* Plain: no card, no top bar. Just the grid, for a page that sets its own captions. */
+.ga--plain {
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.ga--plain .ga__top {
+  display: none;
+}
+
+.ga--plain .ga__grid {
+  margin: 0;
+}
+
 /* Top chrome: a count on the left, the level key on the right, like the list's top bar */
 .ga__top {
   display: flex;
@@ -36,7 +52,7 @@
 .ga__heading {
   margin: 0;
   color: var(--ga-muted);
-  font-size: 0.76rem;
+  font-size: var(--fs-micro);
   font-variant-numeric: tabular-nums;
 }
 
@@ -45,7 +61,7 @@
   align-items: center;
   gap: 3px;
   color: var(--ga-faint);
-  font-size: 0.7rem;
+  font-size: var(--fs-micro);
 }
 
 .ga__legend > span:first-child {
@@ -75,7 +91,7 @@
 
 .ga__month-slot {
   position: relative;
-  height: 0.75rem;
+  height: 0.9rem;
   flex-shrink: 0;
 }
 
@@ -83,7 +99,7 @@
   position: absolute;
   left: 0;
   top: 0;
-  font-size: 10px;
+  font-size: var(--fs-micro);
   line-height: 1;
   color: var(--ga-faint);
 }
@@ -122,7 +138,7 @@
   border-radius: 0.5rem;
   background: var(--text);
   padding: 0.25rem 0.5rem;
-  font-size: 11px;
+  font-size: var(--fs-micro);
   font-weight: 500;
   color: var(--background);
   box-shadow: 0 4px 12px color-mix(in srgb, var(--text) 18%, transparent);
@@ -155,7 +171,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--ga-muted);
-  font-size: 0.76rem;
+  font-size: var(--fs-micro);
 }
 
 .ga__panel-actions {
@@ -215,12 +231,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.88rem;
+  font-size: var(--fs-small);
   color: var(--ga-fg);
 }
 
 .ga__row-count {
-  font-size: 0.8rem;
+  font-size: var(--fs-micro);
   font-variant-numeric: tabular-nums;
   color: var(--ga-muted);
 }

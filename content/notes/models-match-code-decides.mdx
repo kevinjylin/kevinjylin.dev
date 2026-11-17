@@ -1,0 +1,29 @@
+---
+title: "The model matches, the code decides"
+date: "2026-11-16"
+summary: "The rule every agent project of mine ended up following, from Yardsale to Second Grader."
+draft: true
+---
+
+Looking back over this year's projects, the same rule kept showing up without my planning it: let
+the model do the fuzzy part, and let plain code make the call.
+
+- **Yardsale.** Claude only picks which past eBay sales are the same product. Code sets the asking
+  price and the floor.
+- **Highlander Hub.** Gemini decides whether an Instagram post is an event, but it has to cite the
+  caption or slide that says so. Code checks the citation, and an answer that fails is refused.
+- **SpyGlass.** Each claim is highlighted in the tweet only after code confirms the text appears
+  word for word in the original post. The overall verdict is plain code.
+- **Second Grader.** Models pull claims out of the agent's messages and write tests. Whether "all
+  tests pass" is true is decided by code, never an LLM.
+
+## Why it keeps working
+
+A model is good at reading messy input and bad at being accountable for it. Code is the opposite.
+Splitting the job that way means every answer the user sees can be traced back to something real: a
+sale, a slide, a sentence, a test run.
+
+## What it costs
+
+More plumbing. Every project needed a check that could say no, and a plan for what happens when it
+does: refuse, fall back to a link, or ask the user instead of guessing.

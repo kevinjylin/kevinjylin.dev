@@ -1,8 +1,9 @@
 ---
 title: "SpyGlass"
-summary: "Inline fact-check badges on X / Twitter, a public live-feed dashboard, and a website"
+summary: "Chrome extension that fact-checks X / Twitter posts claim by claim, with a verdict and sources on every tweet"
 date: "2026-04"
 kind: "Chrome extension"
+icon: "/projects/spyglass.png"
 event: "CitrusHack 2026"
 tags: [Plasmo, FastAPI, Python, Gemini, Supabase, D3.js]
 repoUrl: "https://github.com/kevinjylin/spyglass"
@@ -12,5 +13,13 @@ featured: true
 
 Built with Alex Tsai and Joshua Bumatay for CitrusHack 2026.
 
-SpyGlass turns X into a fact-checked feed: every tweet gets a verdict, every claim is highlighted
-clause by clause, and every verdict links to its sources.
+- **Claim by claim.** Each post is split into small, checkable claims labeled fact or opinion. Posts
+  full of emoji, sarcasm or all-caps are rewritten in a neutral tone first, so tone doesn't sway the
+  check.
+- **Every verdict has sources.** Each fact is checked by Gemini grounded in Google Search, and its
+  badge links up to five sources.
+- **Highlights you can trust.** Each claim is highlighted in the tweet itself, and code confirms the
+  highlighted text appears word for word in the original post before showing it.
+- **The overall verdict is plain code.** One false claim makes the tweet false, then misleading,
+  then unverifiable; a post with only opinions is labeled opinion.
+- **A public live feed.** Every check is cached in Supabase and feeds a live dashboard with D3 charts.

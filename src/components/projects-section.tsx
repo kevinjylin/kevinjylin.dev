@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 import { ProjectGraph } from "@/components/project-graph/project-graph";
 import { ProjectList } from "@/components/project-list";
@@ -9,8 +9,8 @@ import type { ProjectMetadata } from "@/lib/projects";
 type View = "graph" | "list";
 
 const views: Array<{ id: View; label: string }> = [
-  { id: "graph", label: "Graph" },
   { id: "list", label: "List" },
+  { id: "graph", label: "Graph" },
 ];
 
 type ProjectsSectionProps = {
@@ -18,7 +18,7 @@ type ProjectsSectionProps = {
 };
 
 export function ProjectsSection({ projects }: ProjectsSectionProps) {
-  const [view, setView] = useState<View>("graph");
+  const [view, setView] = useState<View>("list");
 
   return (
     <section className="section projects-section" aria-labelledby="projects-heading">
@@ -26,15 +26,17 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
         <h2 id="projects-heading">Projects</h2>
 
         <div className="view-toggle" role="group" aria-label="Show projects as">
-          {views.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              aria-pressed={view === option.id}
-              onClick={() => setView(option.id)}
-            >
-              {option.label}
-            </button>
+          {views.map((option, index) => (
+            <Fragment key={option.id}>
+              {index > 0 ? <span aria-hidden="true"> / </span> : null}
+              <button
+                type="button"
+                aria-pressed={view === option.id}
+                onClick={() => setView(option.id)}
+              >
+                {option.label}
+              </button>
+            </Fragment>
           ))}
         </div>
       </div>

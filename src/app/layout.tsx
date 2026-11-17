@@ -2,13 +2,28 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 
+import { EasterEggs } from "@/components/easter-eggs";
+
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
+const description = "A minimal portfolio and project archive for kevin";
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.kevinjylin.dev"),
   title: "Kevin Lin",
-  description: "A minimal portfolio and project archive for kevin",
+  description,
+  openGraph: {
+    type: "website",
+    siteName: "Kevin Lin",
+    title: "Kevin Lin",
+    description,
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
   icons: {
     icon: "/favicon.ico",
   },
@@ -26,6 +41,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           Skip to main content
         </a>
         {children}
+        <EasterEggs />
       </body>
     </html>
   );

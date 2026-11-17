@@ -23,7 +23,6 @@ import {
   buildProjectGraph,
   highlightGroup,
   highlightNode,
-  highlightSearch,
   highlightTools,
   PROJECT_GROUPS,
   type GraphNode,
@@ -67,13 +66,13 @@ const MAX_ZOOM = 2.75;
 const MAX_FIT_ZOOM = 1.4;
 const DRAG_THRESHOLD = 4;
 const COMPACT_WIDTH = 640;
-const GRID_SPACING = 22;
+const GRAIN_SIZE = 180;
 const GOLDEN_ANGLE = 2.399963;
 
-// Space the overlays cover, kept clear when framing the graph
+// Breathing room kept clear when framing the graph
 const INSETS = {
-  wide: { top: 58, bottom: 64, side: 24 },
-  compact: { top: 84, bottom: 64, side: 16 },
+  wide: { top: 32, bottom: 32, side: 28 },
+  compact: { top: 24, bottom: 24, side: 16 },
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -250,6 +249,7 @@ function GraphCard({ compact, graph, index, onClose, onSelect, pinned, ref }: Gr
       {closeButton}
       <p className="pg-card__meta">
         <span className="pg-card__dot" aria-hidden="true" />
+        {project.pinned ? "Featured · " : null}
         {groupLabels[node.group]} · {formatShortMonth(project.date)}
       </p>
       <h3 className="pg-card__title">{project.title}</h3>
@@ -305,7 +305,6 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
   const [keyboardFocus, setKeyboardFocus] = useState<number | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [group, setGroup] = useState<ProjectGroup | "tools" | null>(null);
-  const [query, setQuery] = useState("");
   // Index into `months` of the last month shown; -1 shows nothing yet
   const [cursor, setCursor] = useState(-1);
   const [playing, setPlaying] = useState(false);
@@ -356,12 +355,8 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
       return highlightTools(graph);
     }
 
-    if (group) {
-      return highlightGroup(graph, group);
-    }
-
-    return highlightSearch(graph, query);
-  }, [graph, focusIndex, group, query]);
+    return group ? highlightGroup(graph, group) : null;
+  }, [graph, focusIndex, group]);
 
   const birthsByMonth = useMemo(() => {
     const births = new Map<string, GraphNode[]>();
@@ -494,9 +489,9 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
         `translate(${camera.x.toFixed(2)},${camera.y.toFixed(2)}) scale(${camera.k.toFixed(4)})`,
       );
 
-      // The dot grid moves with the camera, which makes panning feel physical
-      const spacing = GRID_SPACING * camera.k * (camera.k < 0.6 ? 2 : 1);
-      container.style.backgroundSize = `${spacing}px ${spacing}px`;
+      // The paper's grain moves with the camera, which makes panning feel physical
+      const grain = GRAIN_SIZE * camera.k;
+      container.style.backgroundSize = `${grain}px ${grain}px`;
       container.style.backgroundPosition = `${camera.x}px ${camera.y}px`;
 
       // Labels never shrink below 85% of their size, so they stay readable zoomed out
@@ -1156,19 +1151,53 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
   ];
 
   return (
-    <div className="pg-wrap">
-      <div
-        className={cn(
-          "pg",
-          highlight && "has-highlight",
-          compact && "is-compact",
-          dragging && "is-dragging",
-          playing && "is-playing",
-          cardIndex !== null && "has-card",
-        )}
-        ref={containerRef}
-        onKeyDown={handleRootKeyDown}
-      >
+    <div
+      className={cn(
+        "pg",
+        highlight && "has-highlight",
+        compact && "is-compact",
+        dragging && "is-dragging",
+        playing && "is-playing",
+        cardIndex !== null && "has-card",
+      )}
+      onKeyDown={handleRootKeyDown}
+    >
+      <div className="pg-top">
+        <p className="pg-count">
+          {graph.projectCount} projects · {graph.tagCount} tools
+        </p>
+        <div className="pg-legend" role="group" aria-label="Highlight by type">
+          {groupsPresent.map((entry) => (
+            <button
+              key={entry.id}
+              type="button"
+              className={cn("pg-chip", `pg-tone--${entry.id}`, group === entry.id && "is-active")}
+              aria-pressed={group === entry.id}
+              onClick={() => {
+                setSelected(null);
+                setGroup((current) => (current === entry.id ? null : entry.id));
+              }}
+            >
+              <span className="pg-chip__dot" aria-hidden="true" />
+              {entry.label}
+            </button>
+          ))}
+          <button
+            type="button"
+            className={cn("pg-chip pg-chip--key pg-tone--tool", group === "tools" && "is-active")}
+            aria-pressed={group === "tools"}
+            onClick={() => {
+              setSelected(null);
+              setGroup((current) => (current === "tools" ? null : "tools"));
+            }}
+          >
+            <span className="pg-chip__dot" aria-hidden="true" />
+            Tools
+          </button>
+        </div>
+      </div>
+
+      <div className="pg-canvas" ref={containerRef}>
         <p className="pg-watermark" aria-hidden="true">
           {shownMonth ? formatShortMonth(shownMonth) : null}
         </p>
@@ -1281,147 +1310,6 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
           </g>
         </svg>
 
-        <div className="pg-top">
-          <div className="pg-legend" role="group" aria-label="Highlight by type">
-            {groupsPresent.map((entry) => (
-              <button
-                key={entry.id}
-                type="button"
-                className={cn("pg-chip", `pg-tone--${entry.id}`, group === entry.id && "is-active")}
-                aria-pressed={group === entry.id}
-                onClick={() => {
-                  setSelected(null);
-                  setGroup((current) => (current === entry.id ? null : entry.id));
-                }}
-              >
-                <span className="pg-chip__dot" aria-hidden="true" />
-                {entry.label}
-              </button>
-            ))}
-            <button
-              type="button"
-              className={cn("pg-chip pg-chip--key pg-tone--tool", group === "tools" && "is-active")}
-              aria-pressed={group === "tools"}
-              onClick={() => {
-                setSelected(null);
-                setGroup((current) => (current === "tools" ? null : "tools"));
-              }}
-            >
-              <span className="pg-chip__dot" aria-hidden="true" />
-              Tools
-            </button>
-          </div>
-
-          <label className="pg-search">
-            <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
-              <circle cx="7" cy="7" r="4.75" />
-              <path d="M10.5 10.5 14 14" />
-            </svg>
-            <span className="sr-only">Search projects and tools</span>
-            <input
-              type="search"
-              placeholder="Search"
-              value={query}
-              onChange={(event) => {
-                setGroup(null);
-                setQuery(event.target.value);
-              }}
-              onKeyDown={(event) => {
-                if (event.key === "Escape") {
-                  setQuery("");
-                }
-              }}
-            />
-            {query ? (
-              <button
-                type="button"
-                className="pg-search__clear"
-                aria-label="Clear search"
-                onClick={() => setQuery("")}
-              >
-                ×
-              </button>
-            ) : null}
-          </label>
-        </div>
-
-        {months.length > 0 ? (
-          <div className="pg-bottom">
-            <div className="pg-timeline">
-              <button
-                type="button"
-                className="pg-play"
-                onClick={togglePlaying}
-                aria-label={playing ? "Pause timelapse" : "Play timelapse"}
-              >
-                {playing ? (
-                  <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
-                    <rect x="2" y="1.5" width="2.6" height="9" rx="0.8" />
-                    <rect x="7.4" y="1.5" width="2.6" height="9" rx="0.8" />
-                  </svg>
-                ) : (
-                  <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
-                    <path d="M3 1.8v8.4c0 .5.5.8.9.5l6.4-4.2a.6.6 0 0 0 0-1L3.9 1.3c-.4-.3-.9 0-.9.5Z" />
-                  </svg>
-                )}
-              </button>
-              <div className="pg-track" style={{ "--pg-progress": progress } as CSSProperties}>
-                <input
-                  className="pg-range"
-                  type="range"
-                  min={0}
-                  max={lastMonth}
-                  step={1}
-                  value={Math.max(cursor, 0)}
-                  aria-label="Timeline"
-                  aria-valuetext={shownMonth ? formatShortMonth(shownMonth) : undefined}
-                  onChange={(event) => {
-                    setPlaying(false);
-                    setCursor(Number(event.target.value));
-                    fitView();
-                  }}
-                />
-                {months.map((month, index) => {
-                  const born = birthsByMonth.get(month);
-                  const first = born?.[0];
-
-                  return first && first.kind === "project" ? (
-                    <span
-                      key={month}
-                      className={cn(
-                        "pg-track__mark",
-                        `pg-tone--${first.group}`,
-                        index <= cursor && "is-past",
-                      )}
-                      style={{ "--pg-position": index / Math.max(lastMonth, 1) } as CSSProperties}
-                      title={`${formatShortMonth(month)}: ${born.map((node) => node.label).join(", ")}`}
-                    />
-                  ) : null;
-                })}
-              </div>
-              <output className="pg-month">{shownMonth ? formatShortMonth(shownMonth) : ""}</output>
-            </div>
-
-            <div className="pg-zoom" role="group" aria-label="Zoom">
-              <button type="button" onClick={() => zoomBy(1 / 1.3)} aria-label="Zoom out">
-                <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-                  <path d="M3.5 8h9" />
-                </svg>
-              </button>
-              <button type="button" onClick={() => zoomBy(1.3)} aria-label="Zoom in">
-                <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-                  <path d="M3.5 8h9M8 3.5v9" />
-                </svg>
-              </button>
-              <button type="button" onClick={fitView} aria-label="Fit graph to view">
-                <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-                  <path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        ) : null}
-
         <p className={cn("pg-toast", zoomHint && "is-visible")} aria-hidden="true">
           Hold {zoomHint ?? "⌘"} and scroll to zoom
         </p>
@@ -1442,7 +1330,85 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
         ) : null}
       </div>
 
-      <p className="pg-caption" id={descriptionId}>
+      {months.length > 0 ? (
+        <div className="pg-bottom">
+          <div className="pg-timeline">
+            <button
+              type="button"
+              className="pg-play"
+              onClick={togglePlaying}
+              aria-label={playing ? "Pause timelapse" : "Play timelapse"}
+            >
+              {playing ? (
+                <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
+                  <rect x="2" y="1.5" width="2.6" height="9" rx="0.8" />
+                  <rect x="7.4" y="1.5" width="2.6" height="9" rx="0.8" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
+                  <path d="M3 1.8v8.4c0 .5.5.8.9.5l6.4-4.2a.6.6 0 0 0 0-1L3.9 1.3c-.4-.3-.9 0-.9.5Z" />
+                </svg>
+              )}
+            </button>
+            <div className="pg-track" style={{ "--pg-progress": progress } as CSSProperties}>
+              <input
+                className="pg-range"
+                type="range"
+                min={0}
+                max={lastMonth}
+                step={1}
+                value={Math.max(cursor, 0)}
+                aria-label="Timeline"
+                aria-valuetext={shownMonth ? formatShortMonth(shownMonth) : undefined}
+                onChange={(event) => {
+                  setPlaying(false);
+                  setCursor(Number(event.target.value));
+                  fitView();
+                }}
+              />
+              {months.map((month, index) => {
+                const born = birthsByMonth.get(month);
+                const first = born?.[0];
+
+                return first && first.kind === "project" ? (
+                  <span
+                    key={month}
+                    className={cn(
+                      "pg-track__mark",
+                      `pg-tone--${first.group}`,
+                      index <= cursor && "is-past",
+                    )}
+                    style={{ "--pg-position": index / Math.max(lastMonth, 1) } as CSSProperties}
+                    title={`${formatShortMonth(month)}: ${born.map((node) => node.label).join(", ")}`}
+                  />
+                ) : null;
+              })}
+            </div>
+            <output className="pg-month">{shownMonth ? formatShortMonth(shownMonth) : ""}</output>
+          </div>
+
+          <div className="pg-zoom" role="group" aria-label="Zoom">
+            <button type="button" onClick={() => zoomBy(1 / 1.3)} aria-label="Zoom out">
+              <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                <path d="M3.5 8h9" />
+              </svg>
+            </button>
+            <button type="button" onClick={() => zoomBy(1.3)} aria-label="Zoom in">
+              <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                <path d="M3.5 8h9M8 3.5v9" />
+              </svg>
+            </button>
+            <button type="button" onClick={fitView} aria-label="Fit graph to view">
+              <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                <path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Screen readers still get the how-to; sighted visitors can see it's interactive */}
+      <p className="sr-only" id={descriptionId}>
         {`${graph.projectCount} projects linked by the ${graph.tagCount} tools they're built with. `}
         Drag to rearrange, hover or tap to trace links, double-click a project to open it.
       </p>

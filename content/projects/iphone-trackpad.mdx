@@ -1,6 +1,6 @@
 ---
 title: "Phone Trackpad"
-summary: "macOS and iOS app setup that lets you use your phone as a trackpad"
+summary: "Turns an iPhone into a multitouch trackpad for a Mac, over a direct local connection"
 date: "2026-04"
 kind: "iOS + macOS app"
 tags: [Swift, SwiftUI, Multipeer Connectivity]
@@ -8,3 +8,14 @@ repoUrl: "https://github.com/kevinjylin/phone-trackpad"
 liveUrl: ""
 featured: false
 ---
+
+- **Two native apps.** An iPhone app captures raw multitouch, and a Mac receiver moves the cursor,
+  clicks and scrolls.
+- **No server, no account.** The devices find and pair with each other through Multipeer
+  Connectivity.
+- **Two channels for two kinds of input.** Cursor motion and scrolling go over the unreliable,
+  low-latency channel; clicks and pairing go over the reliable one, so a dropped packet never loses
+  a click.
+- **Shared logic, thin apps.** A shared Swift package holds the wire protocol and the interpreter
+  that turns touches into pointer moves, tap-to-click and two-finger scrolling. The Mac smooths the
+  motion before injecting it through Core Graphics.

@@ -25,6 +25,8 @@ export type RepoContribution = {
   name: string;
   count: number;
   logo?: React.ReactNode;
+  // Used when there's no logo, e.g. for repos fetched on the server
+  avatarUrl?: string;
   href?: string;
 };
 
@@ -176,11 +178,14 @@ async function fetchRepos(login: string): Promise<RepoContribution[]> {
     });
 }
 
+type FetchedUser = {
+  contributions: Contribution[];
+  repos: RepoContribution[];
+};
+
+// "failed" covers an error and an empty calendar alike: either way there's nothing to show
 function useGitHubUser(login?: string) {
-  const [data, setData] = React.useState<{
-    contributions: Contribution[];
-    repos: RepoContribution[];
-  }>();
+  const [data, setData] = React.useState<FetchedUser | "failed">();
 
   React.useEffect(() => {
     if (!login) return;
@@ -188,9 +193,13 @@ function useGitHubUser(login?: string) {
 
     Promise.all([fetchCalendar(login), fetchRepos(login)])
       .then(([contributions, repos]) => {
-        if (active && contributions) setData({ contributions, repos });
+        if (!active) return;
+        const empty = !contributions?.some((day) => day.count > 0);
+        setData(empty ? "failed" : { contributions: contributions!, repos });
       })
-      .catch(() => {});
+      .catch(() => {
+        if (active) setData("failed");
+      });
 
     return () => {
       active = false;
@@ -430,7 +439,13 @@ const Avatar = ({
     transition={transition}
     className={cn("ga__avatar", className)}
   >
-    {repo.logo ?? repo.name.charAt(0)}
+    {repo.logo ??
+      (repo.avatarUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={repo.avatarUrl} alt="" />
+      ) : (
+        repo.name.charAt(0)
+      ))}
   </motion.span>
 );
 
@@ -532,8 +547,10 @@ const GitHubActivity = ({
     onOpenChange?.(!open);
   };
 
-  const needsFetch = !contributionsProp.length || !reposProp.length;
-  const fetched = useGitHubUser(needsFetch ? username : undefined);
+  // Contributions passed in (e.g. fetched on the server) are enough; repos are optional
+  const needsFetch = !contributionsProp.length;
+  const fetchState = useGitHubUser(needsFetch ? username : undefined);
+  const fetched = fetchState === "failed" ? undefined : fetchState;
   const placeholder = React.useMemo(
     () => (username ? emptyDays(weeksFor(months)) : []),
     [username, months],
@@ -562,9 +579,17 @@ const GitHubActivity = ({
   );
 
   // The calendar covers the past twelve months, not a calendar year
-  const heading = `${total.toLocaleString("en-US")} contributions ${
-    year ? `in ${year}` : "in the last year"
-  }`;
+  const period = year ? `in ${year}` : "in the last year";
+  // Never claim zero: while loading, the grid is an empty placeholder with no count
+  const heading =
+    total > 0
+      ? `${total.toLocaleString("en-US")} contributions ${period}`
+      : `Contributions ${period}`;
+
+  // Nothing to show: the fetch failed, came back empty, or there was nothing to fetch
+  if (total === 0 && (fetchState === "failed" || !needsFetch || !username)) {
+    return null;
+  }
 
   return (
     <div

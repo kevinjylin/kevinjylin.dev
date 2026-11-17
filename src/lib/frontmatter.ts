@@ -131,6 +131,14 @@ export function getRequiredBoolean(
   return value;
 }
 
+export function getOptionalBoolean(
+  data: FrontmatterRecord,
+  key: string,
+  filePath: string,
+): boolean | undefined {
+  return data[key] === undefined ? undefined : getRequiredBoolean(data, key, filePath);
+}
+
 export function getOptionalNumber(
   data: FrontmatterRecord,
   key: string,

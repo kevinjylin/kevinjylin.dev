@@ -17,6 +17,13 @@ export function RouteMemory() {
     if (previousPath() !== null) {
       document.documentElement.dataset.returning = "";
     }
+
+    // A project's Back link can land on its row with #project-… in the address. Once the page
+    // has scrolled there the # has done its job; left in place, it would pull the page back to
+    // that row on a refresh.
+    if (window.location.hash.startsWith("#project-")) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
   }, [pathname]);
 
   return null;

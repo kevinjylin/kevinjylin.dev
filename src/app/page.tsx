@@ -10,6 +10,10 @@ import { ProjectsSection } from "@/components/projects-section";
 import { getGitHubActivity } from "@/lib/github-activity";
 import { getNotes } from "@/lib/notes";
 import { getProjects } from "@/lib/projects";
+import { contactLinks } from "@/lib/site";
+
+// The same profile the intro and footer link to
+const githubUrl = contactLinks.find((link) => link.label === "GitHub")?.href;
 
 export default async function Home() {
   const [projects, activity, notes] = await Promise.all([
@@ -72,14 +76,23 @@ export default async function Home() {
               <p>{activity.total.toLocaleString("en-US")} contributions in the last year</p>
             </div>
 
-            {/* Just the grid: the count sits in the heading and the repos in a line below */}
-            <GitHubActivity
-              className="ga--plain"
-              contributions={activity.contributions}
-              // Small enough that the whole year still fits the page's column
-              cellSize={9}
-              showMonths
-            />
+            {/* Just the grid: the count sits in the heading and the repos in a line below.
+                The whole of it is a link to the profile it is drawn from. */}
+            <a
+              className="activity-graph"
+              href={githubUrl}
+              rel="noreferrer"
+              target="_blank"
+              aria-label="Open Kevin Lin's GitHub profile"
+            >
+              <GitHubActivity
+                className="ga--plain"
+                contributions={activity.contributions}
+                // Small enough that the whole year still fits the page's column
+                cellSize={9}
+                showMonths
+              />
+            </a>
 
             {activity.repos.length > 0 ? (
               <p className="activity-repos">

@@ -20,7 +20,8 @@ export default async function Home() {
 
   return (
     <main className="page-shell" id="main-content" tabIndex={-1}>
-      <div className="page-frame">
+      {/* The home page sets itself down once when it opens: see "Entrance" in globals.css */}
+      <div className="page-frame page-frame--enter">
         <div className="intro-offset">
           <CoffeeMark href="/two-sum" label="Solve Two Sum" />
 

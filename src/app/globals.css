@@ -146,6 +146,67 @@ a {
   max-width: var(--column);
 }
 
+/* ── Entrance: the home page sets itself down once, top to bottom, then keeps still ── */
+
+@keyframes enter-rise {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+/* The stamp comes down onto the paper a little crooked and settles */
+@keyframes enter-press {
+  from {
+    opacity: 0;
+    transform: rotate(-6deg) scale(1.14);
+  }
+}
+
+.page-frame--enter .coffee-mark {
+  animation: enter-press 380ms cubic-bezier(0.3, 1.4, 0.5, 1) backwards;
+}
+
+.page-frame--enter :is(.intro > h1, .intro-links, .intro-copy, .section, .footer) {
+  animation: enter-rise 520ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--enter-delay, 0ms) backwards;
+}
+
+.page-frame--enter .intro > h1 {
+  --enter-delay: 100ms;
+}
+
+.page-frame--enter .intro-links {
+  --enter-delay: 160ms;
+}
+
+.page-frame--enter .intro-copy {
+  --enter-delay: 220ms;
+}
+
+/* Each section follows the one above it */
+.page-frame--enter .section {
+  --enter-delay: 300ms;
+}
+
+.page-frame--enter .section ~ .section {
+  --enter-delay: 370ms;
+}
+
+.page-frame--enter .section ~ .section ~ .section {
+  --enter-delay: 440ms;
+}
+
+.page-frame--enter .footer {
+  --enter-delay: 510ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-frame--enter .coffee-mark,
+  .page-frame--enter :is(.intro > h1, .intro-links, .intro-copy, .section, .footer) {
+    animation: none;
+  }
+}
+
 .section-heading,
 .tag,
 .footer {
@@ -311,6 +372,24 @@ a {
   background: var(--accent);
   -webkit-mask: url("/signature-ink.png") center / contain no-repeat;
   mask: url("/signature-ink.png") center / contain no-repeat;
+}
+
+/* Below the fold it waits unwritten, then is written left to right as it comes into view */
+@keyframes signature-write {
+  from {
+    clip-path: inset(-10% 100% -10% 0);
+  }
+  to {
+    clip-path: inset(-10% -2% -10% 0);
+  }
+}
+
+.footer__signature[data-sign="pending"] {
+  clip-path: inset(-10% 100% -10% 0);
+}
+
+.footer__signature[data-sign="signed"] {
+  animation: signature-write 1.4s cubic-bezier(0.5, 0, 0.3, 1) backwards;
 }
 
 .footer .footer__motto {
@@ -937,6 +1016,8 @@ a {
 
 /* /things: each ## label sits in a muted gutter, its list beside it, like a shelf index */
 .things-page__body {
+  /* The incense is placed against the bottom of the list */
+  position: relative;
   grid-template-columns: 8rem minmax(0, 1fr);
   column-gap: 1.5rem;
   row-gap: 1.75rem;

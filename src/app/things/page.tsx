@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { MDXRemote } from "next-mdx-remote/rsc";
 
+import { Incense } from "@/components/incense";
 import { mdxComponents } from "@/components/mdx-components";
 import { SubPage } from "@/components/sub-page";
 import { formatDay, getContentPage } from "@/lib/content-page";
@@ -26,6 +27,8 @@ export default async function ThingsPage() {
         {/* Each ## heading becomes a muted label in the left gutter, its list beside it */}
         <div className="project-detail__body now-page__body things-page__body">
           <MDXRemote source={content} components={mdxComponents} />
+          {/* Stands beside the last line, so "Burning" has to stay the last section */}
+          <Incense />
         </div>
       </article>
     </SubPage>

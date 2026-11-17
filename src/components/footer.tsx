@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 import { getFriends } from "@/lib/friends";
+import { Signature } from "@/components/signature";
 import { getNotes } from "@/lib/notes";
 import { contactLinks } from "@/lib/site";
 
@@ -39,9 +40,8 @@ export async function Footer() {
         </nav>
       </div>
 
-      {/* Drawn through a mask, so the signature takes the same ink as the coffee stamp */}
       <div className="footer__signoff">
-        <span className="footer__signature" role="img" aria-label="Kevin Lin's signature" />
+        <Signature />
         <p className="footer__motto" lang="la">
           Audentes fortuna iuvat
         </p>

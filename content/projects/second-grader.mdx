@@ -1,0 +1,38 @@
+---
+title: "Second Grader"
+summary: "Checks whether a coding agent’s claims, like “all tests pass”, match what it actually did, and blocks the merge when they don’t"
+why: "A coding agent will say “all tests pass” when it never ran them."
+date: "2026-11"
+kind: "Agent verification"
+event: "AIE Code Summit Hackathon 2026"
+pinned: true
+tags: [Python, Ed25519, FastAPI, Gemini, Muse Code, Git]
+repoUrl: "https://github.com/joshuaiba/Second-Grader"
+featured: true
+---
+
+Built with Rahul Palani and Joshua Bumatay at the AIE Code Summit hackathon, for its "Trust but
+Verify" problem statement. I owned the Recorder.
+
+A coding agent will happily say "all tests pass" when it never ran them. Second Grader records what
+the agent actually did, checks the agent's own account of its work against that record, and blocks
+the merge when the two disagree.
+
+- **A tamper-evident recorder (my part).** Hooks on Meta's Muse Code agent send every prompt, tool
+  call, tool output, diff and test run to a single writer. It numbers each record, chains it to the
+  one before with SHA-256, and signs it with an Ed25519 key the agent never holds. Editing, deleting,
+  reordering or truncating any record fails verification at that exact record.
+- **Evidence and claims are kept apart.** The recorder, not the agent, tags each record OBSERVED
+  (what the tools showed) or CLAIMED (what the model said). It fingerprints the code after every
+  step, so edits made with shell commands are caught too, and the hooks fail closed: if anything
+  breaks, or the recorder doesn't answer within 1.5 s, the step is blocked rather than let through
+  unrecorded.
+- **Code decides the verdict, never an LLM.** Models only pull claims out of the agent's messages
+  and write tests. "All tests pass" counts only if the agent ran the full suite on the final code
+  with an exit code it couldn't hide, and our own test run agrees.
+- **A blinded verifier.** Gemini writes its own tests from the task spec, the diff and the observed
+  records. It never sees what the agent said or the agent's tests.
+- **Every block cites its proof.** A clean run is merged with the chain's head hash in the commit. A
+  failing one is quarantined on its own branch, `main` is untouched, and each contradicted claim
+  points to the record that disproves it. The repo's suite has 951 tests, 67 of them for the
+  recorder.

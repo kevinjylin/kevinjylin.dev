@@ -1,36 +1,37 @@
 import Link from "next/link";
-import Image from "next/image";
+import { Fragment } from "react";
 
 import { CoffeeMark } from "@/components/coffee-mark";
 import { Footer } from "@/components/footer";
 import { GitHubActivity } from "@/components/github-activity";
+import { IntroLinks } from "@/components/intro-links";
+import { NoteList } from "@/components/note-list";
 import { ProjectsSection } from "@/components/projects-section";
+import { getGitHubActivity } from "@/lib/github-activity";
+import { getNotes } from "@/lib/notes";
 import { getProjects } from "@/lib/projects";
+import { contactLinks } from "@/lib/site";
+
+// The same profile the intro and footer link to
+const githubUrl = contactLinks.find((link) => link.label === "GitHub")?.href;
 
 export default async function Home() {
-  const projects = await getProjects();
+  const [projects, activity, notes] = await Promise.all([
+    getProjects(),
+    getGitHubActivity("kevinjylin"),
+    getNotes(),
+  ]);
 
   return (
     <main className="page-shell" id="main-content" tabIndex={-1}>
-      <div className="page-frame">
+      {/* The stamp is pressed onto the page once when a visit begins: see "Entrance" in globals.css */}
+      <div className="page-frame page-frame--enter">
         <div className="intro-offset">
           <CoffeeMark href="/two-sum" label="Solve Two Sum" />
 
           <section className="intro">
             <h1>Kevin Lin</h1>
-            <nav className="intro-links" aria-label="Intro links">
-              <a href="mailto:kevinjylin@gmail.com">Email</a>
-              <span> / </span>
-              <a href="https://github.com/kevinjylin" rel="noreferrer" target="_blank">
-                GitHub
-              </a>
-              <span> / </span>
-              <a href="https://www.linkedin.com/in/kevinjylin/" rel="noreferrer" target="_blank">
-                LinkedIn
-              </a>
-              <span> / </span>
-              <Link href="/now">Now</Link>
-            </nav>
+            <IntroLinks />
 
             <div className="intro-copy">
               <p>
@@ -44,29 +45,74 @@ export default async function Home() {
                 about.
               </p>
             </div>
-
-            <div className="intro-signoff" aria-label="Signature">
-              <Image
-                src="/signature.png"
-                alt="Kevin Lin signature"
-                width={1310}
-                height={451}
-                className="intro-signature"
-                priority
-              />
-              <p>Audentes fortuna iuvat</p>
-            </div>
           </section>
         </div>
 
         <ProjectsSection projects={projects} />
-        <section className="section activity-section" aria-labelledby="activity-heading">
-          <div className="section-heading">
-            <h2 id="activity-heading">Activity</h2>
-          </div>
 
-          <GitHubActivity username="kevinjylin" showMonths />
-        </section>
+        {/* Left out until there's a note to show */}
+        {notes.length > 0 ? (
+          <section className="section" aria-labelledby="notes-heading">
+            <div className="section-heading">
+              <h2 id="notes-heading">Notes</h2>
+              {notes.length > 3 ? (
+                <p>
+                  <Link href="/notes" className="section-heading__link">
+                    All notes →
+                  </Link>
+                </p>
+              ) : null}
+            </div>
+
+            <NoteList notes={notes.slice(0, 3)} />
+          </section>
+        ) : null}
+
+        {/* Fetched on the server so the HTML has real numbers; left out when GitHub has none */}
+        {activity ? (
+          <section className="section activity-section" aria-labelledby="activity-heading">
+            <div className="section-heading">
+              <h2 id="activity-heading">Activity</h2>
+              <p>{activity.total.toLocaleString("en-US")} contributions in the last year</p>
+            </div>
+
+            {/* Just the grid: the count sits in the heading and the repos in a line below.
+                The whole of it is a link to the profile it is drawn from. */}
+            <a
+              className="activity-graph"
+              href={githubUrl}
+              rel="noreferrer"
+              target="_blank"
+              aria-label="Open Kevin Lin's GitHub profile"
+            >
+              <GitHubActivity
+                className="ga--plain"
+                contributions={activity.contributions}
+                // Small enough that the whole year still fits the page's column
+                cellSize={9}
+                showMonths
+              />
+            </a>
+
+            {activity.repos.length > 0 ? (
+              <p className="activity-repos">
+                Most active in{" "}
+                {activity.repos.map((repo, index) => (
+                  <Fragment key={repo.name}>
+                    {index > 0 ? " / " : null}
+                    {repo.href ? (
+                      <a href={repo.href} rel="noreferrer" target="_blank">
+                        {repo.name}
+                      </a>
+                    ) : (
+                      repo.name
+                    )}
+                  </Fragment>
+                ))}
+              </p>
+            ) : null}
+          </section>
+        ) : null}
         <Footer />
       </div>
     </main>

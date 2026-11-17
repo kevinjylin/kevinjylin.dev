@@ -1,18 +1,29 @@
 ---
 title: "UGround"
-summary: "Track and get notified when presales go live for concerts"
+summary: "Watches the artists, venues and cities you follow and alerts you the moment a presale or new show goes up"
+why: "I kept finding out about presales the day after they ended."
 date: "2026-03"
 kind: "Web app"
+icon: "/projects/uground.png"
 order: 1
 tags: [Next.js, Supabase, Ticketmaster API, Spotify API, Twilio]
-repoUrl: "https://github.com/kevinjylin/uground"
+repoUrl: "https://github.com/kevinjylin/UGround"
 liveUrl: "https://uground.app"
 featured: true
 ---
 
-I kept finding out about concert presales the day after they ended. By the time the
-announcement reached me, the cheap tickets were already gone and resale prices had usually
-doubled. UGround watches for presales from the artists you follow and pings you the moment
-one goes live, so you and your friends actually catch the early price.
+I kept finding out about concert presales the day after they ended, when the cheap tickets were
+gone and resale prices had doubled. I built UGround for myself first; it turns out plenty of people
+miss presales the same way.
 
-I built it for myself first, but it turns out plenty of people miss presales the exact same way.
+- **Follow what you care about.** Add artists by hand or import them from Spotify, watch a single
+  venue, or watch every show within a radius of a city.
+- **One clean feed from messy sources.** It polls Ticketmaster, normalizes every result into one
+  events table, and keeps a snapshot of each raw response so changes can be traced.
+- **Alerts on real changes, not noise.** It alerts on a new show, a status change, a new ticket link,
+  or an on-sale date that moves earlier. A rule's first check saves shows quietly, so following
+  someone doesn't flood you.
+- **Scheduling that scales with interest.** A database queue, triggered every minute, checks each
+  artist or venue on its own cadence, with a daily GitHub Actions run as a fallback.
+- **Alerts where you'll see them.** Discord, email or SMS through Twilio. The phone numbers and
+  webhooks users save are encrypted with AES-256-GCM.

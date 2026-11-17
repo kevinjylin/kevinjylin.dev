@@ -1,24 +1,32 @@
 ---
 title: "ResourcePilot"
 summary: "Eight Fetch.ai agents that help a student through their first weeks at any US school"
+why: "The first weeks at a new school are a pile of small questions."
 date: "2026-10"
 kind: "Multi-agent app"
+icon: "/projects/resourcepilot.png"
 event: "LA Hacks AI Hackathon 2026"
-award: "Fetch.ai Agentverse Prize"
+award: "2nd Place Agentverse Track"
 tags: [Fetch.ai, uAgents, Python, PostgreSQL, ElevenLabs, Twilio, Stripe]
 repoUrl: "https://github.com/kevinjylin/resourcepilotla"
 liveUrl: "https://devpost.com/software/resourcepilot-dzwx3o"
 featured: true
 ---
 
-Built with Kasey Doan at LA Hacks' AI Hackathon 2026, where it won the Fetch.ai Agentverse prize.
+Built with Kasey Doan at LA Hacks' AI Hackathon 2026, where it won 2nd place in the Fetch.ai Agentverse track.
 
 The first few weeks at a new school are a pile of small questions: where can I study right now,
-what's happening this week, which dorm actually fits me? ResourcePilot answers them in one ASI:One
-chat. You give it your school email once, and eight agents split up the work: one works out your
-school from the email domain, others find open library study rooms, wellness events, and campus
-housing, and a verifier re-checks every result live before you see it.
+what's on this week, which dorm fits me? ResourcePilot answers them in one ASI:One chat.
 
-It never makes anything up. If a room gets taken while it's checking, the planner reroutes to
-another open one. If the live data isn't there, you get your school's own booking link instead of
-a guess.
+- **Eight agents, one job each.** Each runs as its own process with its own address. The
+  orchestrator hands every step to another agent and accepts only the result that matches the
+  request it sent.
+- **Works at any US school.** Your email domain is matched to the school in IPEDS, then the library's
+  booking system is found from a hand-checked list, a LibCal probe or a bounded crawl. If none turns
+  up, it asks you for the link instead of guessing.
+- **Never makes anything up.** A verifier re-checks every room before you see it. If a room is taken
+  mid-check, the planner reroutes to another open one; if live data fails, you get the school's own
+  booking link, never invented rooms.
+- **One paid step, checked by the seller.** The housing match is paid through Fetch's Agent Payment
+  Protocol in Stripe test mode or testnet FET. The orchestrator verifies each payment itself and
+  accepts each transaction ID only once.

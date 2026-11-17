@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   type CSSProperties,
+  Fragment,
   type FocusEvent as ReactFocusEvent,
   type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
@@ -23,7 +24,6 @@ import {
   buildProjectGraph,
   highlightGroup,
   highlightNode,
-  highlightSearch,
   highlightTools,
   PROJECT_GROUPS,
   type GraphNode,
@@ -67,13 +67,78 @@ const MAX_ZOOM = 2.75;
 const MAX_FIT_ZOOM = 1.4;
 const DRAG_THRESHOLD = 4;
 const COMPACT_WIDTH = 640;
-const GRID_SPACING = 22;
 const GOLDEN_ANGLE = 2.399963;
 
-// Space the overlays cover, kept clear when framing the graph
+// A repeatable pick between 0 and 1, so each mark is drawn the same way every time
+function pick(seed: number): number {
+  const value = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+  return value - Math.floor(value);
+}
+
+// A smooth line through a run of points, as a pen would join them
+function throughPoints(points: Array<[number, number]>, closed: boolean): string {
+  const count = points.length;
+  const middle = (a: [number, number], b: [number, number]) =>
+    `${((a[0] + b[0]) / 2).toFixed(2)},${((a[1] + b[1]) / 2).toFixed(2)}`;
+  const corner = (point: [number, number]) => `${point[0].toFixed(2)},${point[1].toFixed(2)}`;
+
+  if (closed) {
+    let d = `M${middle(points[0], points[1])}`;
+
+    for (let index = 1; index <= count; index += 1) {
+      d += ` Q${corner(points[index % count])} ${middle(points[index % count], points[(index + 1) % count])}`;
+    }
+
+    return `${d} Z`;
+  }
+
+  let d = `M${corner(points[0])}`;
+
+  for (let index = 1; index < count - 1; index += 1) {
+    d += ` Q${corner(points[index])} ${middle(points[index], points[index + 1])}`;
+  }
+
+  return `${d} L${corner(points[count - 1])}`;
+}
+
+// A project's dot, inked by hand: round, but not ruled
+function inkDot(radius: number, seed: number): string {
+  const count = 9;
+  const turn = pick(seed) * Math.PI * 2;
+
+  return throughPoints(
+    Array.from({ length: count }, (_, index) => {
+      const angle = turn + (index / count) * Math.PI * 2;
+      // Joining the points through their middles pulls the shape in a little, so start it wide
+      const reach = radius * (1.0 + 0.13 * pick(seed * 13 + index));
+      return [Math.cos(angle) * reach, Math.sin(angle) * reach];
+    }),
+    true,
+  );
+}
+
+// The ring round an award winner, drawn in one pass of the pen: it starts a little wide,
+// closes in, and overshoots where it began
+function penRing(radius: number, seed: number): string {
+  const count = 15;
+  const start = pick(seed + 3) * Math.PI * 2;
+  const sweep = Math.PI * 2 + 0.55;
+
+  return throughPoints(
+    Array.from({ length: count + 1 }, (_, index) => {
+      const t = index / count;
+      const angle = start + sweep * t;
+      const reach = radius * (1.07 - 0.1 * t) + (pick(seed * 7 + index) - 0.5) * 0.5;
+      return [Math.cos(angle) * reach, Math.sin(angle) * reach];
+    }),
+    false,
+  );
+}
+
+// Breathing room kept clear when framing the graph
 const INSETS = {
-  wide: { top: 58, bottom: 64, side: 24 },
-  compact: { top: 84, bottom: 64, side: 16 },
+  wide: { top: 32, bottom: 32, side: 28 },
+  compact: { top: 24, bottom: 24, side: 16 },
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -250,6 +315,7 @@ function GraphCard({ compact, graph, index, onClose, onSelect, pinned, ref }: Gr
       {closeButton}
       <p className="pg-card__meta">
         <span className="pg-card__dot" aria-hidden="true" />
+        {project.pinned ? "Featured · " : null}
         {groupLabels[node.group]} · {formatShortMonth(project.date)}
       </p>
       <h3 className="pg-card__title">{project.title}</h3>
@@ -305,7 +371,6 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
   const [keyboardFocus, setKeyboardFocus] = useState<number | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [group, setGroup] = useState<ProjectGroup | "tools" | null>(null);
-  const [query, setQuery] = useState("");
   // Index into `months` of the last month shown; -1 shows nothing yet
   const [cursor, setCursor] = useState(-1);
   const [playing, setPlaying] = useState(false);
@@ -318,8 +383,8 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
   const viewportRef = useRef<SVGGElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<Array<SVGGElement | null>>([]);
-  const linkRefs = useRef<Array<SVGLineElement | null>>([]);
-  const flowRefs = useRef<Array<SVGLineElement | null>>([]);
+  const linkRefs = useRef<Array<SVGPathElement | null>>([]);
+  const flowRefs = useRef<Array<SVGPathElement | null>>([]);
 
   const simulationRef = useRef<ForceSimulation | null>(null);
   const cameraRef = useRef<Camera>({ x: 0, y: 0, k: 1 });
@@ -356,12 +421,8 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
       return highlightTools(graph);
     }
 
-    if (group) {
-      return highlightGroup(graph, group);
-    }
-
-    return highlightSearch(graph, query);
-  }, [graph, focusIndex, group, query]);
+    return group ? highlightGroup(graph, group) : null;
+  }, [graph, focusIndex, group]);
 
   const birthsByMonth = useMemo(() => {
     const births = new Map<string, GraphNode[]>();
@@ -494,11 +555,6 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
         `translate(${camera.x.toFixed(2)},${camera.y.toFixed(2)}) scale(${camera.k.toFixed(4)})`,
       );
 
-      // The dot grid moves with the camera, which makes panning feel physical
-      const spacing = GRID_SPACING * camera.k * (camera.k < 0.6 ? 2 : 1);
-      container.style.backgroundSize = `${spacing}px ${spacing}px`;
-      container.style.backgroundPosition = `${camera.x}px ${camera.y}px`;
-
       // Labels never shrink below 85% of their size, so they stay readable zoomed out
       container.style.setProperty("--pg-label-scale", String(Math.max(1, 0.85 / camera.k)));
 
@@ -628,12 +684,17 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
           return;
         }
 
-        for (const line of [linkRefs.current[index], flowRefs.current[index]]) {
-          line?.setAttribute("x1", renderX[link.source].toFixed(2));
-          line?.setAttribute("y1", renderY[link.source].toFixed(2));
-          line?.setAttribute("x2", renderX[link.target].toFixed(2));
-          line?.setAttribute("y2", renderY[link.target].toFixed(2));
-        }
+        // Each link is one stroke of the pen from the project to its tool, with a slight bow
+        // that is its own, so no two are the same ruled line
+        const fromX = renderX[link.source];
+        const fromY = renderY[link.source];
+        const toX = renderX[link.target];
+        const toY = renderY[link.target];
+        const bow = (pick(index + 1) - 0.5) * 0.2;
+        const d = `M${fromX.toFixed(2)},${fromY.toFixed(2)} Q${((fromX + toX) / 2 - (toY - fromY) * bow).toFixed(2)},${((fromY + toY) / 2 + (toX - fromX) * bow).toFixed(2)} ${toX.toFixed(2)},${toY.toFixed(2)}`;
+
+        linkRefs.current[index]?.setAttribute("d", d);
+        flowRefs.current[index]?.setAttribute("d", d);
       });
 
       if (stepCamera()) {
@@ -1156,23 +1217,56 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
   ];
 
   return (
-    <div className="pg-wrap">
-      <div
-        className={cn(
-          "pg",
-          highlight && "has-highlight",
-          compact && "is-compact",
-          dragging && "is-dragging",
-          playing && "is-playing",
-          cardIndex !== null && "has-card",
-        )}
-        ref={containerRef}
-        onKeyDown={handleRootKeyDown}
-      >
-        <p className="pg-watermark" aria-hidden="true">
-          {shownMonth ? formatShortMonth(shownMonth) : null}
+    <div
+      className={cn(
+        "pg",
+        highlight && "has-highlight",
+        compact && "is-compact",
+        dragging && "is-dragging",
+        playing && "is-playing",
+        cardIndex !== null && "has-card",
+      )}
+      onKeyDown={handleRootKeyDown}
+    >
+      <div className="pg-top">
+        <p className="pg-count">
+          {graph.projectCount} projects · {graph.tagCount} tools
         </p>
+        {/* Plain words with slashes between, like the links in the intro */}
+        <div className="pg-legend" role="group" aria-label="Highlight by type">
+          {groupsPresent.map((entry) => (
+            <Fragment key={entry.id}>
+              <button
+                type="button"
+                className={cn("pg-key", `pg-tone--${entry.id}`)}
+                aria-pressed={group === entry.id}
+                onClick={() => {
+                  setSelected(null);
+                  setGroup((current) => (current === entry.id ? null : entry.id));
+                }}
+              >
+                <span className="pg-key__dot" aria-hidden="true" />
+                {entry.label}
+              </button>
+              <span aria-hidden="true"> / </span>
+            </Fragment>
+          ))}
+          <button
+            type="button"
+            className="pg-key pg-key--tool pg-tone--tool"
+            aria-pressed={group === "tools"}
+            onClick={() => {
+              setSelected(null);
+              setGroup((current) => (current === "tools" ? null : "tools"));
+            }}
+          >
+            <span className="pg-key__dot" aria-hidden="true" />
+            Tools
+          </button>
+        </div>
+      </div>
 
+      <div className="pg-canvas" ref={containerRef}>
         <svg
           className="pg-svg"
           ref={svgRef}
@@ -1198,10 +1292,12 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
 
                 return (
                   <g key={`${link.source}-${link.target}`} className={tone ?? undefined}>
-                    <line
+                    <path
                       ref={(line) => {
                         linkRefs.current[index] = line;
                       }}
+                      // Measured as 1 from end to end, so it can be drawn on as it appears
+                      pathLength={1}
                       className={cn(
                         "pg-link",
                         hidden && "is-hidden",
@@ -1209,7 +1305,7 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
                         level === 1 && "is-soft",
                       )}
                     />
-                    <line
+                    <path
                       ref={(line) => {
                         flowRefs.current[index] = line;
                       }}
@@ -1232,9 +1328,13 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
                     <circle className="pg-node__ping" r={node.radius + 2} />
                   ) : null}
                   {node.kind === "project" && node.project.award ? (
-                    <circle className="pg-node__award" r={node.radius + 4.5} />
+                    <path className="pg-node__award" d={penRing(node.radius + 4.5, index)} />
                   ) : null}
-                  <circle className="pg-node__dot" r={node.radius} />
+                  {node.kind === "project" ? (
+                    <path className="pg-node__dot" d={inkDot(node.radius, index)} />
+                  ) : (
+                    <circle className="pg-node__dot" r={node.radius} />
+                  )}
                   <text
                     className="pg-node__label"
                     y={node.radius + (node.kind === "project" ? 17 : 13)}
@@ -1281,147 +1381,6 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
           </g>
         </svg>
 
-        <div className="pg-top">
-          <div className="pg-legend" role="group" aria-label="Highlight by type">
-            {groupsPresent.map((entry) => (
-              <button
-                key={entry.id}
-                type="button"
-                className={cn("pg-chip", `pg-tone--${entry.id}`, group === entry.id && "is-active")}
-                aria-pressed={group === entry.id}
-                onClick={() => {
-                  setSelected(null);
-                  setGroup((current) => (current === entry.id ? null : entry.id));
-                }}
-              >
-                <span className="pg-chip__dot" aria-hidden="true" />
-                {entry.label}
-              </button>
-            ))}
-            <button
-              type="button"
-              className={cn("pg-chip pg-chip--key pg-tone--tool", group === "tools" && "is-active")}
-              aria-pressed={group === "tools"}
-              onClick={() => {
-                setSelected(null);
-                setGroup((current) => (current === "tools" ? null : "tools"));
-              }}
-            >
-              <span className="pg-chip__dot" aria-hidden="true" />
-              Tools
-            </button>
-          </div>
-
-          <label className="pg-search">
-            <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
-              <circle cx="7" cy="7" r="4.75" />
-              <path d="M10.5 10.5 14 14" />
-            </svg>
-            <span className="sr-only">Search projects and tools</span>
-            <input
-              type="search"
-              placeholder="Search"
-              value={query}
-              onChange={(event) => {
-                setGroup(null);
-                setQuery(event.target.value);
-              }}
-              onKeyDown={(event) => {
-                if (event.key === "Escape") {
-                  setQuery("");
-                }
-              }}
-            />
-            {query ? (
-              <button
-                type="button"
-                className="pg-search__clear"
-                aria-label="Clear search"
-                onClick={() => setQuery("")}
-              >
-                ×
-              </button>
-            ) : null}
-          </label>
-        </div>
-
-        {months.length > 0 ? (
-          <div className="pg-bottom">
-            <div className="pg-timeline">
-              <button
-                type="button"
-                className="pg-play"
-                onClick={togglePlaying}
-                aria-label={playing ? "Pause timelapse" : "Play timelapse"}
-              >
-                {playing ? (
-                  <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
-                    <rect x="2" y="1.5" width="2.6" height="9" rx="0.8" />
-                    <rect x="7.4" y="1.5" width="2.6" height="9" rx="0.8" />
-                  </svg>
-                ) : (
-                  <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
-                    <path d="M3 1.8v8.4c0 .5.5.8.9.5l6.4-4.2a.6.6 0 0 0 0-1L3.9 1.3c-.4-.3-.9 0-.9.5Z" />
-                  </svg>
-                )}
-              </button>
-              <div className="pg-track" style={{ "--pg-progress": progress } as CSSProperties}>
-                <input
-                  className="pg-range"
-                  type="range"
-                  min={0}
-                  max={lastMonth}
-                  step={1}
-                  value={Math.max(cursor, 0)}
-                  aria-label="Timeline"
-                  aria-valuetext={shownMonth ? formatShortMonth(shownMonth) : undefined}
-                  onChange={(event) => {
-                    setPlaying(false);
-                    setCursor(Number(event.target.value));
-                    fitView();
-                  }}
-                />
-                {months.map((month, index) => {
-                  const born = birthsByMonth.get(month);
-                  const first = born?.[0];
-
-                  return first && first.kind === "project" ? (
-                    <span
-                      key={month}
-                      className={cn(
-                        "pg-track__mark",
-                        `pg-tone--${first.group}`,
-                        index <= cursor && "is-past",
-                      )}
-                      style={{ "--pg-position": index / Math.max(lastMonth, 1) } as CSSProperties}
-                      title={`${formatShortMonth(month)}: ${born.map((node) => node.label).join(", ")}`}
-                    />
-                  ) : null;
-                })}
-              </div>
-              <output className="pg-month">{shownMonth ? formatShortMonth(shownMonth) : ""}</output>
-            </div>
-
-            <div className="pg-zoom" role="group" aria-label="Zoom">
-              <button type="button" onClick={() => zoomBy(1 / 1.3)} aria-label="Zoom out">
-                <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-                  <path d="M3.5 8h9" />
-                </svg>
-              </button>
-              <button type="button" onClick={() => zoomBy(1.3)} aria-label="Zoom in">
-                <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-                  <path d="M3.5 8h9M8 3.5v9" />
-                </svg>
-              </button>
-              <button type="button" onClick={fitView} aria-label="Fit graph to view">
-                <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-                  <path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        ) : null}
-
         <p className={cn("pg-toast", zoomHint && "is-visible")} aria-hidden="true">
           Hold {zoomHint ?? "⌘"} and scroll to zoom
         </p>
@@ -1442,7 +1401,72 @@ export function ProjectGraph({ projects }: ProjectGraphProps) {
         ) : null}
       </div>
 
-      <p className="pg-caption" id={descriptionId}>
+      {months.length > 0 ? (
+        <div className="pg-bottom">
+          <div className="pg-timeline">
+            <button
+              type="button"
+              className="pg-play"
+              onClick={togglePlaying}
+              aria-label={playing ? "Pause timelapse" : "Play timelapse"}
+            >
+              {playing ? "Pause" : "Play"}
+            </button>
+            <div className="pg-track" style={{ "--pg-progress": progress } as CSSProperties}>
+              <input
+                className="pg-range"
+                type="range"
+                min={0}
+                max={lastMonth}
+                step={1}
+                value={Math.max(cursor, 0)}
+                aria-label="Timeline"
+                aria-valuetext={shownMonth ? formatShortMonth(shownMonth) : undefined}
+                onChange={(event) => {
+                  setPlaying(false);
+                  setCursor(Number(event.target.value));
+                  fitView();
+                }}
+              />
+              {months.map((month, index) => {
+                const born = birthsByMonth.get(month);
+                const first = born?.[0];
+
+                return first && first.kind === "project" ? (
+                  <span
+                    key={month}
+                    className={cn(
+                      "pg-track__mark",
+                      `pg-tone--${first.group}`,
+                      index <= cursor && "is-past",
+                    )}
+                    style={{ "--pg-position": index / Math.max(lastMonth, 1) } as CSSProperties}
+                    title={`${formatShortMonth(month)}: ${born.map((node) => node.label).join(", ")}`}
+                  />
+                ) : null;
+              })}
+            </div>
+            <output className="pg-month">{shownMonth ? formatShortMonth(shownMonth) : ""}</output>
+          </div>
+
+          <div className="pg-zoom" role="group" aria-label="Zoom">
+            <button type="button" onClick={() => zoomBy(1 / 1.3)} aria-label="Zoom out">
+              −
+            </button>
+            <span aria-hidden="true"> / </span>
+            <button type="button" onClick={() => zoomBy(1.3)} aria-label="Zoom in">
+              +
+            </button>
+            <span aria-hidden="true"> / </span>
+            <button type="button" onClick={fitView} aria-label="Fit graph to view">
+              Fit
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Screen readers still get the how-to; sighted visitors can see it's interactive */}
+      <p className="sr-only" id={descriptionId}>
         {`${graph.projectCount} projects linked by the ${graph.tagCount} tools they're built with. `}
         Drag to rearrange, hover or tap to trace links, double-click a project to open it.
       </p>

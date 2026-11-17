@@ -8,7 +8,7 @@ type CoffeeMarkProps = {
 };
 
 // A stamp in the corner of the page: a cup of coffee and my initials, drawn in the same
-// ink as the links. The steam drifts up on a slow loop and quickens on hover.
+// ink as the links. The steam drifts up on a slow loop.
 export function CoffeeMark({ href, label }: CoffeeMarkProps) {
   return (
     <Link href={href} aria-label={label} className="coffee-mark">

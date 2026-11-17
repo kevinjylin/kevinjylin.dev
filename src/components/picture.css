@@ -1,0 +1,92 @@
+/* ── Picture: a screenshot or photo set into the page inside a pen-drawn frame ── */
+
+.picture {
+  display: block;
+  /* Room for the frame, so it lines up with the edges of the column */
+  padding: 6px;
+  counter-increment: picture;
+}
+
+/* A phone screenshot at full column width would fill the screen */
+.picture[data-shape="tall"] {
+  max-width: 18rem;
+}
+
+.picture__frame {
+  position: relative;
+  display: block;
+  cursor: zoom-in;
+}
+
+.picture__frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  /* Holds the picture's place on the paper while it loads */
+  background: var(--accent-soft);
+}
+
+/* The frame: a ruled border run through the stamp's roughness, so it reads as drawn by hand */
+.picture__frame::after {
+  position: absolute;
+  inset: -6px;
+  border: 1.3px solid var(--accent);
+  border-radius: 3px;
+  content: "";
+  opacity: 0.5;
+  filter: url("#ink-rough");
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.picture__frame:hover::after,
+.picture__frame:focus-visible::after {
+  opacity: 0.9;
+}
+
+.picture__caption {
+  display: block;
+  margin-top: 0.9rem;
+  color: var(--muted);
+  font-size: var(--fs-small);
+  font-style: italic;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+/* Numbered like the plates in a notebook */
+.picture__caption::before {
+  content: "Fig. " counter(picture) " \2014\00a0";
+  font-style: normal;
+}
+
+/* Two or three pictures in one paragraph stand side by side */
+p:has(> .picture ~ .picture) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-items: start;
+}
+
+p:has(> .picture ~ .picture ~ .picture) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+p:has(> .picture ~ .picture) > .picture {
+  max-width: none;
+}
+
+/* On a phone only the narrow ones still fit side by side */
+@media (max-width: 560px) {
+  p:has(> .picture[data-shape="wide"] ~ .picture),
+  p:has(> .picture ~ .picture[data-shape="wide"]) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .picture__frame::after {
+    transition: none;
+  }
+}

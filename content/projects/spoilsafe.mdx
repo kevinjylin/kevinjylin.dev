@@ -3,12 +3,22 @@ title: "SpoilSafe"
 summary: "Scan receipts, auto-track expiry dates, and get recipe ideas from your pantry"
 date: "2025-11"
 kind: "Web app"
+icon: "/projects/spoilsafe.png"
 event: "CutieHack 2025"
 award: "Best Social Impact"
-tags: [Node.js, Gemini, Figma]
+tags: [Next.js, Node.js, Supabase, Gemini, Figma]
 repoUrl: ""
 liveUrl: "https://devpost.com/software/spoilsafe"
 featured: true
 ---
 
-Built for CutieHack 2025, won Best Social Impact.
+Built with a team of four for CutieHack 2025, where it won Best Social Impact.
+
+- **Receipt to pantry in one photo.** Gemini reads a grocery receipt and turns it into labeled items
+  with expiry dates.
+- **Reminders before food goes bad.** It tracks what's expiring and suggests meals that use those
+  groceries first.
+- **Built for phones.** A Next.js app installed as a PWA, with an Express backend and Supabase for
+  sign-in, row-level security and receipt storage.
+- **Picking the model.** We tried several before settling on one that read receipts reliably and
+  cheaply enough to run on every scan.

@@ -4,7 +4,8 @@ type ProjectLinksProps = {
   repoUrl?: string;
 };
 
-function getLiveLabel(liveUrl: string) {
+// A Devpost page is named for what it is; anything else is the project running live
+export function getLiveLabel(liveUrl: string) {
   return /(^|\.)devpost\.com$/.test(new URL(liveUrl).hostname) ? "Devpost" : "Live Site";
 }
 

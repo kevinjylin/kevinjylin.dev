@@ -3,6 +3,7 @@ import path from "node:path";
 import { cache } from "react";
 
 import {
+  getOptionalBoolean,
   getOptionalNumber,
   getOptionalString,
   getRequiredBoolean,
@@ -18,18 +19,29 @@ const monthPattern = /^\d{4}-(0[1-9]|1[0-2])$/;
 
 export type ProjectMetadata = {
   award?: string;
+  // Path to a picture under public/ shown at the top of the project's page, with the words a
+  // screen reader says for it and an optional caption beneath
+  cover?: string;
+  coverAlt?: string;
+  coverCaption?: string;
   // "YYYY-MM"
   date: string;
   event?: string;
   featured: boolean;
+  // Path to the project's own icon under public/, shown at favicon size beside its title
+  icon?: string;
   kind?: string;
   liveUrl?: string;
   order?: number;
+  // Shown first everywhere, and in its own "Featured" section of the list
+  pinned?: boolean;
   repoUrl?: string;
   slug: string;
   summary: string;
   tags: string[];
   title: string;
+  // One line on why it exists, in my words; shown on the project's page
+  why?: string;
 };
 
 export type Project = {
@@ -55,17 +67,23 @@ async function readProjectFile(fileName: string): Promise<Project> {
   return {
     metadata: {
       award: getOptionalString(data, "award", filePath),
+      cover: getOptionalString(data, "cover", filePath),
+      coverAlt: getOptionalString(data, "coverAlt", filePath),
+      coverCaption: getOptionalString(data, "coverCaption", filePath),
       date: getRequiredMonth(data, "date", filePath),
       event: getOptionalString(data, "event", filePath),
       featured: getRequiredBoolean(data, "featured", filePath),
+      icon: getOptionalString(data, "icon", filePath),
       kind: getOptionalString(data, "kind", filePath),
       liveUrl: getOptionalString(data, "liveUrl", filePath),
       order: getOptionalNumber(data, "order", filePath),
+      pinned: getOptionalBoolean(data, "pinned", filePath),
       repoUrl: getOptionalString(data, "repoUrl", filePath),
       slug: fileName.replace(/\.mdx$/, ""),
       summary: getRequiredString(data, "summary", filePath),
       tags: getRequiredStringArray(data, "tags", filePath),
       title: getRequiredString(data, "title", filePath),
+      why: getOptionalString(data, "why", filePath),
     },
     content: stripFrontmatter(fileContents),
   };
@@ -84,6 +102,10 @@ const getAllProjects = cache(async (): Promise<Project[]> => {
     const projects = await Promise.all(fileNames.map(readProjectFile));
 
     return projects.sort((left, right) => {
+      if (Boolean(left.metadata.pinned) !== Boolean(right.metadata.pinned)) {
+        return Number(Boolean(right.metadata.pinned)) - Number(Boolean(left.metadata.pinned));
+      }
+
       const leftOrder = left.metadata.order ?? Infinity;
       const rightOrder = right.metadata.order ?? Infinity;
 

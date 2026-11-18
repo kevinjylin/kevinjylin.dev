@@ -1122,49 +1122,10 @@ html[data-returning] .page-frame--enter .coffee-mark {
   margin-top: 2rem;
 }
 
-/* /things: each ## label sits in a muted gutter, its list beside it, like a shelf index */
-.things-page__body {
-  /* The incense is placed against the bottom of the list */
+/* /things: the incense is placed against the bottom of the shelf (shelf styles: things-shelf.css) */
+.things-shelf-wrap {
   position: relative;
-  grid-template-columns: 8rem minmax(0, 1fr);
-  column-gap: 1.5rem;
-  row-gap: 1.75rem;
-}
-
-.things-page__body > :not(h2, ul) {
-  grid-column: 1 / -1;
-}
-
-.things-page__body > h2 {
-  margin: 0;
-  padding-top: 0.1rem;
-  color: var(--muted);
-  font-size: var(--fs-small);
-  font-weight: 500;
-}
-
-.things-page__body > ul {
-  padding: 0;
-  list-style: none;
-}
-
-.things-page__body li + li {
-  margin-top: 0.45rem;
-}
-
-.things-page__body li strong {
-  font-weight: 500;
-}
-
-@media (max-width: 560px) {
-  .things-page__body {
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: 0.5rem;
-  }
-
-  .things-page__body > h2:not(:first-child) {
-    margin-top: 1.25rem;
-  }
+  margin-top: 2.5rem;
 }
 
 @keyframes cookie-pop {

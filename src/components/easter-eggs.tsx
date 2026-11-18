@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 
 // Small things for people who poke around. Nothing here is needed to use the site.
 
-const AWAY_TITLE = "Your coffee's getting cold ☕";
 const SECRET = "coffee";
 const CUPS_KEY = "kl-cups";
 const TOAST_MS = 2600;
@@ -31,27 +30,6 @@ function pourCup(): number {
 export function EasterEggs() {
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<number | undefined>(undefined);
-
-  // Leave the tab and the title notices
-  useEffect(() => {
-    let savedTitle: string | null = null;
-
-    const onVisibility = () => {
-      if (document.hidden) {
-        savedTitle = document.title;
-        document.title = AWAY_TITLE;
-      } else if (savedTitle !== null) {
-        // Only put it back if nothing else changed the title while we were away
-        if (document.title === AWAY_TITLE) {
-          document.title = savedTitle;
-        }
-        savedTitle = null;
-      }
-    };
-
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => document.removeEventListener("visibilitychange", onVisibility);
-  }, []);
 
   // Type "coffee" anywhere for a refill
   useEffect(() => {

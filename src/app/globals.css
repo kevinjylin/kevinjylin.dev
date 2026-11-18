@@ -1032,8 +1032,36 @@ html[data-returning] .page-frame--enter .coffee-mark {
   padding-left: 1.25rem;
 }
 
-.project-detail__body li::marker {
+.project-detail__body ol li::marker {
   color: var(--muted);
+}
+
+/* Bullets are a quick dash of the pen: pressed down at the start, trailing off at the end */
+.project-detail__body ul {
+  list-style: none;
+}
+
+.project-detail__body ul > li {
+  position: relative;
+}
+
+.project-detail__body ul > li::before {
+  content: "";
+  position: absolute;
+  left: -1.2rem;
+  top: 0.8em;
+  width: 0.72rem;
+  height: 0.3rem;
+  translate: 0 -50%;
+  background: var(--muted);
+  -webkit-mask: var(--pen-dash) center / contain no-repeat;
+  mask: var(--pen-dash) center / contain no-repeat;
+  --pen-dash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 10'%3E%3Cpath d='M1.2 5.6 C1 4 2.3 3.2 4 3.1 C9.5 2.8 15.8 3.2 21.7 4.1 C22.8 4.3 23.2 4.9 22.8 5.3 C22.5 5.6 21.9 5.6 21.2 5.5 C15.5 5.3 9.6 5.8 4.2 7 C2.6 7.4 1.4 7 1.2 5.6 Z'/%3E%3C/svg%3E");
+}
+
+/* Every other dash leans a little, so a list reads as written, not stamped */
+.project-detail__body ul > li:nth-child(even)::before {
+  rotate: -4deg;
 }
 
 /* A picture gets a little more air than a paragraph does */

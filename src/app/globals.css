@@ -5,12 +5,13 @@
   --surface: #ffffff;
   --text: #1f140e;
   --muted: #7a6b5d;
-  /* The one color that isn't ink: links under the pointer, and hackathon dots */
-  --highlight: #a65d33;
+  /* Links under the pointer soften to the lightest coffee tone from the activity graph */
+  --highlight: #d4b08c;
   /* Underline on a link at rest */
   --rule: color-mix(in srgb, var(--text) 28%, transparent);
-  /* Four sizes for the whole site */
+  /* Five sizes for the whole site */
   --fs-title: 1.875rem;
+  --fs-heading: 1.25rem;
   --fs-body: 1rem;
   --fs-small: 0.875rem;
   --fs-micro: 0.75rem;
@@ -23,7 +24,7 @@
   --accent-soft: #f3ebe3;
   /* Coffee tones for the three kinds of project */
   --tone-product: #3d2418;
-  --tone-hackathon: var(--highlight);
+  --tone-hackathon: #a65d33;
   --tone-side: #c29a6e;
   /* Sparse flecks of ink, like the tooth of good paper */
   --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.29 0 0 0 0 0.17 0 0 0 0 0.12 0 0 0 0.6 -0.33'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
@@ -237,7 +238,7 @@ html[data-returning] .page-frame--enter .coffee-mark {
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.15rem;
 }
 
 .section-heading h2,
@@ -247,9 +248,10 @@ html[data-returning] .page-frame--enter .coffee-mark {
 
 .section-heading h2 {
   color: var(--text);
-  font-size: var(--fs-body);
+  font-size: var(--fs-heading);
   font-weight: 600;
-  letter-spacing: -0.011em;
+  letter-spacing: -0.022em;
+  line-height: 1.25;
 }
 
 .section-heading p {
@@ -340,10 +342,6 @@ html[data-returning] .page-frame--enter .coffee-mark {
   .view-toggle button {
     transition: none;
   }
-}
-
-.activity-section .section-heading {
-  margin-bottom: 1rem;
 }
 
 /* The graph is one link to the GitHub profile; it keeps the page's ink, not a link's */
@@ -924,15 +922,6 @@ html[data-returning] .page-frame--enter .coffee-mark {
   text-wrap: pretty;
 }
 
-/* Why it exists, in my words, in a quieter voice than what it does */
-.project-detail__why {
-  margin: 0;
-  color: var(--muted);
-  font-size: var(--fs-small);
-  font-style: italic;
-  line-height: 1.45;
-}
-
 .project-detail__cover {
   margin: 2rem 0 0;
 }
@@ -989,7 +978,7 @@ html[data-returning] .page-frame--enter .coffee-mark {
   font-size: var(--fs-micro);
 }
 
-.project-turn__next {
+.project-turn .project-turn__next {
   margin-left: auto;
   text-align: right;
 }

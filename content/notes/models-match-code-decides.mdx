@@ -1,29 +1,36 @@
 ---
 title: "The model matches, the code decides"
 date: "2026-11-16"
-summary: "I didn't plan it, but every agent project I built this year ended up following the same rule."
+summary: "Looking back at the agent projects I've built this year, I noticed they all quietly drifted toward the same pattern."
 ---
 
-I was looking back at what I built this year and noticed I kept doing the same thing without ever
-meaning to: let the model handle the fuzzy part, and let plain code make the actual call.
+Looking back at what I've been building this year, I realized I kept arriving at the same pattern
+without really planning to: let the model handle the messy, ambiguous part, and let plain code make
+the final call.
 
-- **Yardsale.** Claude's only job is figuring out which past eBay sales are the same product. The
-  asking price and the floor come from code.
-- **Highlander Hub.** Gemini decides if an Instagram post is an event, but it has to point to the
-  caption or slide that says so. Code checks that it really does, and if it doesn't, the answer gets
-  thrown out.
-- **SpyGlass.** We only highlight a claim in the tweet once code confirms that exact text is
-  actually in the post. The overall verdict is just code too.
-- **Second Grader.** Models pull claims out of the agent's messages and write tests, but whether
-  "all tests pass" is true is never up to an LLM. Code decides that.
+- **Yardsale.** Claude's role is figuring out which past eBay sales actually match the item in your
+  photo, while plain code calculates the asking price and holds the floor.
+- **Highlander Hub.** Gemini determines whether an Instagram post is a campus event, but it has to
+  point back to the specific caption or flyer slide that says so. Code verifies that citation, and
+  if it doesn't hold up, the result gets discarded.
+- **SpyGlass.** A claim only gets highlighted inside a tweet once code confirms that exact text
+  appears in the original post, and the overall verdict is computed deterministically in code too.
+- **Second Grader.** Models extract claims from a coding agent's messages and generate tests, but
+  deciding whether "all tests pass" is actually true is never left to an LLM—code checks the
+  recorded evidence and makes that call.
 
-## Why I keep doing it
+## Why I keep coming back to it
 
-Models are great at reading messy stuff, but I can't hold them accountable for it. Code is the
-opposite. Splitting it up this way means anything a user sees traces back to something real: a
-sale, a slide, a sentence, a test run.
+Models are great at making sense of messy, unstructured inputs, but it's hard to hold them
+accountable when something matters. Plain code is predictable in all the ways models aren't.
+Splitting the work this way means anything a user ends up seeing can be traced back to something
+concrete—a real past sale, a specific flyer slide, an exact sentence in a post, or a recorded test
+run.
 
-## The catch
+## What it asks in return
 
-It's more plumbing. Every project needed a check that could say no, and then I had to decide what
-happens when it does: refuse, fall back to a link, or just ask the user instead of guessing.
+The tradeoff is extra plumbing. Every project ended up needing a verification layer that knows when
+to push back, which forces a more interesting product question: what should happen when the check
+says no? Sometimes the right answer is to refuse, sometimes to fall back to a source link, and
+sometimes just to ask the user instead of guessing. It's a balance I'm still exploring as I keep
+building.

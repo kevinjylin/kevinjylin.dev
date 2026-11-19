@@ -82,7 +82,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             <header className="project-detail__header project-detail__header--project">
               <h1>{metadata.title}</h1>
               <p className="project-detail__summary">{metadata.summary}</p>
-              {metadata.why ? <p className="project-detail__why">{metadata.why}</p> : null}
             </header>
 
             {/* Set with `cover` in the project's file; the page reads fine without one */}

@@ -75,9 +75,9 @@
   }
 }
 
-/* The one colour on the page that isn't ink */
+/* The warm ember glow at the tip of the stick */
 .incense__ember {
-  fill: var(--highlight);
+  fill: #a65d33;
   transition: opacity 1.5s ease;
   animation: incense-glow 2.6s ease-in-out infinite;
 }

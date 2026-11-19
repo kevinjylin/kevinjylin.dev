@@ -33,6 +33,12 @@
   transition: scale 200ms var(--ease-out);
 }
 
+/* Gentle lift under the pointer so each object reads as clickable */
+.things-shelf__item:hover .things-shelf__photo,
+.things-shelf__item:focus-visible .things-shelf__photo {
+  scale: 1.03;
+}
+
 /* A small press, so it feels picked up */
 .things-shelf__item:active .things-shelf__photo {
   scale: 0.97;
@@ -43,6 +49,12 @@
   margin-top: 0.5rem;
   font-size: var(--fs-small);
   line-height: 1.4;
+  transition: color 160ms ease;
+}
+
+.things-shelf__item:hover .things-shelf__name,
+.things-shelf__item:focus-visible .things-shelf__name {
+  color: var(--highlight);
 }
 
 .things-shelf__brand {
@@ -252,7 +264,8 @@
 @media (prefers-reduced-motion: reduce) {
   .thing-viewer__strip,
   .thing-viewer__slide,
-  .things-shelf__photo {
+  .things-shelf__photo,
+  .things-shelf__name {
     transition: none;
   }
 

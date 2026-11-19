@@ -39,9 +39,7 @@
   text-decoration-color: var(--rule);
   text-decoration-thickness: 1px;
   text-underline-offset: 4px;
-  transition:
-    color 160ms ease,
-    text-decoration-color 160ms ease;
+  transition: text-decoration-color 160ms ease;
 }
 
 /* The whole row is clickable */
@@ -53,7 +51,6 @@
 
 .pl-row:hover .pl-row__title-link,
 .pl-row__title-link:focus-visible {
-  color: var(--highlight);
   text-decoration-color: currentColor;
 }
 

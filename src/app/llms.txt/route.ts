@@ -30,10 +30,7 @@ export async function GET() {
     projectLines.join("\n"),
     noteLines.length > 0 ? `## Notes\n\n${noteLines.join("\n")}` : null,
     "## Pages",
-    [
-      `- [Now](${siteUrl}/now): what I'm working on, learning and reading right now`,
-      `- [Things](${siteUrl}/things): things I use and like`,
-    ].join("\n"),
+    `- [Things](${siteUrl}/things): things I use and like`,
     "## Contact",
     contactLinks.map((link) => `- [${link.label}](${link.href})`).join("\n"),
   ].filter((section): section is string => section !== null);

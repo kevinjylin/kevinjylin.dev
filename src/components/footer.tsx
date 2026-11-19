@@ -11,7 +11,6 @@ export async function Footer() {
 
   // The site's own pages; Notes and Friends only once they have something on them
   const pages = [
-    { label: "Now", href: "/now" },
     { label: "Things", href: "/things" },
     notes.length > 0 ? { label: "Notes", href: "/notes" } : null,
     friends.length > 0 ? { label: "Friends", href: "/friends" } : null,

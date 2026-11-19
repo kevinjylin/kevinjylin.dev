@@ -1146,10 +1146,6 @@ html[data-returning] .page-frame--enter .coffee-mark {
   font-size: var(--fs-small);
 }
 
-.now-page__body {
-  margin-top: 2rem;
-}
-
 /* /things: the incense is placed against the bottom of the shelf (shelf styles: things-shelf.css) */
 .things-shelf-wrap {
   position: relative;

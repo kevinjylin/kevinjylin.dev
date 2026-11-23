@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         </svg>
         <RouteMemory />
         <EasterEggs />
+        <SpeedInsights />
       </body>
     </html>
   );
